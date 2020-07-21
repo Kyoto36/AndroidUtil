@@ -1,0 +1,117 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 28
+
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
+    // glide
+//    implementation "com.github.bumptech.glide:glide:4.9.0"
+//    annotationProcessor "com.github.bumptech.glide:compiler:4.9.0"
+
+    // gson
+    implementation "com.google.code.gson:gson:2.8.5"
+
+
+//    // Retrofit contains okhttp3 internally
+//    implementation "com.squareup.okhttp3:okhttp:4.0.1"
+//    implementation "com.squareup.okhttp3:logging-interceptor:4.0.1"
+    implementation "com.squareup.retrofit2:retrofit:2.6.0"
+//    implementation "com.squareup.retrofit2:adapter-rxjava2:2.6.0"
+//    implementation "com.squareup.retrofit2:converter-gson:2.6.0"
+
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation "androidx.core:core-ktx:1.1.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+
+//    implementation "androidx.multidex:multidex:2.0.1"
+//    implementation "androidx.recyclerview:recyclerview:1.0.0"
+
+//    implementation 'androidx.cardview:cardview:1.0.0'
+//    implementation 'com.google.android.material:material:1.2.0-alpha01'
+
+//    // butterknife
+//    implementation "com.jakewharton:butterknife:10.1.0"
+//    annotationProcessor "com.jakewharton:butterknife-compiler:10.1.0"
+
+//    // permission request (有时间改为library依赖)
+//    implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
+//
+//    // image selector (有时间改为library依赖)
+//    implementation 'com.github.LuckSiege.PictureSelector:picture_library:v2.2.4'
+//
+//    // video cache (有时间改为library依赖)
+//    implementation 'com.danikula:videocache:2.7.1'
+
+//    // dagger2
+//    implementation "com.google.dagger:dagger:2.23.2"
+//    annotationProcessor "com.google.dagger:dagger-compiler:2.23.2"
+//
+//    // dagger.android
+//    implementation "com.google.dagger:dagger-android:2.23.2"
+//    implementation "com.google.dagger:dagger-android-support:2.23.2"
+//    // if you use the support libraries
+//    annotationProcessor "com.google.dagger:dagger-android-processor:2.23.2"
+
+//    // ViewModel and LiveData
+//    implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
+//    // alternatively - just ViewModel
+//    implementation "androidx.lifecycle:lifecycle-viewmodel:2.1.0"
+//    // For Kotlin use lifecycle-viewmodel-ktx
+//    // alternatively - just LiveData
+//    implementation "androidx.lifecycle:lifecycle-livedata:2.1.0"
+
+//    // rxjava2
+//    implementation "io.reactivex.rxjava2:rxjava:2.2.10"
+//    implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
+
+//    // auto size
+////    implementation 'me.jessyan:autosize:1.1.2'
+//
+//    // gson
+//    implementation "com.google.code.gson:gson:2.8.5"
+
+//    // pull update
+////    implementation 'in.srain.cube:ultra-ptr:1.0.11'
+//    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-andx-16'
+}
+
+apply plugin: 'com.novoda.bintray-release'
+
+publish {
+    userOrg = 'kyoto36'
+    groupId = 'com.ls.code' //包名
+    artifactId = 'CommUtil'    //新建仓库的名字
+    publishVersion  = '1.0.0'    //版本号
+    desc  = 'android 帮助类集合'  //描述 可随意写
+    website = "https://github.com/Kyoto36/android_study"  //代码地址github，也可不写
+}

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CircleButtonView">
+        <attr name="minTime" format="integer" />
+        <attr name="maxTime" format="integer" />
+        <attr name="progressWidth" format="dimension" />
+        <attr name="progressColor" format="color" />
+        <attr name="bigCircleColor" format="color" />
+        <attr name="smallCircleColor" format="color" />
+        <attr name="disableLongClick" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="TitleIndicatorView">
+        <attr name="indicatorHeight" format="dimension"/>
+        <attr name="indicatorBgColor" format="color"/>
+    </declare-styleable>
+
+    <declare-styleable name="SwitchView">
+        <attr name="onColor" format="color"/>
+        <attr name="offColor" format="color"/>
+        <attr name="indicatorColor" format="color"/>
+    </declare-styleable>
+
+    <declare-styleable name="CodeView">
+        <attr name="codeBackground" format="reference"/>
+        <attr name="codeSize" format="dimension"/>
+        <attr name="codeNumber" format="integer"/>
+    </declare-styleable>
+
+    <declare-styleable name="SwipeMenuLayout">
+        <attr name="swipeEnable" format="boolean"/>
+        <attr name="ios" format="boolean"/>
+        <attr name="leftSwipe" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="CompositionAvatarView">
+        <attr name="gap" format="dimension"/>
+        <!-- 圆的多少分之一 -->
+        <attr name="overlap" format="integer"/>
+        <attr name="fitType" format="enum">
+            <enum name="FIT" value="0"/>
+            <enum name="CENTER" value="1"/>
+            <enum name="START" value="2"/>
+            <enum name="END" value="3"/>
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="PickerView">
+        <attr name="lightColor" format="color"/>
+        <attr name="darkColor" format="color"/>
+        <attr name="lineColor" format="color"/>
+        <attr name="minTextSize" format="dimension"/>
+        <attr name="maxTextSize" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="AutoLineLayout">
+        <attr name="maxLines" format="integer"/>
+    </declare-styleable>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GestureVideoView">
+        <attr name="allowGesture" format="boolean"/>
+        <attr name="hideTime" format="boolean"/>
+        <attr name="hideTitle" format="boolean"/>
+        <attr name="hideMore" format="boolean"/>
+        <attr name="hideBack" format="boolean"/>
+        <attr name="hideFullScreen" format="boolean"/>
+        <attr name="hideSeekBar" format="boolean"/>
+        <attr name="hidePlayPause" format="boolean"/>
+        <attr name="hideFF_RETip" format="boolean"/>
+        <attr name="mutePlayer" format="boolean"/>
+        <attr name="autoRelease" format="boolean"/>
+
+        <!--使用该属性需要配合接口中的setSeekBar使用-->
+        <attr name="useInnerSeekBar" format="boolean"/>
+    </declare-styleable>
+</resources>
