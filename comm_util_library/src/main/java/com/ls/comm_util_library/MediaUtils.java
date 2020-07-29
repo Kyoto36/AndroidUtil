@@ -64,8 +64,8 @@ public class MediaUtils {
      * @return 如果Uri对应的图片存在, 那么返回该图片的绝对路径, 否则返回null
      */
     public static String getRealPathFromUri(Context context, Uri uri) {
-        int sdkVersion = Build.VERSION.SDK_INT;
-        if (sdkVersion >= 19) {
+        if(uri == null) return "";
+        if (Build.VERSION.SDK_INT >= 19) {
             return getRealPathFromUriAboveApi19(context, uri);
         } else {
             return getRealPathFromUriBelowAPI19(context, uri);
@@ -92,7 +92,7 @@ public class MediaUtils {
      */
     @SuppressLint("NewApi")
     private static String getRealPathFromUriAboveApi19(Context context, Uri uri) {
-        String filePath = null;
+        String filePath = "";
         if (DocumentsContract.isDocumentUri(context, uri)) {
             // 如果是document类型的 uri, 则通过document id来进行处理
             String documentId = DocumentsContract.getDocumentId(uri);
@@ -122,7 +122,7 @@ public class MediaUtils {
      *
      */
     private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
-        String path = null;
+        String path = "";
         LogUtils.INSTANCE.d(TAG,uri.toString());
         String[] projection = new String[]{MediaStore.Images.Media.DATA};
         Cursor cursor = null;

@@ -2,6 +2,7 @@ package com.ls.comm_util_library;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
@@ -40,6 +41,23 @@ public class AppUtils {
             }
         }
         return processName;
+    }
+
+    /**
+     * 获取application下的matedata数据
+     * @param context
+     * @param keyName
+     * @return
+     */
+    public static String readMetaDataFromApplication(Context context,String keyName) {
+        try {
+            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            String msg = appInfo.metaData.getString(keyName);
+            return msg;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
 }

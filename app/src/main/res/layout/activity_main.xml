@@ -22,5 +22,11 @@
         android:layout_height="wrap_content"
         android:text="测试图片加载框架"/>
 
+    <Button
+        android:id="@+id/testCircular"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="测试圆形进度条"/>
+
 
 </LinearLayout>

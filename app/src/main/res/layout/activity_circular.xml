@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    tools:context=".CircularActivity">
+
+    <RelativeLayout
+        android:layout_width="100dp"
+        android:layout_height="100dp">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <com.ls.custom_view_library.CircularProgressView
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:type="sector"
+            app:color="@android:color/black"
+            app:alpha="0.2"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="100dp"
+        android:layout_height="100dp">
+
+        <ImageView
+            android:id="@+id/image1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <com.ls.custom_view_library.CircularProgressView
+            android:id="@+id/progress1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:type="receline"
+            app:color="@android:color/holo_blue_light"
+            app:alpha="0.2"/>
+    </RelativeLayout>
+
+
+</LinearLayout>

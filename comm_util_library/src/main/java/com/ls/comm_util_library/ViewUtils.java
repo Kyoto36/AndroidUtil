@@ -6,6 +6,10 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorMatrixColorFilter;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.method.LinkMovementMethod;
+import android.text.style.URLSpan;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,6 +18,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.FloatRange;
 
@@ -23,6 +28,29 @@ import java.util.Collections;
 import java.util.List;
 
 public class ViewUtils {
+
+    /**
+     * 拦截TextView中的链接点击事件，用于自定义跳转
+     * @param view TextView
+     * @param listener 点击监听
+     */
+    public static void interceptUrlClick(TextView view, ISingleListener<String> listener){
+        view.setMovementMethod(LinkMovementMethod.getInstance());
+        CharSequence text = view.getText();
+        if(text instanceof Spannable){
+            Spannable sp = (Spannable) text;
+            URLSpan[] urls = sp.getSpans(0,text.length(),URLSpan.class);
+            if(urls.length == 0){
+                return;
+            }
+            SpannableStringBuilder spannable = new SpannableStringBuilder(text);
+            for (URLSpan url: urls){
+                spannable.setSpan(new CustomClickSpan(url.getURL(), listener),sp.getSpanStart(url),sp.getSpanEnd(url),Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            }
+            view.setText(spannable);
+        }
+    }
+
     public static void setSelectedView(View view, boolean isSelected) {
         if (view == null || view.isSelected() == isSelected) {
             return;

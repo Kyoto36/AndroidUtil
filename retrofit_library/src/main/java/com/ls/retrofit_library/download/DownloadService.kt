@@ -3,6 +3,7 @@ package com.ls.retrofit_library.download
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -88,6 +89,11 @@ open class DownloadService: Service() {
         // 同一个url可能会下载多个存在不同的地方，所以停止需要用savePath
         open fun stop(savePath: String){
             mDownload?.stop(savePath)
+        }
+
+        // 同一个url可能会下载多个存在不同的地方，所以停止需要用uri
+        open fun stop(uri: Uri){
+            mDownload?.stop(uri)
         }
 
         open fun stopService(){

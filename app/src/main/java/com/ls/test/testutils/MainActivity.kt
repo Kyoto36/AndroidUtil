@@ -1,6 +1,7 @@
 package com.ls.test.testutils
 
 import android.app.Dialog
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -34,6 +35,10 @@ class MainActivity : AppCompatActivity() {
             val image = dialog.findViewById<ImageView>(R.id.image)
             GlideUtils.load("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1595317293718&di=9eb80e9b2287d932d7467f3774186904&imgtype=0&src=http%3A%2F%2Fa2.att.hudong.com%2F36%2F48%2F19300001357258133412489354717.jpg"
             ,image,R.mipmap.ic_launcher,R.mipmap.ic_launcher)
+        }
+
+        testCircular.setOnClickListener {
+            startActivity(Intent(this,CircularActivity::class.java))
         }
     }
 }

@@ -56,4 +56,15 @@
     <declare-styleable name="AutoLineLayout">
         <attr name="maxLines" format="integer"/>
     </declare-styleable>
+    
+    <declare-styleable name="CircularProgressView">
+        <attr name="color" format="color"/>
+        <attr name="alpha" format="float"/>
+        <attr name="type">
+            <!-- Defines an horizontal widget. -->
+            <enum name="sector" value="0" />
+            <!-- Defines a vertical widget. -->
+            <enum name="receline" value="1" />
+        </attr>
+    </declare-styleable>
 </resources>

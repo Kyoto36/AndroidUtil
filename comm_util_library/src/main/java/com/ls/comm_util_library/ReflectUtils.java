@@ -1,7 +1,10 @@
 package com.ls.comm_util_library;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ReflectUtils {
     public static boolean reflectMethod(Object obj, String methodName, Object... args){
@@ -69,5 +72,28 @@ public class ReflectUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 获取属性的值
+     * @return
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     */
+    public static Map<String,String> getFieldValue(Object obj) {
+        Map<String,String> map = new HashMap<>();
+        Field[] fields = obj.getClass().getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            //获取属性值
+            try {
+                //开启反射获取私有属性值
+                fields[i].setAccessible(true);
+                map.put(fields[i].getName(),fields[i].get(obj).toString());
+            } catch (Exception e) {
+                // TODO: handle exception
+                e.printStackTrace();
+            }
+        }
+        return map;
     }
 }

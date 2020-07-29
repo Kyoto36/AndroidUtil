@@ -1,18 +1,20 @@
 package com.ls.retrofit_library.download;
 
+import com.ls.retrofit_library.db.DownloadInfo;
+
 import io.reactivex.disposables.Disposable;
 
 public class DownloadEntity {
-    private DBHelper.DownloadInfo info;
+    private DownloadInfo info;
     private boolean stopByNetWork;
     private Disposable disposable;
     private ProgressListener listener;
 
-    public DBHelper.DownloadInfo getInfo() {
+    public DownloadInfo getInfo() {
         return info;
     }
 
-    public void setInfo(DBHelper.DownloadInfo info) {
+    public void setInfo(DownloadInfo info) {
         this.info = info;
     }
 

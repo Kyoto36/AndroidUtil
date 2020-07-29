@@ -27,8 +27,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TxtUtils {
-    //length用户要求产生字符串的长度
-    public static String getRandomString(int length){
+
+
+    /**
+     * 随机生成字符串
+     * @param length 用户要求产生字符串的长度
+     * @return
+     */
+    public static String randomString(int length){
         String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         Random random=new Random();
         StringBuffer sb=new StringBuffer();
@@ -39,6 +45,11 @@ public class TxtUtils {
         return sb.toString();
     }
 
+    /**
+     * http链接转https（慎用，服务端不支持https就尴尬了）
+     * @param url 需要转换的http链接
+     * @return
+     */
     public static String http2Https(String url){
         if(url.startsWith("http://")){
             url = url.replace("http://","https://");
@@ -46,6 +57,12 @@ public class TxtUtils {
         return url;
     }
 
+    /**
+     * 重复字符串
+     * @param str 需要重复的字符串
+     * @param count 重复的次数
+     * @return
+     */
     public static String repeat(String str,int count){
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < count; i++){
@@ -54,6 +71,13 @@ public class TxtUtils {
         return sb.toString();
     }
 
+    /**
+     * 重复字符串
+     * @param str 需要重复的字符串
+     * @param separat 重复的分隔符
+     * @param count 重复的次数
+     * @return
+     */
     public static String repeat(String str,String separat,int count){
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < count; i++){
@@ -62,20 +86,23 @@ public class TxtUtils {
         return sb.delete(sb.length() - 1,sb.length()).toString();
     }
 
+    /**
+     * 格式化数字，一般用于点赞数
+     * @param number 需要格式化的数字
+     * @return
+     * @deprecated Use {@link NumberUtils#numberFormat(long)} instead.
+     */
+    @Deprecated
     public static String numberFormat(long number){
-        if(number <= 0){
-            return "";
-        }
-        else if(number >= 10000){
-            DecimalFormat decimalFormat = new DecimalFormat("0.##");
-            decimalFormat.setRoundingMode(RoundingMode.FLOOR);
-            return String.format("%s万",decimalFormat.format((float)number / 10000));
-        }
-        else{
-            return number + "";
-        }
+        return NumberUtils.numberFormat(number);
     }
 
+    /**
+     * 复制到剪切板
+     * @param context
+     * @param label 复制的标签（标题）
+     * @param content 复制的内容
+     */
     public static void copyToCilp(Context context,String label,String content){
         ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         // 创建普通字符型
@@ -84,27 +111,34 @@ public class TxtUtils {
         Toast.makeText(context,"已复制到剪切板",Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * 拦截TextView中的链接点击事件，用于自定义跳转
+     * @param view TextView
+     * @param listener 点击监听
+     * @deprecated use {@link ViewUtils#interceptUrlClick(TextView,ISingleListener<String>)}
+     */
+    @Deprecated
     public static void interceptUrlClick(TextView view,ISingleListener<String> listener){
-        view.setMovementMethod(LinkMovementMethod.getInstance());
-        CharSequence text = view.getText();
-        if(text instanceof Spannable){
-            Spannable sp = (Spannable) text;
-            URLSpan[] urls = sp.getSpans(0,text.length(),URLSpan.class);
-            if(urls.length == 0){
-                return;
-            }
-            SpannableStringBuilder spannable = new SpannableStringBuilder(text);
-            for (URLSpan url: urls){
-                spannable.setSpan(new CustomClickSpan(url.getURL(), listener),sp.getSpanStart(url),sp.getSpanEnd(url),Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-            }
-            view.setText(spannable);
-        }
+        ViewUtils.interceptUrlClick(view, listener);
     }
 
+    /**
+     * 设置一段字符串的点击事件
+     * @param string 字符串段
+     * @param color 字符串显示的颜色
+     * @param listener 点击监听
+     */
     public static void setStringClickable(SpannableString string, int color, View.OnClickListener listener){
         setStringClickable(string, color,false, listener);
     }
 
+    /**
+     * 设置一段字符串的点击事件
+     * @param string 字符串段
+     * @param color 字符串显示的颜色
+     * @param underline 是否显示下划线
+     * @param listener 点击监听
+     */
     public static void setStringClickable(SpannableString string, int color,boolean underline, View.OnClickListener listener){
         string.setSpan(new ClickableSpan() {
             @Override
@@ -146,6 +180,13 @@ public class TxtUtils {
         clickableHtmlBuilder.setSpan(clickableSpan, start, end, flags);
     }
 
+    /**
+     * 获取可点击的字符串
+     * @param context
+     * @param html html字符串
+     * @param color 设置可点击字符串的颜色
+     * @return
+     */
     public static CharSequence getClickableLink(Context context, String html, int color) {
         Spanned spannedHtml = Html.fromHtml(html);
         SpannableStringBuilder clickableHtmlBuilder = new SpannableStringBuilder(spannedHtml);
@@ -156,13 +197,23 @@ public class TxtUtils {
         return clickableHtmlBuilder;
     }
 
+    /**
+     * 获取字符串长度
+     * @param text 字符串
+     * @return
+     */
     public static int getTextSize(String text){
-        if(android.text.TextUtils.isEmpty(text)){
+        if(TextUtils.isEmpty(text)){
             return 0;
         }
         return text.length();
     }
 
+    /**
+     * 分段显示手机号（134 4455 6677）
+     * @param phone 手机号
+     * @return
+     */
     public static String formatPhone(String phone){
         StringBuilder sb = new StringBuilder(phone);
         if (phone.length() == 4) {
@@ -180,6 +231,11 @@ public class TxtUtils {
         return "";
     }
 
+    /**
+     * 分段显示QQ号（123 123 1234）
+     * @param QQ
+     * @return
+     */
     public static String formatQQ(String QQ){
         StringBuilder sb = new StringBuilder(QQ);
         if (QQ.length() == 4) {
@@ -204,6 +260,12 @@ public class TxtUtils {
     }
 
     private static final String REGEX_MOBILE = "^1([3-9])\\d{9}$";
+
+    /**
+     * 手机号正则匹配
+     * @param phone 手机号
+     * @return
+     */
     public static boolean isMobilePhone(String phone){
         if(android.text.TextUtils.isEmpty(phone) || phone.length() < 11){
             return false;
@@ -215,6 +277,12 @@ public class TxtUtils {
     }
 
     private static final String REGEX_IDCARD = "^[1-9]\\d{5}[1-9]\\d{3}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}[X|x|0-9]$";
+
+    /**
+     * 身份证正则匹配
+     * @param idCard 身份证号
+     * @return
+     */
     public static boolean isIdCard(String idCard){
         if(TextUtils.isEmpty(idCard) || (idCard.length() != 15 && idCard.length() != 18)){
             return false;
