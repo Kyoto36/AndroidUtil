@@ -4,11 +4,15 @@ import android.annotation.TargetApi
 import android.app.Dialog
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.view.Window
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.annotation.LayoutRes
 
 class Util{
     companion object {
@@ -127,8 +131,19 @@ class Util{
          * Java可调用Util.Companion.customDialog(layout,this)
          * 创建自定义dialog
          */
-        fun customDialog(layoutId: Int,context: Context) : Dialog{
+        fun customDialog(@LayoutRes layoutId: Int,context: Context) : Dialog{
+            return customDialog(layoutId, context,true)
+        }
+
+        /**
+         * Java可调用Util.Companion.customDialog(view,this)
+         * 创建自定义dialog
+         */
+        fun customDialog(@LayoutRes layoutId: Int,context: Context,fullScreen: Boolean) : Dialog{
             var dialog = Dialog(context,R.style.CommDialog)
+            if(fullScreen){
+                setDialogFullScreen(dialog)
+            }
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setContentView(layoutId)
             return dialog
@@ -139,12 +154,35 @@ class Util{
          * 创建自定义dialog
          */
         fun customDialog(view: View,context: Context) : Dialog{
+            return customDialog(view, context,true)
+        }
+
+        /**
+         * Java可调用Util.Companion.customDialog(view,this)
+         * 创建自定义dialog
+         */
+        fun customDialog(view: View,context: Context,fullScreen: Boolean) : Dialog{
             var dialog = Dialog(context,R.style.CommDialog)
+            if(fullScreen){
+                setDialogFullScreen(dialog)
+            }
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setContentView(view)
             return dialog
         }
 
+        /**
+         * Java可调用Util.Companion.setDialogFullScreen(dialog)
+         * 设置dialog全屏显示，要在show之前调用
+         */
+        fun setDialogFullScreen(dialog: Dialog){
+            dialog.window.decorView.setPadding(0, 0, 0, 0)
+            dialog.window.decorView.setBackgroundColor(Color.WHITE)
+            dialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            // 单独加这个没用，需要结合上面的内边距和背景
+            dialog.window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,WindowManager.LayoutParams.WRAP_CONTENT)
+
+        }
         /**
          * Java可调用Util.Companion.customToast(view,this)
          * 创建自定义Toast

@@ -40,5 +40,9 @@ class MainActivity : AppCompatActivity() {
         testCircular.setOnClickListener {
             startActivity(Intent(this,CircularActivity::class.java))
         }
+
+        testFile.setOnClickListener {
+            startActivity(Intent(this,FileActivity::class.java))
+        }
     }
 }

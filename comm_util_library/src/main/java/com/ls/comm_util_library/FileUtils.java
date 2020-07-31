@@ -4,8 +4,10 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * 文件帮助类（包括流帮助）
@@ -13,6 +15,10 @@ import java.util.Arrays;
 public class FileUtils {
 
     private static int COPY_ONE_SIZE = 4 * 1024;
+    public static long KB = 1024;
+    public static long MB = KB*KB;
+    public static long GB = MB*KB;
+    public static long TB = GB*KB;
 
     public static void setCopyOneSize(int copyOneSize){
         COPY_ONE_SIZE = copyOneSize;
@@ -27,6 +33,46 @@ public class FileUtils {
         File file = new File(path);
         file.mkdirs();
         return path;
+    }
+
+    /**
+     * 创建一个指定大小的空文件
+     * @param path 文件路劲
+     * @param size 文件大小
+     */
+    public static void createFixFile(String path,long size){
+        createFixFile(new File(path),size);
+    }
+
+    /**
+     * 创建一个指定大小的空文件
+     * @param file 文件对象
+     * @param size 文件大小
+     */
+    public static void createFixFile(File file,long size){
+        try(
+            RandomAccessFile randomAccessFile = new RandomAccessFile(file,"rw")
+        ) {
+            randomAccessFile.setLength(size);
+            byte[] bytes = new byte[COPY_ONE_SIZE];
+            Random random = new Random();
+            random.nextBytes(bytes);
+            int read = 0;
+            long pages = size / COPY_ONE_SIZE;
+            pages = size % COPY_ONE_SIZE > 0 ? pages + 1 : pages;
+            for (long i = 0; i < pages; i++){
+                if(i < pages - 1) {
+                    read = COPY_ONE_SIZE;
+                }
+                else{
+                    read = (int) (size - (COPY_ONE_SIZE * pages));
+                }
+                randomAccessFile.write(bytes, 0, read);
+            }
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -732,8 +778,8 @@ public class FileUtils {
      * @param path 目标文件路径
      * @param length 文件长度
      */
-    public static void writeRandomAccessFile(InputStream is, String path, long length){
-        writeRandomAccessFile(is,path,length,null);
+    public static void writeRandomAccessFile(InputStream is, String path,long position, long length){
+        writeRandomAccessFile(is,path,position,length,null);
     }
 
     /**
@@ -744,8 +790,8 @@ public class FileUtils {
      * @param length 文件长度
      * @param isCloseStream 是否在方法内关闭流
      */
-    public static void writeRandomAccessFile(InputStream is, String path, long length, boolean isCloseStream){
-        writeRandomAccessFile(is,path,length,null,isCloseStream);
+    public static void writeRandomAccessFile(InputStream is, String path,long position, long length, boolean isCloseStream){
+        writeRandomAccessFile(is,path,position,length,null,isCloseStream);
     }
 
     /**
@@ -756,8 +802,8 @@ public class FileUtils {
      * @param length 文件长度
      * @param listener 写入监听
      */
-    public static void writeRandomAccessFile(InputStream is, String path, long length, IWriteListener listener){
-        writeRandomAccessFile(is,path,length,listener,true);
+    public static void writeRandomAccessFile(InputStream is, String path,long position, long length, IWriteListener listener){
+        writeRandomAccessFile(is,path,position,length,listener,true);
     }
 
     /**
@@ -769,8 +815,8 @@ public class FileUtils {
      * @param listener 写入监听
      * @param isCloseStream 是否在方法内关闭流
      */
-    public static void writeRandomAccessFile(InputStream is, String path, long length, IWriteListener listener, boolean isCloseStream){
-        writeRandomAccessFile(is,new File(path),length,listener,isCloseStream);
+    public static void writeRandomAccessFile(InputStream is, String path,long position, long length, IWriteListener listener, boolean isCloseStream){
+        writeRandomAccessFile(is,new File(path),position,length,listener,isCloseStream);
     }
 
     /**
@@ -780,8 +826,8 @@ public class FileUtils {
      * @param file 目标文件
      * @param length 文件长度
      */
-    public static void writeRandomAccessFile(InputStream is, File file, long length){
-        writeRandomAccessFile(is, file, length, null);
+    public static void writeRandomAccessFile(InputStream is, File file,long position, long length){
+        writeRandomAccessFile(is, file, position,length, null);
     }
 
     /**
@@ -792,8 +838,8 @@ public class FileUtils {
      * @param length 文件长度
      * @param isCloseStream 是否在方法内关闭流
      */
-    public static void writeRandomAccessFile(InputStream is, File file, long length ,boolean isCloseStream){
-        writeRandomAccessFile(is, file, length, null,isCloseStream);
+    public static void writeRandomAccessFile(InputStream is, File file,long position, long length ,boolean isCloseStream){
+        writeRandomAccessFile(is, file, position,length, null,isCloseStream);
     }
 
     /**
@@ -804,8 +850,8 @@ public class FileUtils {
      * @param length 文件长度
      * @param listener 写入监听
      */
-    public static void writeRandomAccessFile(InputStream is, File file, long length, IWriteListener listener){
-        writeRandomAccessFile(is, file, length, listener,true);
+    public static void writeRandomAccessFile(InputStream is, File file,long position, long length, IWriteListener listener){
+        writeRandomAccessFile(is, file,position, length, listener,true);
     }
 
     /**
@@ -817,7 +863,7 @@ public class FileUtils {
      * @param listener 写入监听
      * @param isCloseStream 是否在方法内关闭流
      */
-    public static void writeRandomAccessFile(InputStream is, File file, long length, IWriteListener listener, boolean isCloseStream){
+    public static void writeRandomAccessFile(InputStream is, File file,long position, long length, IWriteListener listener, boolean isCloseStream){
         if(is == null) return;
         if(!(is instanceof BufferedInputStream)){
             is = new BufferedInputStream(is);
@@ -826,6 +872,7 @@ public class FileUtils {
         try {
             randomAccessFile = new RandomAccessFile(file,"rw");
             randomAccessFile.setLength(length);
+            randomAccessFile.seek(position);
             byte[] buffer = new byte[COPY_ONE_SIZE];
             int read = 0;
             long alreadyRead = 0;
@@ -1979,10 +2026,6 @@ public class FileUtils {
      */
     public static String formatSize(long size){
         DecimalFormat df = new DecimalFormat("#.00");
-        long KB = COPY_ONE_SIZE;
-        long MB = KB*KB;
-        long GB = MB*KB;
-        long TB = GB*KB;
         if(size / TB > 0){
             return df.format((double)size / TB) + "T";
         }
@@ -2025,22 +2068,6 @@ public class FileUtils {
         void onSuccess();
         void onError(Exception e);
         void onWrite(long length);
-    }
-
-    public class WriteControl {
-        private InputStream mIs;
-
-        public WriteControl(InputStream is){
-            mIs = is;
-        }
-
-        public void stop(){
-            try {
-                mIs.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
 }

@@ -7,32 +7,30 @@
     android:orientation="vertical"
     android:paddingStart="20dp"
     android:paddingEnd="20dp"
-    android:gravity="center_horizontal"
-    tools:context=".MainActivity">
+    tools:context=".FileActivity">
 
     <Button
-        android:id="@+id/testPermission"
+        android:id="@+id/generate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="测试权限请求框架"/>
+        android:text="生成空文件"/>
 
     <Button
-        android:id="@+id/testGlide"
+        android:id="@+id/streamCopy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="测试图片加载框架"/>
+        android:text="流复制文件"/>
 
     <Button
-        android:id="@+id/testCircular"
+        android:id="@+id/nioCopy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="测试圆形进度条"/>
+        android:text="NIO复制文件"/>
 
     <Button
-        android:id="@+id/testFile"
+        android:id="@+id/mappedCopy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="测试文件工具类"/>
-
+        android:text="内存映射复制文件"/>
 
 </LinearLayout>

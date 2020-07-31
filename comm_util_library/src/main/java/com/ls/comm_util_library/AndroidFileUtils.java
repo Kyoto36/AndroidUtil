@@ -3,6 +3,7 @@ package com.ls.comm_util_library;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.format.Formatter;
 
@@ -10,11 +11,44 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * android文件帮助类（兼容android10）
  */
 public abstract class AndroidFileUtils {
+
+    /**
+     * 获取app缓存路径
+     * 如果有外部存储，就使用外部存储（现在的手机都内置了外部存储）sdcard/Android/data/{包名}/cache
+     * 否则就是用内部存储 data/data/{包名}/cache
+     * @param context
+     * @return
+     */
+    public static String getCachePath(Context context){
+        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) || !Environment.isExternalStorageRemovable()){
+            return Objects.requireNonNull(context.getExternalCacheDir()).getAbsolutePath();
+        }
+        else{
+            return context.getCacheDir().getAbsolutePath();
+        }
+    }
+
+    /**
+     * 获取app缓存路径
+     * 如果有外部存储，就使用外部存储（现在的手机都内置了外部存储）sdcard/Android/data/{包名}/files
+     * 否则就是用内部存储 data/data/{包名}/files
+     * @param context
+     * @return
+     */
+    public static String getFilesPath(Context context,String type){
+        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) || !Environment.isExternalStorageRemovable()){
+            return Objects.requireNonNull(context.getExternalFilesDir(null)).getAbsolutePath();
+        }
+        else{
+            return context.getFilesDir().getAbsolutePath();
+        }
+    }
 
     /**
      * 读android项目中assets下的文件，并转成String，当然要保证文件中存的是字符串

@@ -290,13 +290,17 @@ class Download {
         entity: DownloadEntity
     ) {
         val allLength = entity.info.totalSize
-        FileUtils.mappedWriteFile(responseBody.byteStream(),file,entity.info.alreadySize,allLength, FileUtils.IWriteListener {
-            entity.info.downState = 0
-            entity.info.alreadySize = it
-            mHandler.post {
-                entity.listener?.onProgress(it, allLength)
+        FileUtils.mappedWriteFile(responseBody.byteStream(),file,entity.info.alreadySize,allLength, object :FileUtils.IWriteListener {
+            override fun onSuccess() {}
+            override fun onError(e: java.lang.Exception?) {}
+            override fun onWrite(length: Long) {
+                entity.info.downState = 0
+                entity.info.alreadySize = length
+                mHandler.post {
+                    entity.listener?.onProgress(length, allLength)
+                }
+                mDownloadDao.save(entity.info)
             }
-            mDownloadDao.save(entity.info)
         })
 
 //        var randomAccessFile: RandomAccessFile? = null
