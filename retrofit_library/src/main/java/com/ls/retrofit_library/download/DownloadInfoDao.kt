@@ -18,7 +18,7 @@ class DownloadInfoDao(context: Context) {
     private val mDBHelper = DBHelper(context)
 
     fun save(info: DownloadInfo) {
-        val list = query(info.url, info.savePath, info.totalSize)
+        val list = query(info.url, info.savePath)
         if (list.isEmpty() || list.size > 1) {
             delete(list)
             insert(info)

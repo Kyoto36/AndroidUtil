@@ -33,4 +33,10 @@
         android:layout_height="wrap_content"
         android:text="内存映射复制文件"/>
 
+    <Button
+        android:id="@+id/download"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="下载文件"/>
+
 </LinearLayout>

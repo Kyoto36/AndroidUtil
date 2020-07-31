@@ -15,20 +15,81 @@ public class NumberUtils {
             return "";
         }
         else if(number >= 10000){
-            DecimalFormat decimalFormat = new DecimalFormat("0.##");
-            decimalFormat.setRoundingMode(RoundingMode.FLOOR);
-            return String.format("%s万",decimalFormat.format((float)number / 10000));
+            return String.format("%s万",toFixed((float)number / 10000,2));
         }
         else{
             return number + "";
         }
     }
 
+    /**
+     * 保留几位小数
+     * @param number double数
+     * @param digit 几位小数
+     * @return
+     */
+    public static String toFixed(float number,int digit){
+        double d = number;
+        return toFixed(d, digit);
+    }
+
+    /**
+     * 保留几位小数
+     * @param number double数
+     * @param digit 几位小数
+     * @return
+     */
+    public static String toFixed(double number,int digit){
+        if(digit <= 0){
+            return "" + (int)number;
+        }
+        StringBuilder sb = new StringBuilder("0.");
+        for (int i = 0; i < digit; i++){
+            sb.append("#");
+        }
+        DecimalFormat decimalFormat = new DecimalFormat(sb.toString());
+        decimalFormat.setRoundingMode(RoundingMode.FLOOR);
+        return decimalFormat.format(number);
+    }
+
+    /**
+     * 获取百分比，保留率单精度小数位
+     * @param progress
+     * @param total
+     * @return
+     */
+    public static float getPercentFloat(long progress,long total){
+        float ppm = getPPMFloat(progress,total);
+        return ppm / 100;
+    }
+
+    /**
+     * 获取百分比
+     * @param progress 当前进度
+     * @param total 中大小
+     * @return 百分数
+     */
     public static int getPercent(long progress,long total){
         return getPPM(progress, total) / 100;
     }
 
+    /**
+     * 获取万分比
+     * @param progress 当前进度
+     * @param total 中大小
+     * @return 万分数
+     */
     public static int getPPM(long progress,long total){
+        return (int)(progress / (total / 10000.0));
+    }
+
+    /**
+     * 获取万分比，保留率单精度小数位
+     * @param progress 当前进度
+     * @param total 中大小
+     * @return 万分数
+     */
+    public static float getPPMFloat(long progress,long total){
         return (int)(progress / (total / 10000.0));
     }
 }

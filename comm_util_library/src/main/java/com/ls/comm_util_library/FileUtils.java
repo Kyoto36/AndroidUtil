@@ -624,7 +624,7 @@ public class FileUtils {
             MappedByteBuffer mbb = channel.map(FileChannel.MapMode.READ_WRITE,0,length);
             byte[] buffer = new byte[COPY_ONE_SIZE];
             int read = 0;
-            long alreadyRead = 0;
+            long alreadyRead = position;
             while((read = is.read(buffer)) != -1){
                 mbb.put(buffer,0,read);
                 alreadyRead += read;
@@ -864,9 +864,12 @@ public class FileUtils {
      * @param isCloseStream 是否在方法内关闭流
      */
     public static void writeRandomAccessFile(InputStream is, File file,long position, long length, IWriteListener listener, boolean isCloseStream){
-        if(is == null) return;
+        if(is == null || file == null) return;
         if(!(is instanceof BufferedInputStream)){
             is = new BufferedInputStream(is);
+        }
+        if(!file.getParentFile().exists()){
+            createDir(file.getParent());
         }
         RandomAccessFile randomAccessFile = null;
         try {
@@ -875,7 +878,7 @@ public class FileUtils {
             randomAccessFile.seek(position);
             byte[] buffer = new byte[COPY_ONE_SIZE];
             int read = 0;
-            long alreadyRead = 0;
+            long alreadyRead = position;
             while((read = is.read(buffer)) > 0){
                 randomAccessFile.write(buffer,0,read);
                 alreadyRead += read;

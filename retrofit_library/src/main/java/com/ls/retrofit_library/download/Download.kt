@@ -7,6 +7,7 @@ import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Handler
 import android.text.TextUtils
+import android.util.Log
 import com.ls.comm_util_library.*
 import com.ls.retrofit_library.RetrofitUtil
 import com.ls.retrofit_library.db.DownloadInfo
@@ -241,37 +242,58 @@ class Download {
           out: OutputStream?,
           entity: DownloadEntity){
         if(out == null) throw IOException("out is null !!!")
-        val bufferedOut = if(out !is BufferedOutputStream) BufferedOutputStream(out) else out
-        var ins = responseBody.byteStream()
-        ins = if(ins !is BufferedInputStream) BufferedInputStream(ins) else ins
-        try {
-            val buffer = ByteArray(1024 * 6)
-            var len = 0
-            var record = entity.info.alreadySize
-            while (ins.read(buffer).also { len = it } != -1) {
-                bufferedOut.write(buffer, 0, len)
-                record += len
-                entity.info.downState = 0
-                entity.info.alreadySize = record
+        FileUtils.write(responseBody.byteStream(),out,object : FileUtils.IWriteListener{
+            override fun onSuccess() {
+//                mHandler.post {
+//                    entity.listener?.onFinish("")
+//                }
+            }
+            override fun onError(e: java.lang.Exception?) {
                 mHandler.post {
-                    entity.listener?.onProgress(record, entity.info.totalSize)
+                    entity.listener?.onFailed(e)
                 }
+            }
+            override fun onWrite(length: Long) {
+                entity.info.downState = 0
+                entity.info.alreadySize = length
                 mDownloadDao.save(entity.info)
+                mHandler.post {
+                    entity.listener?.onProgress(length, entity.info.totalSize)
+                }
             }
-        }
-        catch (e: IOException){
-            throw e
-        }
-        finally {
-            try {
-                bufferedOut.flush()
-                ins.close()
-                bufferedOut.close()
-            }
-            catch (e: IOException){
-                e.printStackTrace()
-            }
-        }
+        })
+
+//        val bufferedOut = if(out !is BufferedOutputStream) BufferedOutputStream(out) else out
+//        var ins = responseBody.byteStream()
+//        ins = if(ins !is BufferedInputStream) BufferedInputStream(ins) else ins
+//        try {
+//            val buffer = ByteArray(1024 * 6)
+//            var len = 0
+//            var record = entity.info.alreadySize
+//            while (ins.read(buffer).also { len = it } != -1) {
+//                bufferedOut.write(buffer, 0, len)
+//                record += len
+//                entity.info.downState = 0
+//                entity.info.alreadySize = record
+//                mHandler.post {
+//                    entity.listener?.onProgress(record, entity.info.totalSize)
+//                }
+//                mDownloadDao.save(entity.info)
+//            }
+//        }
+//        catch (e: IOException){
+//            throw e
+//        }
+//        finally {
+//            try {
+//                bufferedOut.flush()
+//                ins.close()
+//                bufferedOut.close()
+//            }
+//            catch (e: IOException){
+//                e.printStackTrace()
+//            }
+//        }
 
     }
 
@@ -290,16 +312,25 @@ class Download {
         entity: DownloadEntity
     ) {
         val allLength = entity.info.totalSize
-        FileUtils.mappedWriteFile(responseBody.byteStream(),file,entity.info.alreadySize,allLength, object :FileUtils.IWriteListener {
-            override fun onSuccess() {}
-            override fun onError(e: java.lang.Exception?) {}
+        FileUtils.writeRandomAccessFile(responseBody.byteStream(),file,entity.info.alreadySize,allLength, object :FileUtils.IWriteListener {
+            override fun onSuccess() {
+                mHandler.post {
+//                    entity.listener?.onFinish("")
+                }
+            }
+            override fun onError(e: java.lang.Exception?) {
+                mHandler.post {
+                    entity.listener?.onFailed(e)
+                }
+            }
             override fun onWrite(length: Long) {
                 entity.info.downState = 0
                 entity.info.alreadySize = length
+                mDownloadDao.save(entity.info)
                 mHandler.post {
                     entity.listener?.onProgress(length, allLength)
                 }
-                mDownloadDao.save(entity.info)
+
             }
         })
 
