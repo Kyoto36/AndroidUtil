@@ -75,7 +75,7 @@ class Download {
         }
     }
 
-    private fun getDownloadEntity(key: String,url: String,listener: ProgressListener,start: Long): DownloadEntity?{
+    private fun getDownloadEntity(key: String,url: String,listener: IProgressListener<String>,start: Long): DownloadEntity?{
         var entity = mDownloadEntityMap[key]
         if(entity == null || !TextUtils.equals(entity.info.url,url)){
             entity = DownloadEntity()
@@ -131,7 +131,7 @@ class Download {
                 .subscribe({
                     entity.info.downState = 1
                     mDownloadDao.save(entity.info)
-                    entity.listener.onSuccess()
+                    entity.listener.onFinish("")
                 }, {
                     entity.info.downState = -1
                     mDownloadDao.save(entity.info)
@@ -139,12 +139,12 @@ class Download {
                         entity.isStopByNetWork = true
                     }
                     it.printStackTrace()
-                    entity.listener.onError(Exception(it))
+                    entity.listener.onFailed(Exception(it))
                 })
     }
 
     // 单线程下载
-    fun start(url: String,uri: Uri,listener: ProgressListener){
+    fun start(url: String,uri: Uri,listener: IProgressListener<String>){
         val start = AndroidFileUtils.getFileSizeByUri(mContext,uri)
         val entity = getDownloadEntity(getUriKey(uri),url, listener,start) ?: return
         // wa 是追加写入的意思
@@ -162,7 +162,7 @@ class Download {
     }
 
     // 单线程下载
-    fun start(url: String,savePath: String,listener: ProgressListener){
+    fun start(url: String,savePath: String,listener: IProgressListener<String>){
         val entity = getDownloadEntity(getPathKey(savePath),url, listener,0) ?: return
         var start = 0L
         val file = File(savePath)
@@ -289,47 +289,57 @@ class Download {
         file: File,
         entity: DownloadEntity
     ) {
-        var randomAccessFile: RandomAccessFile? = null
-        try {
-            if (!file.parentFile.exists()) file.parentFile.mkdirs()
-            val allLength = entity.info.totalSize
-            randomAccessFile = RandomAccessFile(file, "rwd")
+        val allLength = entity.info.totalSize
+        FileUtils.mappedWriteFile(responseBody.byteStream(),file,entity.info.alreadySize,allLength, FileUtils.IWriteListener {
+            entity.info.downState = 0
+            entity.info.alreadySize = it
+            mHandler.post {
+                entity.listener?.onProgress(it, allLength)
+            }
+            mDownloadDao.save(entity.info)
+        })
 
-            // 这种方式会出现oom
-//        val channelOut = randomAccessFile.channel
-//        val mappedBuffer = channelOut.map(
-//            FileChannel.MapMode.READ_WRITE,
-//            entity.info.alreadySize, allLength - entity.info.alreadySize
-//        )
-            randomAccessFile.setLength(allLength)
-            randomAccessFile.seek(entity.info.alreadySize)
-            val buffer = ByteArray(1024 * 6)
-            var len: Int
-            var record = entity.info.alreadySize
-            while (responseBody.byteStream().read(buffer).also { len = it } != -1) {
-                randomAccessFile.write(buffer, 0, len)
-//            mappedBuffer.put(buffer, 0, len)
-                record += len
-                entity.info.downState = 0
-                entity.info.alreadySize = record
-                mHandler.post {
-                    entity.listener?.onProgress(record, allLength)
-                }
-                mDownloadDao.save(entity.info)
-            }
-        }
-        catch (e: IOException){
-            throw e
-        }
-        finally {
-            try{
-                responseBody.byteStream().close()
-                randomAccessFile?.close()
-            }
-            catch (e: IOException){
-                e.printStackTrace()
-            }
-        }
+//        var randomAccessFile: RandomAccessFile? = null
+//        try {
+//            if (!file.parentFile.exists()) file.parentFile.mkdirs()
+//
+//            randomAccessFile = RandomAccessFile(file, "rwd")
+//
+//            // 这种方式会出现oom
+////        val channelOut = randomAccessFile.channel
+////        val mappedBuffer = channelOut.map(
+////            FileChannel.MapMode.READ_WRITE,
+////            entity.info.alreadySize, allLength - entity.info.alreadySize
+////        )
+//            randomAccessFile.setLength(allLength)
+//            randomAccessFile.seek(entity.info.alreadySize)
+//            val buffer = ByteArray(1024 * 6)
+//            var len: Int
+//            var record = entity.info.alreadySize
+//            while (responseBody.byteStream().read(buffer).also { len = it } != -1) {
+//                randomAccessFile.write(buffer, 0, len)
+////            mappedBuffer.put(buffer, 0, len)
+//                record += len
+//                entity.info.downState = 0
+//                entity.info.alreadySize = record
+//                mHandler.post {
+//                    entity.listener?.onProgress(record, allLength)
+//                }
+//                mDownloadDao.save(entity.info)
+//            }
+//        }
+//        catch (e: IOException){
+//            throw e
+//        }
+//        finally {
+//            try{
+//                responseBody.byteStream().close()
+//                randomAccessFile?.close()
+//            }
+//            catch (e: IOException){
+//                e.printStackTrace()
+//            }
+//        }
     }
 
     class Builder{
@@ -349,7 +359,7 @@ class Download {
             return this
         }
 
-        fun build(context: Context): Download?{
+        fun build(context: Context): Download{
             if(mRetrofit == null){
                 mRetrofit = RetrofitUtil.generateRetrofit(mBaseUrl)
             }

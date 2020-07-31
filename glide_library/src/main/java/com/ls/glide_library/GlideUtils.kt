@@ -97,7 +97,7 @@ object GlideUtils {
     }
 
     fun loadRoundCorners(url: String, view: ImageView,roundCorners: Int, placeholder: Int, error: Int) {
-        loadRoundCorners(Glide.with(view.context).load(url), view,roundCorners, placeholder, error)
+        loadRoundCorners(loadObject(url, Glide.with(view.context).asDrawable()), view,roundCorners, placeholder, error)
     }
 
     fun loadRoundCorners(resId: Int, view: ImageView,roundCorners: Int) {
@@ -114,7 +114,7 @@ object GlideUtils {
     }
 
     fun loadCircle(url: String, view: ImageView,borderWidth: Float, borderColor: Int, placeholder: Int, error: Int) {
-        loadCircle(Glide.with(view.context).load(url), view,borderWidth, borderColor, placeholder, error)
+        loadCircle(loadObject(url, Glide.with(view.context).asDrawable()), view,borderWidth, borderColor, placeholder, error)
     }
 
     fun loadCircle(resId: Int, view: ImageView,borderWidth: Float, borderColor: Int) {
@@ -131,7 +131,7 @@ object GlideUtils {
     }
 
     fun load(url: String, view: ImageView, placeholder: Int, error: Int) {
-        resize(view,addPlaceholder(Glide.with(view.context).load(url),placeholder, error)).into(intoView(view))
+        resize(view,addPlaceholder(loadObject(url, Glide.with(view.context).asDrawable()),placeholder, error)).into(intoView(view))
     }
 
     fun load(resId: Int, view: ImageView) {

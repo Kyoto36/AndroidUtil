@@ -1,5 +1,6 @@
 package com.ls.retrofit_library.download;
 
+import com.ls.comm_util_library.IProgressListener;
 import com.ls.retrofit_library.db.DownloadInfo;
 
 import io.reactivex.disposables.Disposable;
@@ -8,7 +9,7 @@ public class DownloadEntity {
     private DownloadInfo info;
     private boolean stopByNetWork;
     private Disposable disposable;
-    private ProgressListener listener;
+    private IProgressListener<String> listener;
 
     public DownloadInfo getInfo() {
         return info;
@@ -34,13 +35,19 @@ public class DownloadEntity {
         this.disposable = disposable;
     }
 
-    public ProgressListener getListener() {
+    public IProgressListener<String> getListener() {
         return listener;
     }
 
-    public void setListener(ProgressListener listener) {
+    public void setListener(IProgressListener<String> listener) {
         this.listener = listener;
     }
 
-
+    @Override
+    public String toString() {
+        return "DownloadEntity{" +
+                "info=" + info +
+                ", stopByNetWork=" + stopByNetWork +
+                '}';
+    }
 }

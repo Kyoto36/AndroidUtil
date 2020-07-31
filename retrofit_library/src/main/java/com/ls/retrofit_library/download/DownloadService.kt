@@ -8,6 +8,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import com.ls.comm_util_library.IProgressListener
 import retrofit2.Retrofit
 
 /**
@@ -82,7 +83,7 @@ open class DownloadService: Service() {
     }
 
     open inner class DownloadBinder: Binder(){
-        open fun start(url: String,savePath: String,listener: ProgressListener){
+        open fun start(url: String,savePath: String,listener: IProgressListener<String>){
             mDownload?.start(url,savePath, listener)
         }
 

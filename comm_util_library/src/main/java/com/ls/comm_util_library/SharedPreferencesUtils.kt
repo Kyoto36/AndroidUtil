@@ -4,14 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 
-class SharedPrefrencesUtils private constructor(){
+class SharedPreferencesUtils private constructor(){
 
     private var mContext: Context? = null
 
     companion object{
 
         @SuppressLint("StaticFieldLeak")
-        private var sInstance: SharedPrefrencesUtils? = null
+        private var sInstance: SharedPreferencesUtils? = null
 
         private var sDefaultName: String = "default"
 
@@ -22,11 +22,11 @@ class SharedPrefrencesUtils private constructor(){
         /**
          * @return 单例对象
          */
-        private fun get(): SharedPrefrencesUtils {
+        private fun get(): SharedPreferencesUtils {
             if (sInstance == null) {
                 synchronized(ThreadUtils::class.java) {
                     if (sInstance == null) {
-                        sInstance = SharedPrefrencesUtils()
+                        sInstance = SharedPreferencesUtils()
                     }
                 }
             }
