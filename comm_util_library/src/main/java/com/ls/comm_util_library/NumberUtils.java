@@ -43,12 +43,11 @@ public class NumberUtils {
         if(digit <= 0){
             return "" + (int)number;
         }
-        StringBuilder sb = new StringBuilder("0.");
+        StringBuilder sb = new StringBuilder("#.");
         for (int i = 0; i < digit; i++){
-            sb.append("#");
+            sb.append("0");
         }
         DecimalFormat decimalFormat = new DecimalFormat(sb.toString());
-        decimalFormat.setRoundingMode(RoundingMode.FLOOR);
         return decimalFormat.format(number);
     }
 

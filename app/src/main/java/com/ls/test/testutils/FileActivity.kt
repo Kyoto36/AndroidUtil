@@ -13,6 +13,22 @@ import java.lang.Exception
 
 class FileActivity : AppCompatActivity() {
 
+    private val mTempFileName = "temp"
+
+    private val mSrcPath by lazy {
+        AndroidFileUtils.getCachePath(this) + "/"
+    }
+
+    private val mDestPath by lazy {
+        AndroidFileUtils.getCachePath(this) + "/dest/"
+    }
+    private val mNioDestPath by lazy {
+        AndroidFileUtils.getCachePath(this) + "/destNIO/"
+    }
+    private val mMappedDestPath by lazy {
+        AndroidFileUtils.getCachePath(this) + "/destMapped/"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file)
@@ -20,17 +36,20 @@ class FileActivity : AppCompatActivity() {
         generate.setOnClickListener {
             mWaitDialog.show()
             ThreadUtils.execIO(Runnable {
-                FileUtils.createFixFile(AndroidFileUtils.getCachePath(this) + "/temp",FileUtils.MB * 200)
+                FileUtils.createFixFile(mSrcPath + mTempFileName, FileUtils.MB * 200)
+                FileUtils.createDir(mDestPath)
+                FileUtils.createDir(mNioDestPath)
+                FileUtils.createDir(mMappedDestPath)
                 mWaitDialog.dismiss()
             })
         }
 
         streamCopy.setOnClickListener {
-            val temp = File(AndroidFileUtils.getCachePath(this) + "/temp")
+            val temp = File(mSrcPath + mTempFileName)
             mProgressDialog.title.text = "流复制文件"
             mProgressDialog.show()
             ThreadUtils.execIO(Runnable {
-                FileUtils.copy(AndroidFileUtils.getCachePath(this) + "/temp",AndroidFileUtils.getCachePath(this) + "/dest/temp",object : FileUtils.IWriteListener{
+                FileUtils.copy(mSrcPath + mTempFileName, mDestPath + mTempFileName, object : FileUtils.IWriteListener {
                     override fun onSuccess() {
                         mProgressDialog.dismiss()
                     }
@@ -41,7 +60,7 @@ class FileActivity : AppCompatActivity() {
 
                     override fun onWrite(length: Long) {
                         ThreadUtils.execMain(Runnable {
-                            setProgress(length,temp.length())
+                            setProgress(length, temp.length())
                         })
                     }
 
@@ -50,11 +69,12 @@ class FileActivity : AppCompatActivity() {
         }
 
         nioCopy.setOnClickListener {
-            val temp = File(AndroidFileUtils.getCachePath(this) + "/temp")
+            val temp = File(mSrcPath + mTempFileName)
             mProgressDialog.title.text = "NIO复制文件"
+            setProgress(0, 0)
             mProgressDialog.show()
             ThreadUtils.execIO(Runnable {
-                FileUtils.nioCopy(AndroidFileUtils.getCachePath(this) + "/temp",AndroidFileUtils.getCachePath(this) + "/destNIO/temp",object : FileUtils.IWriteListener{
+                FileUtils.nioCopy(mSrcPath + mTempFileName, mNioDestPath + mTempFileName, object : FileUtils.IWriteListener {
                     override fun onSuccess() {
                         mProgressDialog.dismiss()
                     }
@@ -65,7 +85,7 @@ class FileActivity : AppCompatActivity() {
 
                     override fun onWrite(length: Long) {
                         ThreadUtils.execMain(Runnable {
-                            setProgress(length,temp.length())
+                            setProgress(length, temp.length())
                         })
                     }
 
@@ -74,11 +94,11 @@ class FileActivity : AppCompatActivity() {
         }
 
         mappedCopy.setOnClickListener {
-            val temp = File(AndroidFileUtils.getCachePath(this) + "/temp")
+            val temp = File(mSrcPath + mTempFileName)
             mProgressDialog.title.text = "内存映射复制文件"
             mProgressDialog.show()
             ThreadUtils.execIO(Runnable {
-                FileUtils.mappedCopy(AndroidFileUtils.getCachePath(this) + "/temp",AndroidFileUtils.getCachePath(this) + "/destMapped/temp",object : FileUtils.IWriteListener{
+                FileUtils.mappedCopy(mSrcPath + mTempFileName, mMappedDestPath + mTempFileName, object : FileUtils.IWriteListener {
                     override fun onSuccess() {
                         mProgressDialog.dismiss()
                     }
@@ -89,7 +109,7 @@ class FileActivity : AppCompatActivity() {
 
                     override fun onWrite(length: Long) {
                         ThreadUtils.execMain(Runnable {
-                            setProgress(length,temp.length())
+                            setProgress(length, temp.length())
                         })
                     }
 
@@ -97,37 +117,44 @@ class FileActivity : AppCompatActivity() {
             })
         }
 
-        Permissions.with(this).requestStorage().callback {  }
+        Permissions.with(this).requestStorage().callback { }
 
         download.setOnClickListener {
             mProgressDialog.title.text = "下载文件"
             mProgressDialog.show()
-            val savePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath + "/yushu.apk"
+            val savePath =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath + "/yushu.apk"
             mDownload.start("http://www.ximalaya.com/down?tag=web&client=android", savePath,
-                    object : IProgressListener<String>{
-                        override fun onProgress(progress: Long, total: Long) {
-                            setProgress(progress,total)
-                        }
+                object : IProgressListener<String> {
+                    override fun onProgress(progress: Long, total: Long) {
+                        setProgress(progress, total)
+                    }
 
-                        override fun onFinish(t: String?) {
-                            toast("下载成功")
-                            IntentUtils.startApkInstall(this@FileActivity,File(savePath),this@FileActivity.packageName + ".fileprovider")
-                            mProgressDialog.dismiss()
-                        }
+                    override fun onFinish(t: String?) {
+                        toast("下载成功")
+                        IntentUtils.startApkInstall(
+                            this@FileActivity,
+                            File(savePath),
+                            this@FileActivity.packageName + ".fileprovider"
+                        )
+                        mProgressDialog.dismiss()
+                        mRunnable = null
+                    }
 
-                        override fun onFailed(e: Exception?) {
-                            toast("下载失败")
-                            mProgressDialog.dismiss()
-                        }
+                    override fun onFailed(e: Exception?) {
+                        toast("下载失败")
+                        mProgressDialog.dismiss()
+                        mRunnable = null
+                    }
                 })
             cancel(Runnable { mDownload.stop(savePath) })
         }
 
         mProgressDialog.cancel.setOnClickListener {
-            if(mRunnable != null){
+            if (mRunnable != null) {
                 mRunnable!!.run()
-            }
-            else{
+                mRunnable = null
+            } else {
                 mProgressDialog.dismiss()
             }
         }
@@ -139,23 +166,23 @@ class FileActivity : AppCompatActivity() {
     }
 
     private val mWaitDialog by lazy {
-        Util.customDialog(R.layout.dialog_loading_layout,this)
+        Util.customDialog(R.layout.dialog_loading_layout, this)
     }
 
     private val mProgressDialog by lazy {
-        Util.customDialog(R.layout.dialog_test_file_copy_layout,this)
+        Util.customDialog(R.layout.dialog_test_file_copy_layout, this)
     }
 
     private var mRunnable: Runnable? = null
 
-    private fun cancel(run : Runnable){
+    private fun cancel(run: Runnable) {
         mRunnable = run
     }
 
-    private fun setProgress(length: Long,total: Long){
-        mProgressDialog.progress.progress = NumberUtils.getPercent(length,total)
-        val percent = NumberUtils.toFixed(NumberUtils.getPercentFloat(length,total),2)
-        mProgressDialog.percent.text =  "$percent%"
+    private fun setProgress(length: Long, total: Long) {
+        mProgressDialog.progress.progress = NumberUtils.getPercent(length, total)
+        val percent = NumberUtils.toFixed(NumberUtils.getPercentFloat(length, total), 2)
+        mProgressDialog.percent.text = "$percent%"
         val current = FileUtils.formatSize(length)
         val totalSize = FileUtils.formatSize(total)
         mProgressDialog.size.text = "$current/$totalSize"
