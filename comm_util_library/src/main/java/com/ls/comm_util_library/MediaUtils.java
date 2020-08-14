@@ -11,10 +11,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.Log;
+
 import androidx.core.content.FileProvider;
 
 import com.ls.comm_util_library.thumbnails.BucketBean;
-import com.ls.comm_util_library.thumbnails.ThumbnailBean;
+import com.ls.comm_util_library.thumbnails.ImageBean;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -168,74 +170,64 @@ public class MediaUtils {
     /**
      * 获取所有相册分组
      * @param context
+     * @param preCount 预先加载几张图片，可以作为分组的图标
      * @return
      */
-    public static Map<Integer, BucketBean> loadBuckets(Context context){
+    public static Map<Integer, BucketBean> loadBuckets(Context context,int preCount){
         ContentResolver cts = context.getContentResolver();
-        String[] projection = {MediaStore.Images.Media.BUCKET_ID,MediaStore.Images.Media.BUCKET_DISPLAY_NAME,MediaStore.Images.Media._ID};
-        Cursor cursor = cts.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,projection,null,null,null);
-        return getBucketBeans(cursor,context);
+        String[] projection = {MediaStore.Images.Media.BUCKET_ID,MediaStore.Images.Media.BUCKET_DISPLAY_NAME,MediaStore.Images.Media._ID,MediaStore.Images.Media.DATA,MediaStore.Images.Media.DISPLAY_NAME};
+        Cursor cursor = cts.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,projection,null,null,MediaStore.Images.Media.DATE_MODIFIED + " desc");
+        return getBucketBeans(cursor,preCount);
     }
 
-    private static Map<Integer,BucketBean> getBucketBeans(Cursor cursor,Context context){
+    private static Map<Integer,BucketBean> getBucketBeans(Cursor cursor,int preCount){
         if(cursor == null) return null;
         Map<Integer,BucketBean> map = new HashMap<>();
         if(cursor.moveToFirst()){
             int imageId;
             int bucketId;
             String bucketName;
+            String imageName;
+            String imagePath;
             int imageIdIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
             int bucketIdIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
             int bucketNameIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+            int imageNameIndex = cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
+            int imagePathIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
             BucketBean bean;
+            ImageBean imageBean;
             do {
                 imageId = cursor.getInt(imageIdIndex);
                 bucketId = cursor.getInt(bucketIdIndex);
                 bucketName = cursor.getString(bucketNameIndex);
+                imageName = cursor.getString(imageNameIndex);
+                imagePath = cursor.getString(imagePathIndex);
                 bean = map.get(bucketId);
                 if(bean == null){
                     bean = new BucketBean();
                     bean.setId(bucketId);
                     bean.setName(bucketName);
                     bean.setImageIds(new ArrayList<>());
-                    bean.setThumbnails(new ArrayList<>());
+                    bean.setImages(new ArrayList<>());
                     map.put(bucketId,bean);
                 }
                 bean.getImageIds().add(imageId);
-                bean.getThumbnails().add(loadThumbnail(imageId,context));
+                if(bean.getImages().size() < preCount){
+                    imageBean = new ImageBean();
+                    imageBean.setId(imageId);
+                    imageBean.setName(imageName);
+                    imageBean.setPath(imagePath);
+                    imageBean.setUri(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,imageId));
+                    bean.getImages().add(imageBean);
+                }
             } while (cursor.moveToNext());
         }
         cursor.close();
         return map;
     }
 
-    /**
-     * 获取单个图片缩略图
-     * @param imageId 图片Id
-     * @param context
-     * @return
-     */
-    public static ThumbnailBean loadThumbnail(int imageId, Context context){
-        ContentResolver cts = context.getContentResolver();
-        String[] projection = {MediaStore.Images.Thumbnails._ID, MediaStore.Images.Thumbnails.IMAGE_ID, MediaStore.Images.Thumbnails.DATA};
-        Cursor cursor = cts.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,projection,
-                MediaStore.Images.Thumbnails.IMAGE_ID + " = ?", new String[] {"" + imageId},null);
-        return getThumbnail(cursor);
-    }
-
-    private static ThumbnailBean getThumbnail(Cursor cursor){
-        if(cursor == null) return null;
-        if(cursor.moveToFirst()){
-            int idColumn = cursor.getColumnIndex(MediaStore.Images.Thumbnails._ID);
-            int imageIdColumn = cursor.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID);
-            int dataColumn = cursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA);
-            ThumbnailBean bean = new ThumbnailBean();
-            bean.setId(cursor.getInt(idColumn));
-            bean.setImageId(cursor.getInt(imageIdColumn));
-            bean.setData(cursor.getString(dataColumn));
-            return bean;
-        }
-        return null;
+    public static List<ImageBean> loadNewestImages(Context context, long limit){
+        return loadImages(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI,limit);
     }
 
     /**
@@ -243,36 +235,51 @@ public class MediaUtils {
      * @param context
      * @return
      */
-    public static List<ThumbnailBean> loadThumbnails(Context context){
-        ContentResolver cts = context.getContentResolver();
-        String[] projection = {MediaStore.Images.Thumbnails._ID, MediaStore.Images.Thumbnails.IMAGE_ID, MediaStore.Images.Thumbnails.DATA};
-        Cursor cursor = cts.query(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,projection,null,null,null);
-        return getThumbnailsBeans(cursor);
-
+    public static List<ImageBean> loadImages(Context context){
+        return loadImages(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI,0);
     }
 
-    private static List<ThumbnailBean> getThumbnailsBeans(Cursor cursor){
-        List<ThumbnailBean> list = new ArrayList<>();
+    /**
+     * 根据Uri获取图片集合
+     * @param context
+     * @return
+     */
+    public static List<ImageBean> loadImages(Context context, Uri uri, long limit){
+        String selection = null;
+        String[] selectionArgs = null;
+        if(limit > 0){
+            selection = MediaStore.Images.Media.DATE_MODIFIED + " > ?";
+            selectionArgs = new String[]{"" + limit};
+        }
+        ContentResolver cts = context.getContentResolver();
+        String[] projection = {MediaStore.Images.Media._ID,MediaStore.Images.Media.DATE_MODIFIED, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA};
+        Cursor cursor = cts.query(uri,projection,selection,selectionArgs,MediaStore.Images.Media.DATE_MODIFIED + " desc");
+        return getImageBeans(cursor);
+    }
+
+    private static List<ImageBean> getImageBeans(Cursor cursor){
+        List<ImageBean> list = new ArrayList<>();
         if(cursor.moveToFirst()){
             int id;
-            int imageId;
-            String data;
-            int idColumn = cursor.getColumnIndex(MediaStore.Images.Thumbnails._ID);
-            int imageIdColumn = cursor.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID);
-            int dataColumn = cursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA);
-            ThumbnailBean bean;
+            String name;
+            String path;
+            Uri uri;
+            int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+            int nameIndex = cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
+            int pathIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+            int dateIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED);
+            ImageBean bean;
             do {
-                // Get the field values
-                id = cursor.getInt(idColumn);
-                imageId = cursor.getInt(imageIdColumn);
-                data = cursor.getString(dataColumn);
-
-                // Do something with the values.
-                bean = new ThumbnailBean();
-                bean.setId(id);
-                bean.setImageId(imageId);
-                bean.setData(data);
-                list.add(bean);
+               id = cursor.getInt(idIndex);
+               name = cursor.getString(nameIndex);
+               path = cursor.getString(pathIndex);
+               uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,id);
+               bean = new ImageBean();
+               bean.setId(id);
+               bean.setName(name);
+               bean.setPath(path);
+               bean.setUri(uri);
+               list.add(bean);
             } while (cursor.moveToNext());
         }
         cursor.close();

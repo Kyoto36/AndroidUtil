@@ -6,15 +6,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.*
 import com.ls.comm_util_library.IDoubleListener
 import com.ls.comm_util_library.MediaUtils
+import com.ls.comm_util_library.TimeUtils
 import com.ls.test.testutils.drag.DefaultSelectedAdapter
 import com.ls.test.testutils.drag.DragItemHelperCallback
 import com.ls.test.testutils.thumbnails.DefaultThumbnailsAdapter
 import kotlinx.android.synthetic.main.activity_picture.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class PictureActivity : AppCompatActivity() {
 
     private val mThumbnailsAdapter by lazy {
-        DefaultThumbnailsAdapter(this,MediaUtils.loadThumbnails(this))
+        DefaultThumbnailsAdapter(this,MediaUtils.loadImages(this))
     }
 
     private val mThumbnailsLayoutManager = GridLayoutManager(this,4)
@@ -49,7 +52,9 @@ class PictureActivity : AppCompatActivity() {
             mSelectedLayoutManager.scrollToPosition(addIndex)
         })
 
-        Log.d("aaaaaa", MediaUtils.loadBuckets(this).toString())
+        Log.d("aaaaaa", MediaUtils.loadBuckets(this,3).toString())
+        val limit = (System.currentTimeMillis() - TimeUtils.year2Millis(2)) / 1000
+        Log.d("aaaaaa", MediaUtils.loadNewestImages(this, limit).toString())
     }
 
 

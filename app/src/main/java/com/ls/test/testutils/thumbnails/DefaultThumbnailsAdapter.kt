@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.ls.comm_util_library.IDoubleListener
-import com.ls.comm_util_library.thumbnails.ThumbnailBean
+import com.ls.comm_util_library.thumbnails.ImageBean
 import com.ls.glide_library.GlideUtils
 import com.ls.test.testutils.R
 import kotlinx.android.synthetic.main.item_thumbnails.view.*
@@ -17,11 +17,11 @@ import kotlinx.android.synthetic.main.item_thumbnails.view.*
  * @Author: ls
  * @Date: 2020/8/13 15:54
  */ 
-class DefaultThumbnailsAdapter(context: Context, datas : MutableList<ThumbnailBean>?): RecyclerView.Adapter<DefaultThumbnailsAdapter.ViewHolder>() {
+class DefaultThumbnailsAdapter(context: Context, datas : MutableList<ImageBean>?): RecyclerView.Adapter<DefaultThumbnailsAdapter.ViewHolder>() {
 
     private val mContext = context
     private var mDatas = datas
-    private var mOnItemClickListener: IDoubleListener<Int, ThumbnailBean>? = null
+    private var mOnItemClickListener: IDoubleListener<Int, ImageBean>? = null
 
     inner class ViewHolder: RecyclerView.ViewHolder{
 
@@ -32,7 +32,7 @@ class DefaultThumbnailsAdapter(context: Context, datas : MutableList<ThumbnailBe
         }
     }
 
-    fun setItemClickListener(listener: IDoubleListener<Int, ThumbnailBean>){
+    fun setItemClickListener(listener: IDoubleListener<Int, ImageBean>){
         mOnItemClickListener = listener
     }
 
@@ -45,7 +45,7 @@ class DefaultThumbnailsAdapter(context: Context, datas : MutableList<ThumbnailBe
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        GlideUtils.load(mDatas!![position].data,holder.image,-1,-1)
+        GlideUtils.load(mDatas!![position].path,holder.image,-1,-1)
         holder.itemView.setOnClickListener {
             mOnItemClickListener?.onValue(position,mDatas!![position])
         }

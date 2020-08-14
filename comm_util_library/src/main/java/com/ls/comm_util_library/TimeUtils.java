@@ -17,6 +17,10 @@ public class TimeUtils {
     public static final String MONTH_DAY_FORMAT = "MM-dd";
     public static final String MONTH_DAY_TIME_FORMAT = "MM-dd HH:mm";
 
+    public static long year2Millis(int year){
+        return year * 365L * 24 * 60 * 60 * 1000;
+    }
+
 
     public static String date2String(Date date){
         return date2String(date, DEFAULT_FORMAT);

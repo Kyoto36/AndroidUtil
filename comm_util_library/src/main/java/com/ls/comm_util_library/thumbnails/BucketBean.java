@@ -6,7 +6,7 @@ public class BucketBean {
     private int id;
     private String name;
     private List<Integer> imageIds;
-    private List<ThumbnailBean> thumbnails;
+    private List<ImageBean> images;
 
     public int getId() {
         return id;
@@ -32,12 +32,12 @@ public class BucketBean {
         this.imageIds = imageIds;
     }
 
-    public List<ThumbnailBean> getThumbnails() {
-        return thumbnails;
+    public List<ImageBean> getImages() {
+        return images;
     }
 
-    public void setThumbnails(List<ThumbnailBean> thumbnails) {
-        this.thumbnails = thumbnails;
+    public void setImages(List<ImageBean> images) {
+        this.images = images;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class BucketBean {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", imageIds=" + imageIds +
-                ", thumbnails=" + thumbnails +
+                ", images=" + images +
                 '}';
     }
 }

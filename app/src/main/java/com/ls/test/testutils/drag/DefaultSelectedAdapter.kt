@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.ls.comm_util_library.thumbnails.ThumbnailBean
+import com.ls.comm_util_library.thumbnails.ImageBean
 import com.ls.glide_library.GlideUtils
 import com.ls.test.testutils.R
 import kotlinx.android.synthetic.main.item_thumbnails.view.*
@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.item_thumbnails.view.*
  * @Author: ls
  * @Date: 2020/8/13 16:18
  */
-class DefaultSelectedAdapter(context: Context,datas: MutableList<ThumbnailBean>?):
+class DefaultSelectedAdapter(context: Context,datas: MutableList<ImageBean>?):
     RecyclerView.Adapter<DefaultSelectedAdapter.ViewHolder>() {
 
     private val mContext = context
@@ -31,7 +31,7 @@ class DefaultSelectedAdapter(context: Context,datas: MutableList<ThumbnailBean>?
         }
     }
 
-    fun addItem(bean: ThumbnailBean): Int{
+    fun addItem(bean: ImageBean): Int{
         if(mDatas == null){
             mDatas = ArrayList()
         }
@@ -57,6 +57,6 @@ class DefaultSelectedAdapter(context: Context,datas: MutableList<ThumbnailBean>?
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        GlideUtils.load(mDatas!![position].data,holder.image,-1,-1)
+        GlideUtils.load(mDatas!![position].path,holder.image,-1,-1)
     }
 }
