@@ -124,8 +124,8 @@ class Download {
         return key.startsWith(PATH_KEY,false)
     }
 
-    private fun start(download: Observable<Unit>,entity: DownloadEntity): Disposable{
-        return download.observeOn(AndroidSchedulers.mainThread())
+    private fun start(download: Observable<Unit>,entity: DownloadEntity,timeout: Long): Disposable{
+        val disposable = download.observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     entity.info.downState = 1
                     mDownloadDao.save(entity.info)
@@ -139,10 +139,23 @@ class Download {
                     it.printStackTrace()
                     entity.listener.onFailed(Exception(it))
                 })
+        if(timeout > 0){
+            ThreadUtils.execMain(Runnable{
+                if(!disposable.isDisposed){
+                    disposable.dispose()
+                }
+            },timeout)
+        }
+        return disposable
     }
 
     // 单线程下载
     fun start(url: String,uri: Uri,listener: IProgressListener<String>){
+        start(url, uri, listener,0)
+    }
+
+    // 单线程下载
+    fun start(url: String,uri: Uri,listener: IProgressListener<String>,timeout: Long){
         val start = AndroidFileUtils.getFileSizeByUri(mContext,uri)
         val entity = getDownloadEntity(getUriKey(uri),url, listener,start) ?: return
         // wa 是追加写入的意思
@@ -155,12 +168,17 @@ class Download {
                     entity.info.totalSize = start + it.contentLength()
                     writeOutputStream(it,out,entity)
                 }
-        entity.disposable = start(download,entity)
+        entity.disposable = start(download,entity,timeout)
         mDownloadEntityMap[getUriKey(uri)] = entity
     }
 
     // 单线程下载
     fun start(url: String,savePath: String,listener: IProgressListener<String>){
+        start(url, savePath, listener,0)
+    }
+
+    // 单线程下载
+    fun start(url: String,savePath: String,listener: IProgressListener<String>,timeout: Long){
         val entity = getDownloadEntity(getPathKey(savePath),url, listener,0) ?: return
         var start = 0L
         val file = File(savePath)
@@ -192,7 +210,7 @@ class Download {
                     entity.info.totalSize = start + it.contentLength()
                     writeFile(it,File(savePath),entity)
                 }
-        entity.disposable = start(download, entity)
+        entity.disposable = start(download, entity,timeout)
         mDownloadEntityMap[getPathKey(savePath)] = entity
     }
 
