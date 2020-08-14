@@ -44,5 +44,13 @@ class MainActivity : AppCompatActivity() {
         testFile.setOnClickListener {
             startActivity(Intent(this,FileActivity::class.java))
         }
+
+        articleDetail.setOnClickListener {
+            startActivity(Intent(this,RecyclerViewActivity::class.java))
+        }
+
+        thumbnails.setOnClickListener {
+            startActivity(Intent(this,PictureActivity::class.java))
+        }
     }
 }

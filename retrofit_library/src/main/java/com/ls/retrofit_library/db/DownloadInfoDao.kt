@@ -1,4 +1,4 @@
-package com.ls.retrofit_library.download
+package com.ls.retrofit_library.db
 
 import android.content.Context
 import com.ls.retrofit_library.db.DBHelper

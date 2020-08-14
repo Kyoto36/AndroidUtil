@@ -34,5 +34,17 @@
         android:layout_height="wrap_content"
         android:text="测试文件工具类"/>
 
+    <Button
+        android:id="@+id/articleDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="RecyclerView文章详情"/>
+
+    <Button
+        android:id="@+id/thumbnails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="图片缩略图"/>
+
 
 </LinearLayout>

@@ -5,12 +5,11 @@ import android.content.Context
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.Uri
-import android.os.Handler
 import android.text.TextUtils
-import android.util.Log
 import com.ls.comm_util_library.*
 import com.ls.retrofit_library.RetrofitUtil
 import com.ls.retrofit_library.db.DownloadInfo
+import com.ls.retrofit_library.db.DownloadInfoDao
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -38,7 +37,6 @@ class Download {
     private val mDownloadEntityMap: MutableMap<String, DownloadEntity> = HashMap()
     private val mDownloadDao: DownloadInfoDao
 
-    private val mHandler: Handler
     private val mContext: Context
     private val mRetrofit: Retrofit
 
@@ -56,7 +54,6 @@ class Download {
         mRetrofit = retrofit
         mDownloadApi = mRetrofit.create(DownloadApi::class.java)
         mDownloadDao = DownloadInfoDao(context)
-        mHandler = Handler()
         val filter = IntentFilter()
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
         mContext.registerReceiver(mReceiver,filter)
@@ -242,24 +239,21 @@ class Download {
           out: OutputStream?,
           entity: DownloadEntity){
         if(out == null) throw IOException("out is null !!!")
-        FileUtils.write(responseBody.byteStream(),out,object : FileUtils.IWriteListener{
-            override fun onSuccess() {
-//                mHandler.post {
-//                    entity.listener?.onFinish("")
-//                }
-            }
+        FileUtils.write(responseBody.byteStream(),out,entity.info.alreadySize,object : FileUtils.IWriteListener{
+            override fun onStart(control: FileUtils.BaseWriteControl?) { }
+            override fun onSuccess() {}
             override fun onError(e: java.lang.Exception?) {
-                mHandler.post {
+                ThreadUtils.execMain(Runnable {
                     entity.listener?.onFailed(e)
-                }
+                })
             }
             override fun onWrite(length: Long) {
                 entity.info.downState = 0
                 entity.info.alreadySize = length
                 mDownloadDao.save(entity.info)
-                mHandler.post {
+                ThreadUtils.execMain(Runnable {
                     entity.listener?.onProgress(length, entity.info.totalSize)
-                }
+                })
             }
         })
 
@@ -312,24 +306,26 @@ class Download {
         entity: DownloadEntity
     ) {
         val allLength = entity.info.totalSize
+        var lastProgress = 0.0F
         FileUtils.writeRandomAccessFile(responseBody.byteStream(),file,entity.info.alreadySize,allLength, object :FileUtils.IWriteListener {
-            override fun onSuccess() {
-                mHandler.post {
-//                    entity.listener?.onFinish("")
-                }
-            }
+            override fun onStart(control: FileUtils.BaseWriteControl?) { }
+            override fun onSuccess() { }
             override fun onError(e: java.lang.Exception?) {
-                mHandler.post {
+                ThreadUtils.execMain(Runnable {
                     entity.listener?.onFailed(e)
-                }
+                })
             }
             override fun onWrite(length: Long) {
+                val currentProgress = NumberUtils.getPercentFloat(length, allLength)
+                if((currentProgress - lastProgress) >= 0.5){
+                    lastProgress = currentProgress
+                    ThreadUtils.execMain(Runnable {
+                        entity.listener?.onProgress(length, allLength)
+                    })
+                }
                 entity.info.downState = 0
                 entity.info.alreadySize = length
                 mDownloadDao.save(entity.info)
-                mHandler.post {
-                    entity.listener?.onProgress(length, allLength)
-                }
 
             }
         })

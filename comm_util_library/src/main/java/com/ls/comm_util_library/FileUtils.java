@@ -510,7 +510,8 @@ public class FileUtils {
      */
     public static void copy(File src,File dest,boolean append,IWriteListener listener){
         try {
-            write(getInputStreamByFile(src),getOutputStreamByFile(dest,append),listener);
+            long alreadySize = (append && dest.exists()) ? dest.length() : 0;
+            write(getInputStreamByFile(src),getOutputStreamByFile(dest,append),alreadySize,listener);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -614,15 +615,17 @@ public class FileUtils {
         if(!(is instanceof BufferedInputStream)){
             is = new BufferedInputStream(is);
         }
-        RandomAccessFile randomAccessFile = null;
-        FileChannel channel = null;
-        try {
-            randomAccessFile = new RandomAccessFile(file,"rw");
+
+        try (
+                final RandomAccessFile randomAccessFile = new RandomAccessFile(file,"rw");
+                final FileChannel channel = randomAccessFile.getChannel()
+        ) {
             randomAccessFile.setLength(length);
             randomAccessFile.seek(position);
-            channel = randomAccessFile.getChannel();
             MappedByteBuffer mbb = channel.map(FileChannel.MapMode.READ_WRITE,0,length);
             byte[] buffer = new byte[COPY_ONE_SIZE];
+            // 开始回调
+            onStart(listener,new RandomAccessControl(randomAccessFile));
             int read = 0;
             long alreadyRead = position;
             while((read = is.read(buffer)) != -1){
@@ -636,20 +639,6 @@ public class FileUtils {
             onError(listener,e);
         }
         finally {
-            if(channel != null) {
-                try {
-                    channel.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if(randomAccessFile != null) {
-                try {
-                    randomAccessFile.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             if(isCloseStream){
                 try {
                     is.close();
@@ -723,6 +712,7 @@ public class FileUtils {
                     pages = (int) (fileSize / bufferSize) + 1;
                 }
             }
+            onStart(listener,new FileChannelControl(srcChannel));
             byte[] buffer = new byte[bufferSize];
             long alreadyRead = 0;
             for (long i = 0; i < pages; i++){
@@ -1272,6 +1262,7 @@ public class FileUtils {
             file.getParentFile().mkdirs();
         }
         OutputStream os = null;
+        long alreadySize = append ? file.length() : 0;
         try {
             os = getOutputStreamByFile(file,append);
         } catch (FileNotFoundException e) {
@@ -1280,7 +1271,7 @@ public class FileUtils {
         if(!(is instanceof BufferedInputStream)){
             is = new BufferedInputStream(is);
         }
-        write(is,os,listener,isCloseStream);
+        write(is,os,alreadySize,listener,isCloseStream);
     }
 
     /**
@@ -1365,7 +1356,7 @@ public class FileUtils {
      * @param out 输出流
      */
     public static void write(InputStream in,OutputStream out){
-        write(in, out, null);
+        write(in, out,false);
     }
 
     /**
@@ -1375,17 +1366,18 @@ public class FileUtils {
      * @param isCloseStream 是否在方法内关闭流
      */
     public static void write(InputStream in,OutputStream out,boolean isCloseStream){
-        write(in, out, null, isCloseStream);
+        write(in, out,0, null, isCloseStream);
     }
 
     /**
      * 输入流写输出流
      * @param in 输入流
      * @param out 输出流
+     * @param alreadySize 已经存在的字节数，需要进度的时候传入，文件输出流append为true的时候这个可以是文件已有的长度
      * @param listener 写入监听
      */
-    public static void write(InputStream in,OutputStream out,IWriteListener listener){
-        write(in, out, listener, true);
+    public static void write(InputStream in,OutputStream out,long alreadySize,IWriteListener listener){
+        write(in, out,alreadySize, listener, true);
     }
 
     /**
@@ -1393,9 +1385,10 @@ public class FileUtils {
      * @param in 输入流
      * @param out 输出流
      * @param listener 写入监听
+     * @param alreadySize 已经存在的字节数，需要进度的时候传入，文件输出流append为true的时候这个可以是文件已有的长度
      * @param isCloseStream 是否在方法内关闭流
      */
-    public static void write(InputStream in, OutputStream out, IWriteListener listener, boolean isCloseStream){
+    public static void write(InputStream in, OutputStream out,long alreadySize, IWriteListener listener, boolean isCloseStream){
         try {
             if(in == null || out == null){
                 return;
@@ -1407,7 +1400,7 @@ public class FileUtils {
                 out = new BufferedOutputStream(out);
             }
             byte[] bytes = new byte[COPY_ONE_SIZE];
-            long alreadyRead = 0;
+            long alreadyRead = alreadySize;
             int read;
             while((read = in.read(bytes)) != -1){
                 out.write(bytes,0,read);
@@ -1833,6 +1826,7 @@ public class FileUtils {
         FileChannel outChannel = fos.getChannel();
         ByteBuffer buffer = ByteBuffer.allocate(COPY_ONE_SIZE);
         try {
+            onStart(listener,new FileChannelControl(inChannel));
             long alreadyWrite = 0;
             while (inChannel.read(buffer) > 0){
                 // 读取完毕，复位指针，切除空余空间，用于将内容写入
@@ -2046,6 +2040,12 @@ public class FileUtils {
         }
     }
 
+    private static void onStart(IWriteListener listener,BaseWriteControl control){
+        if(null != listener){
+            listener.onStart(control);
+        }
+    }
+
     private static void onWrite(IWriteListener listener,long length){
         if(null != listener){
             listener.onWrite(length);
@@ -2068,9 +2068,75 @@ public class FileUtils {
      * 文件写入监听
      */
     public interface IWriteListener {
+        void onStart(BaseWriteControl control);
         void onSuccess();
         void onError(Exception e);
         void onWrite(long length);
+    }
+
+    /**
+     * 写入控制器
+     * 可用于停止
+     */
+    public abstract static class BaseWriteControl{
+        public abstract void stop();
+    }
+
+    /**
+     * 流控制器
+     */
+    public static class StreamControl extends BaseWriteControl{
+
+        private OutputStream mOut;
+
+        public StreamControl(OutputStream out){
+            mOut = out;
+        }
+
+        @Override
+        public void stop() {
+            try {
+                mOut.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static class FileChannelControl extends BaseWriteControl{
+
+        private FileChannel mFileChannel;
+
+        public FileChannelControl(FileChannel fileChannel){
+            mFileChannel = fileChannel;
+        }
+
+        @Override
+        public void stop() {
+            try {
+                mFileChannel.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static class RandomAccessControl extends BaseWriteControl{
+
+        private RandomAccessFile mRandomAccessFile;
+
+        public RandomAccessControl(RandomAccessFile randomAccessFile){
+            mRandomAccessFile = randomAccessFile;
+        }
+
+        @Override
+        public void stop() {
+            try {
+                mRandomAccessFile.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

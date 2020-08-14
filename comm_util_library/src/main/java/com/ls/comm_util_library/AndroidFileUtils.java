@@ -1,5 +1,6 @@
 package com.ls.comm_util_library;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -7,10 +8,17 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.format.Formatter;
 
+import com.ls.comm_util_library.thumbnails.BucketBean;
+import com.ls.comm_util_library.thumbnails.ThumbnailBean;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -130,4 +138,6 @@ public abstract class AndroidFileUtils {
         }
         return size;
     }
+
+
 }
