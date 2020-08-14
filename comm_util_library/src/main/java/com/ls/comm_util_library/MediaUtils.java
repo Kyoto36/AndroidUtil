@@ -168,6 +168,15 @@ public class MediaUtils {
     }
 
     /**
+     * 根据图片ID获取Uri
+     * @param imageId 在系统图片数据库中的ID
+     * @return
+     */
+    public static Uri getImageUri(int imageId){
+        return ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,imageId);
+    }
+
+    /**
      * 获取所有相册分组
      * @param context
      * @param preCount 预先加载几张图片，可以作为分组的图标
@@ -226,12 +235,18 @@ public class MediaUtils {
         return map;
     }
 
+    /**
+     * 根据获取最近的图片集合
+     * @param context
+     * @param limit 获取到多久之后 单位秒
+     * @return
+     */
     public static List<ImageBean> loadNewestImages(Context context, long limit){
         return loadImages(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI,limit);
     }
 
     /**
-     * 获取所有图片缩略图
+     * 获取所有图片
      * @param context
      * @return
      */
@@ -242,6 +257,18 @@ public class MediaUtils {
     /**
      * 根据Uri获取图片集合
      * @param context
+     * @return
+     */
+    public static List<ImageBean> loadImages(Context context, Uri uri){
+        return loadImages(context, uri,0);
+    }
+
+
+    /**
+     * 根据Uri获取图片集合
+     * @param context
+     * @param uri
+     * @param limit 获取到多久之后 单位秒
      * @return
      */
     public static List<ImageBean> loadImages(Context context, Uri uri, long limit){
