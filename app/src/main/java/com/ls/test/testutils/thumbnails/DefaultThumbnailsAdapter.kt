@@ -7,9 +7,10 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.ls.comm_util_library.IDoubleListener
 import com.ls.comm_util_library.thumbnails.ImageBean
-import com.ls.glide_library.GlideUtils
+import com.ls.glide_library.GlideApp
 import com.ls.test.testutils.R
 import kotlinx.android.synthetic.main.item_thumbnails.view.*
+
 
 /**
  * @ClassName: ThumbnailsAdater
@@ -22,6 +23,9 @@ class DefaultThumbnailsAdapter(context: Context, datas : MutableList<ImageBean>?
     private val mContext = context
     private var mDatas = datas
     private var mOnItemClickListener: IDoubleListener<Int, ImageBean>? = null
+    private val mLoadStrategy by lazy {
+        GlideApp.getAlbumStrategy(mContext,R.drawable.ic_launcher_background,R.drawable.ic_launcher_background)
+    }
 
     inner class ViewHolder: RecyclerView.ViewHolder{
 
@@ -45,7 +49,31 @@ class DefaultThumbnailsAdapter(context: Context, datas : MutableList<ImageBean>?
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        GlideUtils.load(mDatas!![position].path,holder.image,-1,-1)
+//        Glide.with(mContext)
+//            .load(mDatas!![position].uri)
+////            .transition(new GenericTransitionOptions<>().transition(R.anim.glide_anim))
+//            .transition(GenericTransitionOptions<Any>().transition(android.R.anim.slide_in_left))
+//            .transition(DrawableTransitionOptions().crossFade(150))
+//            .apply(
+//                RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE)
+//                    .centerCrop()
+//                    .placeholder(R.drawable.ic_launcher_background).error(R.drawable.ic_launcher_background)
+//            )
+//            .thumbnail(0.5f)
+//            .into(holder.image)
+//        GlideApp.with(mContext)
+//            .load(mDatas!![position].uri)
+////            .anim(android.R.anim.slide_in_left)
+////            .crossFade(150)
+//            .noDisk()
+//            .centerCropRoundCorners(Util.dp2px(8F).toInt())
+//            .toGlide()
+//            .placeholder(R.drawable.ic_launcher_background)
+//            .error(R.drawable.ic_launcher_background)
+//            .thumbnail(0.5F)
+//            .into(holder.image)
+        mLoadStrategy.from(mDatas!![position].uri).into(holder.image)
+//        GlideUtils.load(mDatas!![position].uri,holder.image,R.drawable.ic_launcher_background,-1)
         holder.itemView.setOnClickListener {
             mOnItemClickListener?.onValue(position,mDatas!![position])
         }
