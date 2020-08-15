@@ -41,6 +41,7 @@ public final class CenterCropRoundedCorners extends BitmapTransformation {
     toTransform = TransformationUtils.centerCrop(pool, toTransform, outWidth, outHeight);
     return TransformationUtils.roundedCorners(pool, toTransform, roundingRadius);
 //    return toTransform;
+
   }
 
   private Bitmap roundCrop(BitmapPool pool, Bitmap source) {

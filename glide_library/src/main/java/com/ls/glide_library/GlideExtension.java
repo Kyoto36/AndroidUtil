@@ -73,6 +73,11 @@ public class GlideExtension {
         return this;
     }
 
+    public GlideExtension centerCrop(){
+        mRequestBuilder = mRequestBuilder.centerCrop();
+        return this;
+    }
+
     public GlideExtension anim(int viewAnimationId){
         mRequestBuilder = mRequestBuilder.transition(new GenericTransitionOptions<>().transition(viewAnimationId));
         return this;

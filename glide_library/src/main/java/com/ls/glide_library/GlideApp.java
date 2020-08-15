@@ -12,9 +12,7 @@ import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.bitmap_recycle.LruBitmapPool;
 import com.bumptech.glide.load.engine.cache.DiskLruCacheFactory;
-import com.ls.glide_library.strategy.AbstractStrategy;
-import com.ls.glide_library.strategy.AlbumStrategy;
-import com.ls.glide_library.strategy.NoStrategy;
+import com.ls.glide_library.strategy.ILoadStrategy;
 
 public class GlideApp {
     /**
@@ -30,15 +28,9 @@ public class GlideApp {
         Glide.init(context, builder);
     }
 
-    public static AbstractStrategy getNoStrategy(Context context){
-        return new NoStrategy(context);
-    }
 
-    public static AbstractStrategy getAlbumStrategy(Context context,int placeholder,int error){
-        AlbumStrategy temp = new AlbumStrategy(context);
-        temp.addPlaceholder(placeholder);
-        temp.addError(error);
-        return temp;
+    public static GlideLoader getLoader(Context context,ILoadStrategy strategy){
+        return new GlideLoader(context, strategy);
     }
 
     private GlideApp(){}

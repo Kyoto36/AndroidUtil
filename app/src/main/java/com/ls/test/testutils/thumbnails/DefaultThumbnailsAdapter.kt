@@ -6,8 +6,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.ls.comm_util_library.IDoubleListener
+import com.ls.comm_util_library.Util
 import com.ls.comm_util_library.thumbnails.ImageBean
 import com.ls.glide_library.GlideApp
+import com.ls.glide_library.strategy.ImageSelectorStrategy
 import com.ls.test.testutils.R
 import kotlinx.android.synthetic.main.item_thumbnails.view.*
 
@@ -23,8 +25,14 @@ class DefaultThumbnailsAdapter(context: Context, datas : MutableList<ImageBean>?
     private val mContext = context
     private var mDatas = datas
     private var mOnItemClickListener: IDoubleListener<Int, ImageBean>? = null
-    private val mLoadStrategy by lazy {
-        GlideApp.getAlbumStrategy(mContext,R.drawable.ic_launcher_background,R.drawable.ic_launcher_background)
+    private val mGlideLoader by lazy {
+        val strategy = ImageSelectorStrategy(
+            R.drawable.ic_launcher_background,
+            R.drawable.ic_launcher_background,
+            Util.dp2px(8F).toInt(),
+            true
+        )
+        GlideApp.getLoader(mContext, strategy)
     }
 
     inner class ViewHolder: RecyclerView.ViewHolder{
@@ -72,7 +80,7 @@ class DefaultThumbnailsAdapter(context: Context, datas : MutableList<ImageBean>?
 //            .error(R.drawable.ic_launcher_background)
 //            .thumbnail(0.5F)
 //            .into(holder.image)
-        mLoadStrategy.from(mDatas!![position].uri).into(holder.image)
+        mGlideLoader.from(mDatas!![position].uri).to(holder.image)
 //        GlideUtils.load(mDatas!![position].uri,holder.image,R.drawable.ic_launcher_background,-1)
         holder.itemView.setOnClickListener {
             mOnItemClickListener?.onValue(position,mDatas!![position])
