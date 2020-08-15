@@ -84,7 +84,7 @@ object GlideUtils {
     }
 
     private fun resize(view: ImageView,requestBuilder: RequestBuilder<Drawable>): RequestBuilder<Drawable>{
-        return requestBuilder.override(view.layoutParams.width, view.layoutParams.height)
+        return requestBuilder.override(view.layoutParams.width, view.layoutParams.height).thumbnail(0.5f)
     }
 
     // 加载圆角图片
@@ -102,6 +102,38 @@ object GlideUtils {
 
     fun loadRoundCorners(resId: Int, view: ImageView,roundCorners: Int) {
         loadRoundCorners(Glide.with(view.context).load(resId), view,roundCorners, -1, -1)
+    }
+
+    fun loadRoundCorners(obj: Any, view: ImageView,roundCorners: Int, placeholder: Int, error: Int,centerCrop: Boolean) {
+        var requestBuilder = Glide.with(view.context).asDrawable()
+        if(centerCrop){
+            requestBuilder = requestBuilder.centerCrop()
+        }
+        loadRoundCorners(loadObject(obj, requestBuilder), view,roundCorners,placeholder, error)
+    }
+
+    fun loadRoundCorners(bitmap: Bitmap, view: ImageView,roundCorners: Int,centerCrop: Boolean) {
+        var requestBuilder = Glide.with(view.context).asDrawable()
+        if(centerCrop){
+            requestBuilder = requestBuilder.centerCrop()
+        }
+        loadRoundCorners(requestBuilder.load(bitmap), view,roundCorners, -1, -1)
+    }
+
+    fun loadRoundCorners(url: String, view: ImageView,roundCorners: Int, placeholder: Int, error: Int,centerCrop: Boolean) {
+        var requestBuilder = Glide.with(view.context).asDrawable()
+        if(centerCrop){
+            requestBuilder = requestBuilder.centerCrop()
+        }
+        loadRoundCorners(loadObject(url, requestBuilder), view,roundCorners, placeholder, error)
+    }
+
+    fun loadRoundCorners(resId: Int, view: ImageView,roundCorners: Int,centerCrop: Boolean) {
+        var requestBuilder = Glide.with(view.context).asDrawable()
+        if(centerCrop){
+            requestBuilder = requestBuilder.centerCrop()
+        }
+        loadRoundCorners(requestBuilder.load(resId), view,roundCorners, -1, -1)
     }
 
     // 加载圆形图片

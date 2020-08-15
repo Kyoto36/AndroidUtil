@@ -13,6 +13,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.annotation.LayoutRes
+import androidx.annotation.RequiresApi
 
 class Util{
     companion object {
@@ -91,17 +92,33 @@ class Util{
         }
 
         /**
-         * Java可调用Util.Companion.getDisplayWidth(getWindow());
+         * Java可调用Util.Companion.getDisplayWidth(this);
          */
         fun getDisplayWidth(context: Context): Int{
             return context.getDisplayWidth()
         }
 
         /**
-         * Java可调用Util.Companion.getDisplayHeight(getWindow());
+         * Java可调用Util.Companion.getDisplayHeight(this);
          */
         fun getDisplayHeight(context: Context): Int{
             return context.getDisplayHeight()
+        }
+
+        /**
+         * Java可调用Util.Companion.getScreenRealWidth(this);
+         */
+        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+        fun getScreenRealWidth(context: Context): Int{
+            return context.getScreenRealWidth()
+        }
+
+        /**
+         * Java可调用Util.Companion.getScreenRealHeight(this);
+         */
+        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+        fun getScreenRealHeight(context: Context): Int{
+            return context.getScreenRealHeight()
         }
 
 
