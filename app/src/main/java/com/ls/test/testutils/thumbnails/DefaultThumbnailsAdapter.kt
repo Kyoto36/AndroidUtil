@@ -26,12 +26,7 @@ class DefaultThumbnailsAdapter(context: Context, datas : MutableList<ImageBean>?
     private var mDatas = datas
     private var mOnItemClickListener: IDoubleListener<Int, ImageBean>? = null
     private val mGlideLoader by lazy {
-        val strategy = ImageSelectorStrategy(
-            R.drawable.ic_launcher_background,
-            R.drawable.ic_launcher_background,
-            Util.dp2px(8F).toInt(),
-            true
-        )
+        val strategy = ImageSelectorStrategy()
         GlideApp.getLoader(mContext, strategy)
     }
 

@@ -46,5 +46,9 @@
         android:layout_height="wrap_content"
         android:text="图片缩略图"/>
 
+    <com.ls.test.testutils.ScaleImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
 
 </LinearLayout>

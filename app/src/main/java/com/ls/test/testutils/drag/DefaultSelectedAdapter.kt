@@ -26,12 +26,7 @@ class DefaultSelectedAdapter(context: Context, datas: MutableList<ImageBean>?) :
     private val mContext = context
     private var mDatas = datas
     private val mGlideLoader by lazy {
-        val strategy = ImageSelectorStrategy(
-            R.drawable.ic_launcher_background,
-            R.drawable.ic_launcher_background,
-            Util.dp2px(8F).toInt(),
-            true
-        )
+        val strategy = ImageSelectorStrategy()
         GlideApp.getLoader(mContext, strategy)
     }
 
