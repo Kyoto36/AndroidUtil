@@ -183,14 +183,13 @@ class ScaleImageView
             val dw = d.intrinsicWidth // 图片固有宽度
             val dh = d.intrinsicHeight // 图片固有高度
 
-            var scale = 0f
+            var scale = 1f
             mScaleMatrix = Matrix()
             // 图片宽度大于控件宽度但高度小于控件高度
             if(dw > width || dh > height){
                 val scaleW = width * 1F / dw
                 val scaleH = height * 1F / dh
                 scale = if(scaleW < scaleH) scaleW else scaleH
-                Log.d("aaaaa","scale = $scale scaleW $scaleW scaleH $scaleH")
             }
 
             mBaseScale = scale
