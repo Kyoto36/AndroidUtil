@@ -24,7 +24,7 @@ class ScaleImageView
 @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     AppCompatImageView(context, attrs, defStyleAttr), ViewTreeObserver.OnGlobalLayoutListener {
 
-    private val mScaleMatrix = Matrix()
+    private var mScaleMatrix = Matrix()
     private var mFocusPoint = PointF()
     private var mGestureDetector: GestureDetector
     private var mScaleGestureDetector: ScaleGestureDetector
@@ -173,8 +173,8 @@ class ScaleImageView
 
     private var mOnce = true
     override fun onGlobalLayout() {
-        if (mOnce) {
-            mOnce = false
+//        if (mOnce) {
+//            mOnce = false
             // 获取控件的宽度和高度
             val width = width
             val height = height
@@ -183,20 +183,19 @@ class ScaleImageView
             val dw = d.intrinsicWidth // 图片固有宽度
             val dh = d.intrinsicHeight // 图片固有高度
 
-            var scale = 1.0f
-            if (dw > width && dh < height) { // 图片宽度大于控件宽度但高度小于控件高度
-                scale = width * 1.0f / dw // 缩小一定值
+            var scale = 0f
+            mScaleMatrix = Matrix()
+            // 图片宽度大于控件宽度但高度小于控件高度
+            if(dw > width || dh > height){
+                val scaleW = width * 1F / dw
+                val scaleH = height * 1F / dh
+                scale = if(scaleW < scaleH) scaleW else scaleH
+                Log.d("aaaaa","scale = $scale scaleW $scaleW scaleH $scaleH")
             }
-            // 图片宽度大于控件宽度但高度小于控件高度& 图片的宽高都小于控件的宽高
-            if (dw < width && dh < height || dw > width && dh < height) {
-                scale = Math.min(width * 1.0f / dw, height * 1.0f / dh) // 按照宽度对应缩放最小值进行缩放
-            }
-            if (dw < width && dh > height) { // 图片宽度小于控件宽度，但图片高度大于控件高度
-                scale = height * 1.0f / dh // 缩小一定的比例
-            }
+
             mBaseScale = scale
-            mMaxScale = mBaseScale * 2
-            mMinScale = mBaseScale * 0.75F
+            mMaxScale = mBaseScale * 3F
+            mMinScale = mBaseScale * 0.7F
             // 将图片移动到手机屏幕的中间位置
             val dx = width / 2 - dw / 2.toFloat()
             val dy = height / 2 - dh / 2.toFloat()
@@ -206,7 +205,7 @@ class ScaleImageView
                 (height / 2).toFloat()
             )
             imageMatrix = mScaleMatrix
-        }
+//        }
     }
 
     /**

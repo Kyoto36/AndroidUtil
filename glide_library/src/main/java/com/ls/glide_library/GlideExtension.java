@@ -3,6 +3,7 @@ package com.ls.glide_library;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.widget.ImageView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
@@ -94,7 +95,11 @@ public class GlideExtension {
     }
 
     public RequestBuilder<Drawable> toGlide(){
-        ObjectCheck.requireNonNull(mRequestBuilder,"call after load()");
         return mRequestBuilder;
+    }
+
+    public void to(ImageView view){
+        ObjectCheck.requireNonNull(mRequestBuilder,"call after load()");
+        mRequestBuilder.into(view);
     }
 }
