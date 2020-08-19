@@ -1,11 +1,15 @@
 package com.ls.test.testutils
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.widget.ImageView
+import com.ls.comm_util_library.LogUtils
 import com.ls.comm_util_library.toast
 import com.ls.glide_library.GlideUtils
 import com.ls.permission.Permissions
@@ -52,5 +56,14 @@ class MainActivity : AppCompatActivity() {
         thumbnails.setOnClickListener {
             startActivity(Intent(this,PictureActivity::class.java))
         }
+
+        scaleImage.setOnClickListener {
+            startActivity(Intent(this,ScaleActivity::class.java))
+        }
+
+        val buildId = Build.BOARD + Build.SERIAL + Build.PRODUCT + Build.DEVICE + Build.ID + Build.VERSION.INCREMENTAL
+        val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+        LogUtils.d("aaaaa","buildId = $buildId androidId = $androidId")
+
     }
 }
