@@ -15,6 +15,7 @@ import android.view.ScaleGestureDetector
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.graphics.contains
 import com.ls.comm_util_library.LogUtils
 
 
@@ -34,8 +35,8 @@ class ScaleImageView
 
     private val mOnGestureListener = object : GestureDetector.SimpleOnGestureListener() {
         override fun onDoubleTap(e: MotionEvent): Boolean {
-            if (mIsAutoScale) {
-                return true
+            if (mIsAutoScale || !getMatrixRectF().contains(e.x,e.y)) {
+                return false
             }
 
             mFocusPoint.x = e.x
@@ -108,6 +109,7 @@ class ScaleImageView
             private var mScaleFactorOld = 1F
 
             override fun onScale(detector: ScaleGestureDetector): Boolean {
+                if(!getMatrixRectF().contains(mFocusPoint.x, mFocusPoint.y)) return false
                 scale(detector.scaleFactor * mScaleFactorOld)
                 return false
             }
