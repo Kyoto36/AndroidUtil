@@ -15,6 +15,7 @@ import com.ls.comm_util_library.RecyclerViewAdapter
 abstract class CommRecyclerViewAdapter<VH: CommRecyclerViewAdapter.CommViewHolder<T>,T>(context: Context, datas: MutableList<T>?): RecyclerViewAdapter<VH,T>(context, datas) {
 
     protected var mIsScrolling = false
+    protected var mOnItemClickListener: IDoubleListener<Int,T>? = null
 
     fun setScrolling(isScrolling: Boolean){
         mIsScrolling = isScrolling
@@ -41,6 +42,10 @@ abstract class CommRecyclerViewAdapter<VH: CommRecyclerViewAdapter.CommViewHolde
         notifyDataSetChanged()
     }
 
+    fun setOnItemClickListener(listener: IDoubleListener<Int,T>){
+        mOnItemClickListener = listener
+    }
+
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
         if(holder is CommViewHolder<*>) holder.onViewRecycled()
@@ -49,7 +54,12 @@ abstract class CommRecyclerViewAdapter<VH: CommRecyclerViewAdapter.CommViewHolde
     override fun onBindItemViewHolder(holder: VH, position: Int) {
         holder.itemCount = itemCount
         holder.setScrolling(mIsScrolling)
-        holder.bindData(mDatas!![position],position)
+
+        val item = mDatas!![position]
+        holder.itemView.setOnClickListener {
+            mOnItemClickListener?.onValue(position,item)
+        }
+        holder.bindData(item,position)
     }
 
     abstract class CommViewHolder<T>(view: View): RecyclerView.ViewHolder(view){
