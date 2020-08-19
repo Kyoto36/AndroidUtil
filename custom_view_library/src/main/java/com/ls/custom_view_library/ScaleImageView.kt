@@ -31,8 +31,18 @@ class ScaleImageView
     private var mMaxScale = 0F
     private var mMinScale = 0F
     private var mIsAutoScale = false
+    private var mIsDownSlide = false
+    private var mIsScale = false
+
+    private var mOnDownSlideListener: IOnDownSlideListener? = null
 
     private val mOnGestureListener = object : GestureDetector.SimpleOnGestureListener() {
+
+        override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+            performClick()
+            return super.onSingleTapConfirmed(e)
+        }
+
         override fun onDoubleTap(e: MotionEvent): Boolean {
             if (mIsAutoScale || !getMatrixRectF().contains(e.x,e.y)) {
                 return false
@@ -44,12 +54,16 @@ class ScaleImageView
             if (getScale() < mMaxScale) {
                 postDelayed(AutoScale(mMaxScale), 16)
                 mIsAutoScale = true
+                mIsScale = true
             } else {
                 postDelayed(AutoScale(mBaseScale), 16)
                 mIsAutoScale = true
+                mIsScale = true
             }
             return true
         }
+
+        var mLastDownSlideDis = 0F
 
         override fun onScroll(
             e1: MotionEvent,
@@ -57,6 +71,7 @@ class ScaleImageView
             distanceX: Float,
             distanceY: Float
         ): Boolean {
+            if(mIsScale) return false
             val rect = getMatrixRectF()
             var deltaX = 0f
             var deltaY = 0f
@@ -93,13 +108,41 @@ class ScaleImageView
                     deltaY = -bottomDis
                 }
             }
+            val distanceRawY = e1.rawY - e2.rawY
+            val distanceRawX = e1.rawX - e2.rawX
             if(deltaX != 0F || deltaY != 0F) {
                 parent.requestDisallowInterceptTouchEvent(true)
                 mScaleMatrix.postTranslate(deltaX, deltaY)
                 imageMatrix = mScaleMatrix
                 return true
             }
+            else if(Math.abs(distanceRawY) > Math.abs(distanceRawX)){
+                if(!mIsDownSlide){
+                    mIsDownSlide = true
+                    mLastDownSlideDis = distanceRawY
+                    mOnDownSlideListener?.onStart()
+                }
+                if(mIsDownSlide){
+                    mOnDownSlideListener?.onScroll(mLastDownSlideDis - distanceRawY)
+                    mLastDownSlideDis = distanceRawY
+                    return true
+                }
+            }
             return false
+        }
+
+        override fun onFling(
+            e1: MotionEvent,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
+            if (mIsDownSlide) {
+                mIsDownSlide = false
+                mOnDownSlideListener?.onEnd(mIsScale,velocityY)
+                return true
+            }
+            return super.onFling(e1, e2, velocityX, velocityY)
         }
     }
 
@@ -117,6 +160,8 @@ class ScaleImageView
             override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
                 mFocusPoint.set(detector.focusX, detector.focusY)
                 mScaleFactorOld = getScale()
+                mIsScale = true
+                mOnDownSlideListener?.onEnd(mIsScale,0F)
                 return true
             }
 
@@ -128,6 +173,9 @@ class ScaleImageView
                 else if(getScale() < mMinScale){
                     postDelayed(AutoScale(mMinScale), 16)
                 }
+                else{
+                    mIsScale = false
+                }
             }
         }
 
@@ -137,9 +185,19 @@ class ScaleImageView
         scaleType = ScaleType.MATRIX
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        mGestureDetector.onTouchEvent(event)
-        mScaleGestureDetector.onTouchEvent(event)
+    fun setOnDownSlideListener(listener: IOnDownSlideListener){
+        mOnDownSlideListener = listener
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        val scaleTouch = mScaleGestureDetector.onTouchEvent(event)
+        val touch = mGestureDetector.onTouchEvent(event)
+        if((event.action and MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP){
+            if(mIsDownSlide){
+                mIsDownSlide = false
+                mOnDownSlideListener?.onEnd(mIsScale,0F)
+            }
+        }
         return true
     }
 
@@ -295,9 +353,16 @@ class ScaleImageView
                 borderAndCenterCheck()
                 imageMatrix = mScaleMatrix
                 mIsAutoScale = false
+                mIsScale = false
             }
         }
 
+    }
+
+    interface IOnDownSlideListener{
+        fun onStart()
+        fun onScroll(distance :Float)
+        fun onEnd(cancel: Boolean,velocity: Float)
     }
 
 
