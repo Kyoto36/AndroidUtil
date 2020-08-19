@@ -32,6 +32,7 @@ fun Context.getDisplayWidth():Int {
 
 /**
  * 获取显示高度，不带状态栏和导航栏
+ * 如果设置透明状态了并且内容显示到状态栏里，就带上了状态栏的高度
  * @return 返回像素px
  */
 fun Context.getDisplayHeight(): Int {

@@ -19,7 +19,6 @@ import androidx.core.graphics.contains
 import com.ls.comm_util_library.LogUtils
 
 
-@RequiresApi(Build.VERSION_CODES.KITKAT)
 class ScaleImageView
 @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     AppCompatImageView(context, attrs, defStyleAttr), ViewTreeObserver.OnGlobalLayoutListener {
@@ -95,6 +94,7 @@ class ScaleImageView
                 }
             }
             if(deltaX != 0F || deltaY != 0F) {
+                parent.requestDisallowInterceptTouchEvent(true)
                 mScaleMatrix.postTranslate(deltaX, deltaY)
                 imageMatrix = mScaleMatrix
                 return true
@@ -168,7 +168,9 @@ class ScaleImageView
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        viewTreeObserver.removeOnGlobalLayoutListener(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            viewTreeObserver.removeOnGlobalLayoutListener(this)
+        }
     }
 
     private var mOnce = true
