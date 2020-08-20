@@ -113,7 +113,7 @@ class HeaderZoomRecyclerView @JvmOverloads constructor(
     private fun replyView() {
         val distance = zoomView!!.layoutParams.width - zoomViewWidth.toFloat()
         // 设置动画
-        val anim = ObjectAnimator.ofFloat(distance, 0.0f).setDuration((distance * mReplyRatio).toLong())
+        val anim = ObjectAnimator.ofFloat(distance, 0.0f).setDuration(Math.abs(distance * mReplyRatio).toLong())
         anim.addUpdateListener { animation -> setZoom(animation.animatedValue as Float) }
         anim.start()
     }

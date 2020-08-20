@@ -108,15 +108,16 @@ class ScaleImageView
                     deltaY = -bottomDis
                 }
             }
-            val distanceRawY = e1.rawY - e2.rawY
-            val distanceRawX = e1.rawX - e2.rawX
             if(deltaX != 0F || deltaY != 0F) {
                 parent.requestDisallowInterceptTouchEvent(true)
                 mScaleMatrix.postTranslate(deltaX, deltaY)
                 imageMatrix = mScaleMatrix
+                endDownSlide()
                 return true
             }
-            else if(Math.abs(distanceRawY) > Math.abs(distanceRawX)){
+            val distanceRawY = e1.rawY - e2.rawY
+            val distanceRawX = e1.rawX - e2.rawX
+            if(Math.abs(distanceRawY) > 0){
                 if(!mIsDownSlide){
                     mIsDownSlide = true
                     mLastDownSlideDis = distanceRawY
@@ -137,11 +138,7 @@ class ScaleImageView
             velocityX: Float,
             velocityY: Float
         ): Boolean {
-            if (mIsDownSlide) {
-                mIsDownSlide = false
-                mOnDownSlideListener?.onEnd(mIsScale,velocityY)
-                return true
-            }
+            endDownSlide(mIsScale || getScale() > mBaseScale,velocityY)
             return super.onFling(e1, e2, velocityX, velocityY)
         }
     }
@@ -161,7 +158,7 @@ class ScaleImageView
                 mFocusPoint.set(detector.focusX, detector.focusY)
                 mScaleFactorOld = getScale()
                 mIsScale = true
-                mOnDownSlideListener?.onEnd(mIsScale,0F)
+                endDownSlide()
                 return true
             }
 
@@ -185,7 +182,7 @@ class ScaleImageView
         scaleType = ScaleType.MATRIX
     }
 
-    fun setOnDownSlideListener(listener: IOnDownSlideListener){
+    fun setOnDownSlideListener(listener: IOnDownSlideListener?){
         mOnDownSlideListener = listener
     }
 
@@ -193,12 +190,23 @@ class ScaleImageView
         val scaleTouch = mScaleGestureDetector.onTouchEvent(event)
         val touch = mGestureDetector.onTouchEvent(event)
         if((event.action and MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP){
-            if(mIsDownSlide){
-                mIsDownSlide = false
-                mOnDownSlideListener?.onEnd(mIsScale,0F)
-            }
+            endDownSlide()
         }
         return true
+    }
+
+    private fun endDownSlide(){
+        if(mIsDownSlide){
+            mIsDownSlide = false
+            mOnDownSlideListener?.onEnd(true,0F)
+        }
+    }
+
+    private fun endDownSlide(cancel: Boolean,velocity: Float){
+        if(mIsDownSlide){
+            mIsDownSlide = false
+            mOnDownSlideListener?.onEnd(cancel,velocity)
+        }
     }
 
     private fun scale(scale: Float) {
@@ -246,11 +254,11 @@ class ScaleImageView
             var scale = 1f
             mScaleMatrix = Matrix()
             // 图片宽度大于控件宽度但高度小于控件高度
-            if(dw > width || dh > height){
+//            if(dw > width || dh > height){
                 val scaleW = width * 1F / dw
                 val scaleH = height * 1F / dh
                 scale = if(scaleW < scaleH) scaleW else scaleH
-            }
+//            }
 
             mBaseScale = scale
             mMaxScale = mBaseScale * 3F
