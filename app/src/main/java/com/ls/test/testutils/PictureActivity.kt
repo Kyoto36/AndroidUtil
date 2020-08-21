@@ -50,6 +50,7 @@ class PictureActivity : AppCompatActivity() {
         mThumbnailsAdapter.setItemClickListener(IDoubleListener { position, bean ->
             val addIndex = mSelectedAdapter.addItem(bean)
             mSelectedLayoutManager.scrollToPosition(addIndex)
+            ScaleActivity.start(this,bean)
         })
 
         Log.d("aaaaaa", MediaUtils.loadBuckets(this,3).toString())

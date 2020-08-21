@@ -3,12 +3,16 @@ package com.ls.comm_util_library;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.format.Formatter;
 
+import androidx.core.content.FileProvider;
+
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -85,6 +89,21 @@ public abstract class AndroidFileUtils {
      */
     public static InputStream getInputStreamByAsset(Context context, String fileName) throws IOException {
         return new BufferedInputStream(context.getAssets().open(fileName));
+    }
+
+    /**
+     * 根据Uri获取输入流（装饰了BufferedInputStream）
+     * @param context android下的context
+     * @param uri 文件uri
+     * @return 输入流
+     */
+    public static InputStream getInputStreamByUri(Context context,Uri uri){
+        try {
+            return new BufferedInputStream(context.getContentResolver().openInputStream(uri));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

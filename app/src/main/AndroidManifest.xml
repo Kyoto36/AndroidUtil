@@ -17,7 +17,8 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ScaleActivity"></activity>
+        <activity android:name=".PuzzleVerifyActivity"></activity>
+        <activity android:name=".ScaleActivity" />
         <activity android:name=".PictureActivity" />
         <activity android:name=".RecyclerViewActivity" />
         <activity android:name=".FileActivity" />

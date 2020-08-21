@@ -2,18 +2,28 @@ package com.ls.test.testutils
 
 import android.animation.Animator
 import android.animation.ValueAnimator
+import android.content.Context
+import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.annotation.RequiresApi
+import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
+import com.ls.comm_util_library.IVoidListener
 import com.ls.comm_util_library.LogUtils
 import com.ls.comm_util_library.changeStatusBarFontDark
 import com.ls.comm_util_library.getDisplayHeight
 import com.ls.comm_util_library.setTranslucentStatusBar
+import com.ls.comm_util_library.thumbnails.ImageBean
 import com.ls.custom_view_library.ScaleImageView
 import com.ls.glide_library.GlideApp
 import kotlinx.android.synthetic.main.activity_scale.*
+import java.io.File
 
 class ScaleActivity : AppCompatActivity() {
 
@@ -22,9 +32,19 @@ class ScaleActivity : AppCompatActivity() {
         setContentView(R.layout.activity_scale)
         window!!.setTranslucentStatusBar()
         window!!.changeStatusBarFontDark(false)
-
+        val bean = intent.getParcelableExtra<ImageBean>("aaa")
 //        GlideApp.with(this).load("/sdcard/Pictures/Screenshots/Screenshot_20181102-120348.jpg").to(scaleImage)
-        GlideApp.with(this).load("/sdcard/Pictures/Screenshots/Screenshot_20181106-182601.jpg").to(scaleImage)
+//        GlideApp.with(this).load("/sdcard/Pictures/Screenshots/Screenshot_20181106-182601.jpg").to(scaleImage)
+        if(bean?.uri == null){
+            scaleImage.setImage(R.drawable.aaa, IVoidListener {
+                GlideApp.with(this).load(R.drawable.aaa).to(scaleImage)
+            })
+        }
+        else {
+            scaleImage.setImage(bean.uri, IVoidListener {
+                GlideApp.with(this).load(bean.uri).to(scaleImage)
+            })
+        }
         scaleImage.setOnClickListener {
             finish()
         }
@@ -107,5 +127,13 @@ class ScaleActivity : AppCompatActivity() {
             override fun onAnimationStart(animation: Animator?) {}
         })
         animator.start()
+    }
+
+    companion object{
+        fun start(context: Context,imageBean: ImageBean){
+            val intent = Intent(context,ScaleActivity::class.java)
+            intent.putExtra("aaa",imageBean)
+            context.startActivity(intent)
+        }
     }
 }

@@ -16,6 +16,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.ls.comm_util_library.ObjectCheck;
 
 public class GlideExtension {
@@ -101,5 +102,10 @@ public class GlideExtension {
     public void to(ImageView view){
         ObjectCheck.requireNonNull(mRequestBuilder,"call after load()");
         mRequestBuilder.into(view);
+    }
+
+    public <Y extends Target<Drawable>> void to(Y target){
+        ObjectCheck.requireNonNull(mRequestBuilder,"call after load()");
+        mRequestBuilder.into(target);
     }
 }

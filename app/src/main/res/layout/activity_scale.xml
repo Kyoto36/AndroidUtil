@@ -14,6 +14,12 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true"/>
 
+    <com.ls.test.testutils.RegionImageView
+        android:id="@+id/regionView"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <TextView
         android:id="@+id/text"
         android:layout_width="wrap_content"

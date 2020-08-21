@@ -9,8 +9,8 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.widget.ImageView
-import com.ls.comm_util_library.LogUtils
-import com.ls.comm_util_library.toast
+import com.ls.comm_util_library.*
+import com.ls.comm_util_library.thumbnails.ImageBean
 import com.ls.glide_library.GlideUtils
 import com.ls.permission.Permissions
 import kotlinx.android.synthetic.main.activity_main.*
@@ -58,7 +58,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         scaleImage.setOnClickListener {
-            startActivity(Intent(this,ScaleActivity::class.java))
+            ScaleActivity.start(this, ImageBean())
+        }
+
+        puzzleVerify.setOnClickListener {
+            startActivity(Intent(this,PuzzleVerifyActivity::class.java))
         }
 
         val buildId = Build.BOARD + Build.SERIAL + Build.PRODUCT + Build.DEVICE + Build.ID + Build.VERSION.INCREMENTAL

@@ -1,55 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
     android:paddingStart="20dp"
     android:paddingEnd="20dp"
-    android:gravity="center_horizontal"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/testPermission"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="测试权限请求框架"/>
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/testGlide"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="测试图片加载框架"/>
+        <Button
+            android:id="@+id/testPermission"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="测试权限请求框架" />
 
-    <Button
-        android:id="@+id/testCircular"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="测试圆形进度条"/>
+        <Button
+            android:id="@+id/testGlide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="测试图片加载框架" />
 
-    <Button
-        android:id="@+id/testFile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="测试文件工具类"/>
+        <Button
+            android:id="@+id/testCircular"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="测试圆形进度条" />
 
-    <Button
-        android:id="@+id/articleDetail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="RecyclerView文章详情"/>
+        <Button
+            android:id="@+id/testFile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="测试文件工具类" />
 
-    <Button
-        android:id="@+id/thumbnails"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="图片缩略图"/>
+        <Button
+            android:id="@+id/articleDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RecyclerView文章详情" />
 
-    <Button
-        android:id="@+id/scaleImage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="图片缩放"/>
+        <Button
+            android:id="@+id/thumbnails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="图片缩略图" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/scaleImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="图片缩放" />
+
+        <Button
+            android:id="@+id/puzzleVerify"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="拼图验证" />
+    </LinearLayout>
+</ScrollView>
