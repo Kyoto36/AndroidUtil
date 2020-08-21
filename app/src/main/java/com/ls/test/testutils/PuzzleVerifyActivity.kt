@@ -40,7 +40,7 @@ class PuzzleVerifyActivity : AppCompatActivity() {
             }
         })
         switchImage.setOnClickListener {
-            image.reset()
+            image.reset();
             seekBar.isEnabled = true
             seekBar.progress = 0
             switchImage()

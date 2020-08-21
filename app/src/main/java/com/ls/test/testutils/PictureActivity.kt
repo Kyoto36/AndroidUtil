@@ -48,8 +48,8 @@ class PictureActivity : AppCompatActivity() {
         })
 
         mThumbnailsAdapter.setItemClickListener(IDoubleListener { position, bean ->
-            val addIndex = mSelectedAdapter.addItem(bean)
-            mSelectedLayoutManager.scrollToPosition(addIndex)
+//            val addIndex = mSelectedAdapter.addItem(bean)
+//            mSelectedLayoutManager.scrollToPosition(addIndex)
             ScaleActivity.start(this,bean)
         })
 

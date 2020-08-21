@@ -25,7 +25,7 @@ import java.util.Random;
 public class PuzzleVerifyView extends AppCompatImageView {
 
     enum State{
-        ACCESS,UNACCESS,MOVEING
+        INIT,IDLE,MOVING,SUCCESS,FAILED
     }
 
     enum Mode{
@@ -41,7 +41,7 @@ public class PuzzleVerifyView extends AppCompatImageView {
 
 
 
-    private State mState = State.RESET;
+    private State mState = State.INIT;
     private long mStartTime = 0;
     private IStateListener<Void> mAccessListener;
     private Size mBlockSize;
@@ -77,8 +77,10 @@ public class PuzzleVerifyView extends AppCompatImageView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        initBlock();
-        if(mState != State.ACCESS) {
+        if(mState == State.INIT) {
+            initBlock();
+        }
+        if(mState != State.SUCCESS) {
             canvas.drawPath(mBlockMaskPath, mBlockShadowPaint);
             canvas.drawBitmap(mMaskBitmap, mMaskPosition.left, mMaskPosition.top, new Paint());
         }
@@ -115,8 +117,8 @@ public class PuzzleVerifyView extends AppCompatImageView {
     }
 
     public void move(int progress){
-        if(mState == State.RESET) return;
-        mState = State.MOVEING;
+        if(mState == State.INIT) return;
+        mState = State.MOVING;
         mMaskPosition.left = (int)(progress / 100f * (getWidth() - mBlockSize.getWidth()));
         invalidate();
     }
@@ -125,8 +127,8 @@ public class PuzzleVerifyView extends AppCompatImageView {
      * 触动拼图缺块(触动模式)
      */
     public void moveByTouch(float offsetX, float offsetY) {
-        if(mState == State.RESET) return;
-        mState = State.MOVEING;
+        if(mState == State.INIT) return;
+        mState = State.MOVING;
         mMaskPosition.left += offsetX;
         mMaskPosition.top += offsetY;
         invalidate();
@@ -136,7 +138,7 @@ public class PuzzleVerifyView extends AppCompatImageView {
      *触动拼图块(触动模式)
      * */
     void startByTouch(float x, float y) {
-        if(mState == State.RESET) invalidate();
+        if(mState == State.INIT) return;
         mStartTime = System.currentTimeMillis();
         mMaskPosition.left = (int) (x - mBlockSize.getWidth() / 2f);
         mMaskPosition.top = (int) (y - mBlockSize.getHeight() / 2f);
@@ -162,12 +164,13 @@ public class PuzzleVerifyView extends AppCompatImageView {
      */
     public void checkAccess() {
         if (Math.abs(mBlockPosition.left - mMaskPosition.left) < TOLERANCE && Math.abs(mBlockPosition.top - mMaskPosition.top) < TOLERANCE) {
-            mState = State.ACCESS;
+            mState = State.SUCCESS;
             invalidate();
             if(mAccessListener != null){
                 mAccessListener.onSuccess(null);
             }
         } else {
+            mState = State.FAILED;
             if(mAccessListener != null){
                 mAccessListener.onFailed(null);
             }
@@ -179,50 +182,51 @@ public class PuzzleVerifyView extends AppCompatImageView {
     }
 
     public void reset(){
-        mState = State.RESET;
+        mState = State.INIT;
         mBlockSize = null;
         mBlockPosition = null;
         mMaskPosition = null;
         mBlockShadowPaint = null;
         mBlockMaskPath = null;
+        if(mDisplayBitmap != null && !mDisplayBitmap.isRecycled()){
+            mDisplayBitmap.recycle();
+        }
         mDisplayBitmap = null;
+        if(mMaskBitmap != null && !mMaskBitmap.isRecycled()){
+            mMaskBitmap.recycle();
+        }
         mMaskBitmap = null;
     }
 
+    public void reload(){
+        reset();
+        invalidate();
+    }
+
     private void initBlock(){
-        if(mBlockSize == null) {
-            mBlockSize = mCaptchaStrategy.getBlockSize(getWidth(),getHeight());
+        mBlockSize = mCaptchaStrategy.getBlockSize(getWidth(),getHeight());
+        mBlockPosition = mCaptchaStrategy.getBlockPositionInfo(getWidth(),getHeight(),mBlockSize);
+        if (mMode == Mode.MODE_BAR) {
+            mMaskPosition = new PositionInfo(0, mBlockPosition.top);
+        } else {
+            mMaskPosition = mCaptchaStrategy.getPositionInfoForSwipeBlock(getWidth(), getHeight(), mBlockSize);
         }
-        if(mBlockPosition == null){
-            mBlockPosition = mCaptchaStrategy.getBlockPositionInfo(getWidth(),getHeight(),mBlockSize);
-        }
-        if(mMaskPosition == null){
-            if (mMode == Mode.MODE_BAR) {
-                mMaskPosition = new PositionInfo(0, mBlockPosition.top);
-            } else {
-                mMaskPosition = mCaptchaStrategy.getPositionInfoForSwipeBlock(getWidth(), getHeight(), mBlockSize);
-            }
-        }
-        if(mBlockShadowPaint == null){
-            mBlockShadowPaint = mCaptchaStrategy.getBlockShadowPaint();
-        }
-        if(mBlockMaskPath == null){
-            mBlockMaskPath = mCaptchaStrategy.getBlockShape(mBlockSize);
-            mBlockMaskPath.offset(mBlockPosition.left,mBlockPosition.top);
-        }
-        if(mDisplayBitmap == null){
-            mDisplayBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas tempCanvas = new Canvas(mDisplayBitmap);
-            tempCanvas.concat(getImageMatrix());
-            getDrawable().draw(tempCanvas);
-        }
-        if(mMaskBitmap == null){
-            Bitmap tempBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas tempCanvas = new Canvas(tempBitmap);
-            tempCanvas.clipPath(mBlockMaskPath);
-            tempCanvas.drawBitmap(mDisplayBitmap,0,0,new Paint());
-            mMaskBitmap = Bitmap.createBitmap(tempBitmap, mBlockPosition.left, mBlockPosition.top, mBlockSize.getWidth(), mBlockSize.getHeight());
-        }
+        mBlockShadowPaint = mCaptchaStrategy.getBlockShadowPaint();
+        mBlockMaskPath = mCaptchaStrategy.getBlockShape(mBlockSize);
+        mBlockMaskPath.offset(mBlockPosition.left,mBlockPosition.top);
+        // 创建当前图片显示区域的Bitmap
+        mDisplayBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas tempCanvas = new Canvas(mDisplayBitmap);
+        tempCanvas.concat(getImageMatrix());
+        getDrawable().draw(tempCanvas);
+        // 根据图片显示区域，创建滑块
+        Bitmap tempBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        tempCanvas = new Canvas(tempBitmap);
+        tempCanvas.clipPath(mBlockMaskPath);
+        tempCanvas.drawBitmap(mDisplayBitmap,0,0,new Paint());
+        mMaskBitmap = Bitmap.createBitmap(tempBitmap, mBlockPosition.left, mBlockPosition.top, mBlockSize.getWidth(), mBlockSize.getHeight());
+        tempBitmap.recycle();
+        mState = State.IDLE;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)

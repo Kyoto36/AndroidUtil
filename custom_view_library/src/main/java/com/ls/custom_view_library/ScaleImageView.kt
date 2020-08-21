@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.*
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.Log
@@ -22,6 +24,14 @@ import kotlin.properties.Delegates
 class ScaleImageView
 @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     AppCompatImageView(context, attrs, defStyleAttr), ViewTreeObserver.OnGlobalLayoutListener {
+
+    private val mHandlerThread by lazy {
+        HandlerThread("ScaleImageView-work")
+    }
+
+    private val mWorkHandler by lazy {
+        Handler(mHandlerThread.looper)
+    }
 
     private var mScaleMatrix = Matrix()
     private var mFocusPoint = PointF()
@@ -62,11 +72,14 @@ class ScaleImageView
 
             val scale = getScale()
 
-            if(scale == mMaxScale || scale == mMinScale || (scale >= mBaseScale && scale < mNormalScale)){
-                postDelayed(AutoScale(mNormalScale), 15)
+            if(scale >= mMaxScale){
+                postDelayed(AutoScale(mBaseScale), 15)
             }
-            else if (scale >= mNormalScale) {
+            else if(scale >= mNormalScale){
                 postDelayed(AutoScale(mMaxScale), 15)
+            }
+            else if(scale >= mBaseScale){
+                postDelayed(AutoScale(mNormalScale), 15)
             }
             else{
                 postDelayed(AutoScale(mBaseScale), 15)
@@ -124,7 +137,7 @@ class ScaleImageView
             if (deltaX != 0F || deltaY != 0F) {
                 parent.requestDisallowInterceptTouchEvent(true)
                 mScaleMatrix.postTranslate(deltaX, deltaY)
-                loadHDImage()
+                reDraw()
                 endDownSlide()
                 return true
             }
@@ -183,7 +196,7 @@ class ScaleImageView
                 } else if (getScale() < mMinScale) {
                     postDelayed(AutoScale(mMinScale), 15)
                 } else {
-                    loadHDImage()
+                    reDraw()
                     mIsScale = false
                 }
             }
@@ -284,25 +297,6 @@ class ScaleImageView
         imageMatrix = mScaleMatrix
     }
 
-    private fun loadHDImage(){
-        if (mOptions.inSampleSize <= 1) {
-            reDraw()
-            return
-        }
-
-        ThreadUtils.execIO(Runnable {
-            val displayRegion = getDisplayRegion()
-            val inSampleSize = calculateInSampleSize(displayRegion.width().toInt(),displayRegion.height().toInt(),width,height)
-//            val optionsRegion = BitmapFactory.Options().apply {
-//                this.inSampleSize = inSampleSize
-//            }
-//            Log.e("aaaaa","inSampleSize = $inSampleSize")
-//            val bitmap = mBitmapRegionDecoder?.decodeRegion(displayRegion.toRect(),optionsRegion)
-//            setBitmap(bitmap)
-        })
-
-    }
-
     private fun getDisplayRegion(): RectF {
         val imageRect = getMatrixRectF()
         return RectF().apply {
@@ -313,16 +307,9 @@ class ScaleImageView
         }
     }
 
-    private operator fun RectF.times(scale: Int) = apply {
-        left *= scale
-        right *= scale
-        top *= scale
-        bottom *= scale
-    }
-
     private fun loadBitmap(listener: IResultListener<InputStream>,unknownListener: IVoidListener){
         post {
-            ThreadUtils.execIO(Runnable {
+            mWorkHandler.post {
                 mOptions.inJustDecodeBounds = true
                 var inputStream = listener.onResult()
                 BitmapFactory.decodeStream(inputStream,null,mOptions)
@@ -330,7 +317,7 @@ class ScaleImageView
                     post {
                         unknownListener.invoke()
                     }
-                    return@Runnable
+                    return@post
                 }
                 inputStream = listener.onResult()
                 mBitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
@@ -340,9 +327,9 @@ class ScaleImageView
                 mOptions.inJustDecodeBounds = false
                 inputStream = listener.onResult()
                 val bitmap = BitmapFactory.decodeStream(inputStream,null,mOptions)
-                val cache = AndroidFileUtils.getCachePath(context) + "bitmap_${System.currentTimeMillis()}"
+//                val cache = AndroidFileUtils.getCachePath(context) + "bitmap_${System.currentTimeMillis()}"
                 setBitmap(bitmap)
-            })
+            }
         }
     }
 
@@ -353,14 +340,14 @@ class ScaleImageView
      */
     private fun calculateInSampleSize(srcWidth: Int,srcHeight: Int, reqWidth: Int, reqHeight: Int): Int {
         var inSampleSize = 1
-        Log.e("aaaaa","srcWidth $srcWidth srcHeight $srcHeight reqWidth $reqWidth reqHeight $reqHeight")
         if (reqWidth < srcWidth || reqHeight < srcHeight) {
             val halfWidth = srcWidth / 2
             val halfHeight = srcHeight / 2
-            while (halfHeight / inSampleSize > reqHeight || halfWidth / inSampleSize > reqWidth) {
+            while (halfHeight / inSampleSize > reqHeight && halfWidth / inSampleSize > reqWidth) {
                 inSampleSize *= 2
             }
         }
+        Log.e("aaaaa","inSampleSize $inSampleSize srcWidth $srcWidth srcHeight $srcHeight reqWidth $reqWidth reqHeight $reqHeight")
         return inSampleSize
     }
 
@@ -490,7 +477,7 @@ class ScaleImageView
                 val scale = mTargetScale / currentScale
                 mScaleMatrix.postScale(scale, scale, mFocusPoint.x, mFocusPoint.y)
                 borderAndCenterCheck()
-                loadHDImage()
+                reDraw()
                 mIsAutoScale = false
                 mIsScale = false
             }
