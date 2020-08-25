@@ -68,7 +68,7 @@ public abstract class CaptchaStrategy {
     /**
      * 装饰滑块图片，在绘制图片后执行，即绘制滑块前景
      */
-    public void decoreateSwipeBlockBitmap(Canvas canvas, Path shape) {
+    public void decorateMaskBitmap(Canvas canvas, Path shape) {
 
     }
 }

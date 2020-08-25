@@ -7,12 +7,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.Path;
-import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -20,7 +21,6 @@ import androidx.appcompat.widget.AppCompatImageView;
 import com.ls.comm_util_library.IStateListener;
 import com.ls.comm_util_library.Size;
 
-import java.util.Random;
 
 public class PuzzleVerifyView extends AppCompatImageView {
 
@@ -28,23 +28,12 @@ public class PuzzleVerifyView extends AppCompatImageView {
         INIT,IDLE,MOVING,SUCCESS,FAILED
     }
 
-    enum Mode{
-        /**
-         * 带滑动条验证模式
-         */
-        MODE_BAR,
-        /**
-         * 不带滑动条验证，手触模式
-         */
-        MODE_NONBAR,
-    }
-
-
 
     private State mState = State.INIT;
     private long mStartTime = 0;
     private IStateListener<Void> mAccessListener;
     private Size mBlockSize;
+    private Paint mMaskShadowPaint;
     private Bitmap mMaskBitmap;
     private Bitmap mDisplayBitmap;
     private Paint mBlockShadowPaint;
@@ -54,7 +43,7 @@ public class PuzzleVerifyView extends AppCompatImageView {
     private CaptchaStrategy mCaptchaStrategy;
     private float tempX, tempY, downX, downY;
 
-    private Mode mMode = Mode.MODE_BAR;
+    private CaptchaView.Mode mMode = CaptchaView.Mode.MODE_BAR;
 
 
     public PuzzleVerifyView(Context context) {
@@ -71,7 +60,7 @@ public class PuzzleVerifyView extends AppCompatImageView {
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
-        mCaptchaStrategy = new DefaultCaptchaStrategy(context);
+        mCaptchaStrategy = new SemicircleCaptchaStrategy(context);
     }
 
     @Override
@@ -82,13 +71,14 @@ public class PuzzleVerifyView extends AppCompatImageView {
         }
         if(mState != State.SUCCESS) {
             canvas.drawPath(mBlockMaskPath, mBlockShadowPaint);
-            canvas.drawBitmap(mMaskBitmap, mMaskPosition.left, mMaskPosition.top, new Paint());
+            canvas.drawBitmap(mMaskBitmap.extractAlpha(),mMaskPosition.left, mMaskPosition.top, mMaskShadowPaint);
+            canvas.drawBitmap(mMaskBitmap, mMaskPosition.left, mMaskPosition.top, null);
         }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mMode == Mode.MODE_NONBAR && mMaskBitmap != null) {
+        if (mMode == CaptchaView.Mode.MODE_NONBAR && mMaskBitmap != null) {
             float x = event.getX();
             float y = event.getY();
             switch (event.getAction()) {
@@ -153,8 +143,9 @@ public class PuzzleVerifyView extends AppCompatImageView {
         checkAccess();
     }
 
-    public void setMode(Mode mode){
+    public void setMode(CaptchaView.Mode mode){
         mMode = mode;
+        reload();
     }
 
     private static final int TOLERANCE = 10;         //验证的最大容差
@@ -204,13 +195,15 @@ public class PuzzleVerifyView extends AppCompatImageView {
     }
 
     private void initBlock(){
+        if(getDrawable() == null) return;
         mBlockSize = mCaptchaStrategy.getBlockSize(getWidth(),getHeight());
         mBlockPosition = mCaptchaStrategy.getBlockPositionInfo(getWidth(),getHeight(),mBlockSize);
-        if (mMode == Mode.MODE_BAR) {
+        if (mMode == CaptchaView.Mode.MODE_BAR) {
             mMaskPosition = new PositionInfo(0, mBlockPosition.top);
         } else {
             mMaskPosition = mCaptchaStrategy.getPositionInfoForSwipeBlock(getWidth(), getHeight(), mBlockSize);
         }
+        // 实例化阴影画笔
         mBlockShadowPaint = mCaptchaStrategy.getBlockShadowPaint();
         mBlockMaskPath = mCaptchaStrategy.getBlockShape(mBlockSize);
         mBlockMaskPath.offset(mBlockPosition.left,mBlockPosition.top);
@@ -221,15 +214,22 @@ public class PuzzleVerifyView extends AppCompatImageView {
         getDrawable().draw(tempCanvas);
         // 根据图片显示区域，创建滑块
         Bitmap tempBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Paint p = new Paint();
         tempCanvas = new Canvas(tempBitmap);
+        tempCanvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
         tempCanvas.clipPath(mBlockMaskPath);
-        tempCanvas.drawBitmap(mDisplayBitmap,0,0,new Paint());
+        tempCanvas.drawBitmap(mDisplayBitmap,0,0,p);
+        mCaptchaStrategy.decorateMaskBitmap(tempCanvas, mBlockMaskPath);
         mMaskBitmap = Bitmap.createBitmap(tempBitmap, mBlockPosition.left, mBlockPosition.top, mBlockSize.getWidth(), mBlockSize.getHeight());
         tempBitmap.recycle();
+        mMaskShadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mMaskShadowPaint.setColor(Color.BLACK);
+
+        setLayerType(View.LAYER_TYPE_SOFTWARE, mMaskShadowPaint);
+        mMaskShadowPaint.setMaskFilter(new BlurMaskFilter(15, BlurMaskFilter.Blur.SOLID));
         mState = State.IDLE;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private Rect getImgDisplaySize() {
         Rect rect = new Rect();
         if (getDrawable() != null) {

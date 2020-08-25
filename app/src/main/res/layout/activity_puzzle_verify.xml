@@ -5,25 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/rootView"
     tools:context=".PuzzleVerifyActivity">
 
-    <com.ls.custom_view_library.puzzle_verify.PuzzleVerifyView
-        android:id="@+id/image"
+    <com.ls.custom_view_library.puzzle_verify.CaptchaView
+        android:id="@+id/captcha"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:src="@drawable/aaa"
-        android:scaleType="centerCrop"/>
-
-    <com.ls.custom_view_library.puzzle_verify.TextSeekBar
-        android:id="@+id/seekBar"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"/>
+        android:layout_height="300dp"/>
 
     <Button
         android:id="@+id/switchImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="切换"/>
+
+    <com.ls.test.testutils.CanvasView
+        android:layout_width="300dp"
+        android:layout_height="300dp"/>
 
 </LinearLayout>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="verify_codes">
+        <item>@drawable/verification_code_1</item>
+        <item>@drawable/verification_code_2</item>
+        <item>@drawable/verification_code_3</item>
+        <item>@drawable/verification_code_4</item>
+        <item>@drawable/verification_code_5</item>
+    </string-array>
+</resources>

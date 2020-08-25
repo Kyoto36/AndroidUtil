@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PointF;
 
 import androidx.annotation.NonNull;
 
@@ -91,7 +92,7 @@ public class DefaultCaptchaStrategy extends CaptchaStrategy {
 
 
     @Override
-    public void decoreateSwipeBlockBitmap(Canvas canvas, Path shape) {
+    public void decorateMaskBitmap(Canvas canvas, Path shape) {
         Paint paint = new Paint();
         paint.setColor(Color.parseColor("#FFFFFF"));
         paint.setStyle(Paint.Style.STROKE);
