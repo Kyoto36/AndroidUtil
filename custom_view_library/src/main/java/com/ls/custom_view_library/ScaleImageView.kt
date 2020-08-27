@@ -29,9 +29,7 @@ class ScaleImageView
         HandlerThread("ScaleImageView-work")
     }
 
-    private val mWorkHandler by lazy {
-        Handler(mHandlerThread.looper)
-    }
+    private lateinit var mWorkHandler: Handler
 
     private var mScaleMatrix = Matrix()
     private var mFocusPoint = PointF()
@@ -203,6 +201,8 @@ class ScaleImageView
         }
 
     init {
+        mHandlerThread.start()
+        mWorkHandler = Handler(mHandlerThread.looper)
         mGestureDetector = GestureDetector(context, mOnGestureListener)
         mScaleGestureDetector = ScaleGestureDetector(context, mOnScaleGestureListener)
         scaleType = ScaleType.MATRIX

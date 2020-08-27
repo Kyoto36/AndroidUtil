@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 28
@@ -105,13 +105,13 @@ dependencies {
 //    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-andx-16'
 }
 
-apply plugin: 'com.novoda.bintray-release'
-
-publish {
-    userOrg = 'kyoto36'
-    groupId = 'com.ls.code' //包名
-    artifactId = 'CommUtil'    //新建仓库的名字
-    publishVersion  = '1.0.0'    //版本号
-    desc  = 'android 帮助类集合'  //描述 可随意写
-    website = "https://github.com/Kyoto36/AndroidUtil"  //代码地址github，也可不写
-}
+//apply plugin: 'com.novoda.bintray-release'
+//
+//publish {
+//    userOrg = 'kyoto36'
+//    groupId = 'com.ls.code' //包名
+//    artifactId = 'CommUtil'    //新建仓库的名字
+//    publishVersion  = '1.0.0'    //版本号
+//    desc  = 'android 帮助类集合'  //描述 可随意写
+//    website = "https://github.com/Kyoto36/AndroidUtil"  //代码地址github，也可不写
+//}
