@@ -34,7 +34,7 @@ class PuzzleVerifyActivity : AppCompatActivity() {
 //            captcha.setMode(CaptchaView.Mode.MODE_NONBAR)
 //            captcha.reload()
 //            captcha.puzzleView.setImageResource(mVerifyCodes[mRandom.nextInt(mVerifyCodes.size)])
-            mCaptchaPopup.show(mVerifyCodes[mRandom.nextInt(mVerifyCodes.size)],rootView)
+//            mCaptchaPopup.show(mVerifyCodes[mRandom.nextInt(mVerifyCodes.size)],rootView)
         }
     }
 

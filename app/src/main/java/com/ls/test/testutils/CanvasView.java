@@ -1,12 +1,20 @@
 package com.ls.test.testutils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Region;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -35,16 +43,259 @@ public class CanvasView extends View {
         mPaint.setStrokeWidth(10f);
     }
 
+    int PADDING = 0;
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mCaptchaWidth = getWidth() / 5;
-        mCaptchaHeight = getHeight() / 5;
-        Paint paint = new Paint();
-        paint.setColor(Color.GREEN);
-        canvas.drawRect(0,0,mCaptchaWidth,mCaptchaHeight,paint);
-        canvas.drawPath(createCaptchaPath(),mPaint);
+//        mCaptchaWidth = getWidth() / 5;
+//        mCaptchaHeight = getHeight() / 5;
+//        Paint paint = new Paint();
+//        paint.setColor(Color.GREEN);
+//        setLayerType(View.LAYER_TYPE_SOFTWARE, paint);
+//
+//        float cx=getWidth()/2;
+//        float cy=getHeight()/2;
+//        float length=cx-PADDING;
+//        float a=(float) Math.sqrt(3)*length/2;  //邻边长度
+//        Path mPath = new Path();
+//        mPath.moveTo(PADDING,cy);
+//        //画一个正六边形
+//        mPath.lineTo(PADDING+length/2f,cy-a);
+//        mPath.lineTo(3/2f*length+PADDING,cy-a);
+//        mPath.lineTo(cx+length,cy);
+//        mPath.lineTo(3/2f*length+PADDING,cy+a);
+//        mPath.lineTo(PADDING+length/2f,cy+a);
+//        mPath.lineTo(PADDING,cy);
 
+
+//        int count = 6;
+//        float radius = getWidth() / 2;
+//        canvas.translate(radius,radius);
+//        for (int i=0;i<count;i++){
+//            if (i==0){
+//                mPath.moveTo(radius*cos(360/count*i),radius*sin(360/count*i));//绘制起点
+//            }else{
+//                mPath.lineTo(radius*cos(360/count*i),radius*sin(360/count*i));
+//            }
+//        }
+//        mPath.close();
+//        canvas.drawPath(mPath,mPaint);
+//
+//        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+//        Bitmap bitmap1 = Bitmap.createBitmap(getWidth(), getHeight(),Bitmap.Config.ARGB_8888);
+//        Canvas temp = new Canvas(bitmap1);
+//        Drawable d = getContext().getResources().getDrawable(R.drawable.verification_code_1);
+//        d.setBounds(0,0,getWidth(),getHeight());
+//        d.draw(temp);
+//        canvas.translate(0,0);
+//        canvas.drawBitmap(bitmap1,0,0,mPaint);
+
+//        canvas.drawRect(0,0,mCaptchaWidth,mCaptchaHeight,paint);
+//        canvas.drawPath(createCaptchaPath(),mPaint);
+
+//        Bitmap bitmap1 = Bitmap.createBitmap(getWidth(), getHeight(),Bitmap.Config.ARGB_8888);
+//        Canvas temp = new Canvas(bitmap1);
+//        Drawable d = getContext().getResources().getDrawable(R.drawable.duobianxing_touxiang);
+//        d.setBounds(0,0,getWidth(),getHeight());
+//        d.draw(temp);
+//        Bitmap bitmap2 = Bitmap.createBitmap(getWidth(), getHeight(),Bitmap.Config.ARGB_8888);
+//        temp = new Canvas(bitmap2);
+//        d = getContext().getResources().getDrawable(R.drawable.verification_code_1);
+//        d.setBounds(0,0,getWidth(),getHeight());
+//        d.draw(temp);
+//        canvas.drawBitmap(bitmap1,0,0,paint);
+//        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
+//        canvas.drawBitmap(bitmap2,0,0,paint);
+//        canvas.drawLine(0F,0F,100F,100F,paint);
+
+//        drawBitmap(canvas);
+//        if(mBitmap != null){
+//            canvas.drawBitmap(mBitmap,0,0,null);
+//        }
+        canvas.rotate(30,getWidth()/2,getHeight()/2);
+        Path path = getPath(6,getWidth() / 2);
+        canvas.drawPath(path,mPaint);
+        canvas.rotate(-30,getWidth()/2,getHeight()/2);
+        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(getBitmap(),0,0,mPaint);
+        mPaint.setXfermode(null);
+
+//        //设置背景色
+//        canvas.drawARGB(255, 139, 197, 186);
+//        Paint paint = new Paint();
+//        int canvasWidth = canvas.getWidth();
+//        int r = canvasWidth / 3;
+//        //正常绘制黄色的圆形
+//        paint.setColor(0xFFFFCC44);
+//        canvas.drawCircle(r, r, r, paint);
+//        //使用CLEAR作为PorterDuffXfermode绘制蓝色的矩形
+//        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+//        paint.setColor(0xFF66AAFF);
+//        canvas.drawRect(r, r, r * 2.7f, r * 2.7f, paint);
+//        //最后将画笔去除Xfermode
+//        paint.setXfermode(null);
+    }
+
+    private Bitmap getBitmap(){
+        Bitmap result = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(result);
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.verification_code_1);
+
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+        final RectF rectF = new RectF(0, 0, getWidth(), getHeight());
+
+        canvas.drawBitmap(bitmap, rect, rectF, null);
+        return result;
+    }
+
+    private Path getPath(int num,float radius){
+        int count = num;
+        Path path = new Path();
+        for (int i=0;i<count;i++){
+            if (i==0){
+                path.moveTo(radius + radius*cos(360/count*i),radius + radius*sin(360/count*i));//绘制起点
+            }else{
+                path.lineTo(radius + radius*cos(360/count*i),radius + radius*sin(360/count*i));
+            }
+        }
+        path.close();
+        return path;
+    }
+
+    float sin(int num){
+        return (float) Math.sin(num*Math.PI/180);
+    }
+    float cos(int num){
+        return (float) Math.cos(num*Math.PI/180);
+    }
+
+    int imageSize, radius;
+    Bitmap mBitmap;
+
+    void drawBitmap(Canvas canvas){
+        imageSize = getWidth();
+        radius = 10;
+//        new LoadTask1().execute();
+        new LoadTask3().execute();
+    }
+
+    class LoadTask1 extends AsyncTask<Void, Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            Paint paint = new Paint();
+            paint.setAntiAlias(true);
+            paint.setFilterBitmap(true);
+            //这里是获取到原图
+            Bitmap bitmapSource = BitmapFactory.decodeResource(getResources(), R.drawable.verification_code_1);
+            //我通过getWidth，getHeight获取到了宽高
+            Bitmap result = Bitmap.createBitmap(bitmapSource.getWidth(), bitmapSource.getHeight(), Bitmap.Config.ARGB_8888);
+            //创建一个画布
+            Canvas canvas = new Canvas(result);
+            //通过宽高比，获取到最小的那个值
+            int min = 0;
+            if (result.getWidth() > result.getHeight()){
+                min = result.getHeight();
+            }else if (result.getWidth() < result.getHeight()){
+                min = result.getWidth();
+            }else {
+                min = result.getWidth();
+            }
+            canvas.drawCircle(min/2,min/2,min/2,paint);//先画一个圆
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));//表示我下一步要取交集的地方
+            canvas.drawBitmap(bitmapSource, 0, 0, paint);//又画一个图，并且这个图是在圆形的上面，此时就是获取到交集的地方
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+//            imageView.setImageBitmap(bitmap);
+            mBitmap = bitmap;
+            invalidate();
+        }
+    }
+
+    class LoadTask2 extends AsyncTask<Void, Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            Bitmap result = Bitmap.createBitmap(imageSize, imageSize, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(result);
+
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.verification_code_1);
+
+            final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+            final RectF rectF = new RectF(0, 0, imageSize, imageSize);
+
+            Paint paint = new Paint();
+            paint.setAntiAlias(true);
+            paint.setFilterBitmap(true);
+
+
+            Path path = new Path();
+            path.addRoundRect(rectF, radius, radius, Path.Direction.CW);
+            canvas.clipPath(path, Region.Op.INTERSECT);
+
+            canvas.drawBitmap(bitmap, rect, rectF, paint);
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+//            imageView2.setImageBitmap(bitmap);
+            mBitmap = bitmap;
+            invalidate();
+        }
+    }
+
+    class LoadTask3 extends AsyncTask<Void, Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            Bitmap result = Bitmap.createBitmap(imageSize, imageSize, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(result);
+
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.verification_code_1);
+
+            final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+            final RectF rectF = new RectF(0, 0, imageSize, imageSize);
+
+            Paint paint = new Paint();
+            paint.setAntiAlias(true);
+            paint.setFilterBitmap(true);
+
+
+            Path path = new Path();
+//            path.addRoundRect(rectF, radius, radius, Path.Direction.CW);
+            int count =6;
+            float radius = getWidth() / 2;
+//            canvas.translate(radius,radius);
+
+            for (int i=0;i<count;i++){
+                if (i==0){
+                    path.moveTo(radius + radius*cos(360/count*i),radius + radius*sin(360/count*i));//绘制起点
+                }else{
+                    path.lineTo(radius + radius*cos(360/count*i),radius + radius*sin(360/count*i));
+                }
+            }
+            path.close();
+            canvas.clipPath(path, Region.Op.INTERSECT);
+//            canvas.rotate(30);
+//            canvas.translate(0,0);
+            canvas.drawBitmap(bitmap, rect, rectF, paint);
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+//            imageView2.setImageBitmap(bitmap);
+            mBitmap = bitmap;
+            invalidate();
+        }
     }
 
     int mCaptchaWidth;

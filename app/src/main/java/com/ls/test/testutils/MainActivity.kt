@@ -65,6 +65,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this,PuzzleVerifyActivity::class.java))
         }
 
+        pathView.setOnClickListener {
+            startActivity(Intent(this,PathViewActivity::class.java))
+        }
+
         val buildId = Build.BOARD + Build.SERIAL + Build.PRODUCT + Build.DEVICE + Build.ID + Build.VERSION.INCREMENTAL
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
         LogUtils.d("aaaaa","buildId = $buildId androidId = $androidId")
