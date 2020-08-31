@@ -15,15 +15,15 @@ public class PathFactory {
         return path;
     }
 
-    public static Path getSquare(int num, float radius, float padding){
+    public static Path getSquare(int num, float radius, float borderWidth){
         Path path = new Path();
         float x = 0F;
         float y = 0F;
         for (int i = 0; i < num; i++) {
             x = radius + radius * cos(360 / num * i);
             y = radius + radius * sin(360 / num * i);
-            if(x < radius) x += padding; else x -= padding;
-            if(y < radius) y += padding; else y -= padding;
+            if(x < radius) x += (borderWidth / 2); else x -= (borderWidth / 2);
+            if(y < radius) y += (borderWidth / 2); else y -= (borderWidth / 2);
             if (i == 0) {
                 path.moveTo(x,y); //绘制起点
             } else {

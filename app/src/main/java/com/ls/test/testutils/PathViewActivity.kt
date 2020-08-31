@@ -21,7 +21,7 @@ class PathViewActivity : AppCompatActivity() {
                 config.setBorderColor(Color.GREEN)
                 config.setRotate(30F)
                 val radius = if(width > height) (height / 2).toFloat() else (width / 2).toFloat()
-                val path = PathFactory.getSquare(6,radius,config.getBorderWidth())
+                val path = PathFactory.getSquare(6,radius, config.getBorderWidth())
                 config.setPath(path)
                 setConfig(config)
                 scaleType = ImageView.ScaleType.CENTER_CROP
