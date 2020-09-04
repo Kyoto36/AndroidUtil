@@ -68,5 +68,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="PathView" />
+
+        <Button
+            android:id="@+id/measureView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="view测量测试" />
     </LinearLayout>
 </ScrollView>

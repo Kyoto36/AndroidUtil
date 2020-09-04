@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.view.marginTop
+import com.ls.comm_util_library.IResultListener
+import com.ls.comm_util_library.ISingleResultListener
 import com.ls.comm_util_library.LogUtils
 import com.ls.custom_view_library.R
 
@@ -20,6 +22,7 @@ class AutoLineLayout @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
     private var mMaxLines = Int.MAX_VALUE
+    private var mUpperLimit: Boolean = false
 
     private var mVisibilityViews: MutableList<MutableList<View>>? = null
 
@@ -62,6 +65,7 @@ class AutoLineLayout @JvmOverloads constructor(
                     measureChild(childView,widthMeasureSpec,widthMeasureSpec)
                     lineViews.add(childView)
                     selfWidth = widthSize
+                    mUpperLimit = true
                     break
                 }
                 selfWidth = Math.max(selfWidth,lineWidth) // 测量到目前为止，之前行数中的最大宽度和当前行累计宽度相比，取最大值
@@ -83,13 +87,27 @@ class AutoLineLayout @JvmOverloads constructor(
         if(lineViews.isNotEmpty()){ // 最后一行未计入可显示集合，两种情况：
                                     // 一、计算完最后一个元素之后未占满最后一行，则未计入集合；
                                     // 二、新起一行时，发现超过了最大行数，最后一行则未计入集合
-            selfWidth = Math.min(selfWidth,lineWidth)
+            selfWidth = Math.max(selfWidth,lineWidth)
             selfHeight += childHeight
             mVisibilityViews!!.add(lineViews)
         }
 
         setMeasuredDimension(if (widthMode ==  MeasureSpec.EXACTLY) widthSize else selfWidth,
             if (heightMode ==  MeasureSpec.EXACTLY) heightSize else selfHeight + paddingBottom + paddingTop)
+    }
+
+    fun fillView(generateListener: IResultListener<View>, bindListener: ISingleResultListener<View, Boolean>){
+        mUpperLimit = false
+        removeAllViews()
+        recursionFill(generateListener, bindListener)
+    }
+
+    private fun recursionFill(generateListener: IResultListener<View>, bindListener: ISingleResultListener<View, Boolean>){
+        val view = generateListener.onResult()
+        addView(view)
+        if(!mUpperLimit && bindListener.onResult(view)){
+            recursionFill(generateListener, bindListener)
+        }
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
