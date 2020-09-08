@@ -1,5 +1,6 @@
 package com.ls.comm_util_library
 
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -30,6 +31,9 @@ abstract class RecyclerViewPreLoad: BasePreLoad() {
     override fun isCanPreLoad(): Boolean {
         val layoutManager = mRecyclerView.layoutManager
         if(layoutManager is LinearLayoutManager){
+            return !isLoading && mRecyclerView.isAttachedToWindow && layoutManager.findLastVisibleItemPosition() >= layoutManager.itemCount - mPreLastIndex && layoutManager.findFirstVisibleItemPosition() > 0
+        }
+        if(layoutManager is GridLayoutManager){
             return !isLoading && mRecyclerView.isAttachedToWindow && layoutManager.findLastVisibleItemPosition() >= layoutManager.itemCount - mPreLastIndex && layoutManager.findFirstVisibleItemPosition() > 0
         }
         return false

@@ -2,6 +2,7 @@ package com.ls.custom_view_library
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -60,11 +61,15 @@ class AutoLineLayout @JvmOverloads constructor(
             childHeight = childView.measuredHeight + childLayoutParams.topMargin + childLayoutParams.bottomMargin
             if(lineWidth + childWidth > widthSize){ // 如果当前view的宽度加上之间的累计宽度大于最大宽度，则新起一行
                 if(lineCount >= mMaxLines - 1){ // 如果行数大于等于最大行数 -1，则终止测量（-1是因为最后一行需要在后面统一加上）
-                    childLayoutParams.width = widthSize - lineWidth - childLayoutParams.leftMargin - childLayoutParams.rightMargin - paddingRight
-                    // 修改了子view的宽度，重新测量，免得layout的时候出现子view的内容显示不全
-                    measureChild(childView,widthMeasureSpec,widthMeasureSpec)
-                    lineViews.add(childView)
-                    selfWidth = widthSize
+                    val remainingWidth = widthSize - lineWidth - childLayoutParams.leftMargin - childLayoutParams.rightMargin - paddingRight
+                    // 如果剩余宽度大于原来childView宽度的1/4 或者大于容器宽度的1/6，就显示，否则就不显示
+                    if(remainingWidth > childWidth / 4 || remainingWidth > widthSize / 6) {
+                        // 修改了子view的宽度，重新测量，免得layout的时候出现子view的内容显示不全
+                        childLayoutParams.width = remainingWidth
+                        measureChild(childView,widthMeasureSpec,widthMeasureSpec)
+                        lineViews.add(childView)
+                        selfWidth = widthSize
+                    }
                     mUpperLimit = true
                     break
                 }

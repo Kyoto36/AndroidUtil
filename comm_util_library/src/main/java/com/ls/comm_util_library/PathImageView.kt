@@ -11,8 +11,8 @@ import androidx.appcompat.widget.AppCompatImageView
  * @Author: ls
  * @Date: 2020/8/31 15:47
  */
-class PathImageView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+open class PathImageView @JvmOverloads constructor(
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : AppCompatImageView(context, attrs, defStyleAttr) {
 
     class Config{
@@ -59,11 +59,14 @@ class PathImageView @JvmOverloads constructor(
     }
 
     private var mBitmap: Bitmap? = null
-    private var mConfig = Config()
-    private var mConfigListener: ISingleResultListener<Size,Config>? = null
+    protected var mConfig = Config()
+    protected var mConfigListener: ISingleResultListener<Size,Config>? = null
+
+    init {
+        setLayerType(LAYER_TYPE_SOFTWARE,null)
+    }
 
     override fun onDraw(canvas: Canvas) {
-        if(drawable == null) return
         if(mConfig.getPath() == null) {
             super.onDraw(canvas)
             return
@@ -104,6 +107,7 @@ class PathImageView @JvmOverloads constructor(
         }
         canvas.rotate(mConfig.getRotate(), (width/2).toFloat(), (height/2).toFloat())
         canvas.drawPath(path,paint)
+        canvas.rotate(-mConfig.getRotate(), (width/2).toFloat(), (height/2).toFloat())
     }
 
     private fun getBitmap(): Bitmap{
@@ -111,7 +115,7 @@ class PathImageView @JvmOverloads constructor(
             mBitmap = Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888)
             val canvas = Canvas(mBitmap!!)
             canvas.concat(imageMatrix)
-            drawable.draw(canvas)
+            drawable?.draw(canvas)
         }
         return mBitmap!!
     }

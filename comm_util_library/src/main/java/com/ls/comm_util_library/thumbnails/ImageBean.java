@@ -9,14 +9,21 @@ public class ImageBean implements Parcelable {
     private String name;
     private String path;
     private Uri uri;
+    private String extend;
+
+    public ImageBean(String extend){
+        this.extend = extend;
+    }
 
     public ImageBean(){}
+
 
     protected ImageBean(Parcel in) {
         id = in.readInt();
         name = in.readString();
         path = in.readString();
         uri = in.readParcelable(Uri.class.getClassLoader());
+        extend = in.readString();
     }
 
     public static final Creator<ImageBean> CREATOR = new Creator<ImageBean>() {
@@ -63,6 +70,14 @@ public class ImageBean implements Parcelable {
         this.uri = uri;
     }
 
+    public String getExtend() {
+        return extend;
+    }
+
+    public void setExtend(String extend) {
+        this.extend = extend;
+    }
+
     @Override
     public String toString() {
         return "ImageBean{" +
@@ -70,8 +85,10 @@ public class ImageBean implements Parcelable {
                 ", name='" + name + '\'' +
                 ", path='" + path + '\'' +
                 ", uri=" + uri +
+                ", extend='" + extend + '\'' +
                 '}';
     }
+
 
     @Override
     public int describeContents() {
@@ -84,5 +101,6 @@ public class ImageBean implements Parcelable {
         dest.writeString(name);
         dest.writeString(path);
         dest.writeParcelable(uri, flags);
+        dest.writeString(extend);
     }
 }

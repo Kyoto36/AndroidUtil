@@ -2,9 +2,7 @@ package com.ls.comm_util_library
 
 import android.content.Context
 import android.view.View
-import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.ls.comm_util_library.RecyclerViewAdapter
 
 /**
  * @ClassName: CommRecyclerViewAdapter
@@ -19,9 +17,6 @@ abstract class CommRecyclerViewAdapter<VH: CommRecyclerViewAdapter.CommViewHolde
 
     fun setScrolling(isScrolling: Boolean){
         mIsScrolling = isScrolling
-        if(!mIsScrolling){
-//            notifyDataSetChanged()
-        }
     }
 
     fun setDatas(datas: MutableList<T>?){
@@ -39,7 +34,32 @@ abstract class CommRecyclerViewAdapter<VH: CommRecyclerViewAdapter.CommViewHolde
         }
         if(mDatas == null) mDatas = ArrayList()
         mDatas!!.addAll(data)
-        notifyDataSetChanged()
+        notifyItemRangeInserted(getViewPosition(mDatas!!.size - data.size),data.size)
+    }
+
+    fun insertData(index: Int,data: T){
+        if(mDatas == null) mDatas = ArrayList()
+        if(index <= 0){
+            mDatas!!.add(0,data)
+            notifyItemInserted(0)
+            return
+        }
+        if(index >= mDatas!!.size){
+            mDatas!!.add(data)
+            notifyItemInserted(mDatas!!.size - 1)
+            return
+        }
+        mDatas!!.add(index,data)
+        notifyItemInserted(getViewPosition(index))
+    }
+
+    fun addData(items: MutableList<out T>?){
+        if(items.isNullOrEmpty()){
+            return
+        }
+        if(mDatas == null) mDatas = ArrayList()
+        mDatas!!.addAll(items)
+        notifyItemRangeInserted(getViewPosition(mDatas!!.size - items.size),items.size)
     }
 
     fun setOnItemClickListener(listener: IDoubleListener<Int,T>){

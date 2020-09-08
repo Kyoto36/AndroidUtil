@@ -2,6 +2,7 @@ package com.ls.comm_util_library;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.regex.Pattern;
 
 public class NumberUtils {
 
@@ -90,5 +91,24 @@ public class NumberUtils {
      */
     public static float getPPMFloat(long progress,long total){
         return (int)(progress / (total / 10000.0));
+    }
+
+    /**
+     * 判断是否是整数
+     * @param str
+     * @return
+     */
+    public static boolean isInteger(String str){
+        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
+        return pattern.matcher(str).matches();
+    }
+
+    /**
+     * 是否是数字，包括小数
+     * @param str
+     * @return
+     */
+    public static boolean isNumber(String str){
+        return str.matches("-?[0-9]+.？[0-9]*");
     }
 }

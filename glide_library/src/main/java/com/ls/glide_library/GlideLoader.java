@@ -25,11 +25,11 @@ public class GlideLoader {
     }
 
     public GlideLoader from(String url){
-        mRequestBuilder = from(Glide.with(mContext).load(url));
+        mRequestBuilder = from(GlideApp.with(mContext).load(url).mRequestBuilder);
         return this;
     }
 
-    public GlideLoader from(@RawRes @DrawableRes int id){
+    public GlideLoader from(@DrawableRes int id){
         mRequestBuilder = from(Glide.with(mContext).load(id));
         return this;
     }

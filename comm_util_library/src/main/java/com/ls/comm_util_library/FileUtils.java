@@ -136,6 +136,9 @@ public class FileUtils {
      * @throws FileNotFoundException 获取输出流会产生异常，调用方自行处理
      */
     public static OutputStream getOutputStreamByFile(File file, boolean append) throws FileNotFoundException {
+        if(!file.getParentFile().exists()){
+            createDir(file.getParent());
+        }
         return new BufferedOutputStream(new FileOutputStream(file,append));
     }
 

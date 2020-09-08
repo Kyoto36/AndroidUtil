@@ -45,8 +45,8 @@ class SharedPreferencesUtils private constructor(){
             getSharedPrefrences().edit().putInt(key,value).apply()
         }
 
-        fun getString(key: String): String?{
-            return getSharedPrefrences().getString(key,"")
+        fun getString(key: String): String{
+            return getSharedPrefrences().getString(key,"")?:""
         }
 
         fun setString(key: String,value: String){

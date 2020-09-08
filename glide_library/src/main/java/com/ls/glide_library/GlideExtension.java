@@ -17,6 +17,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.ls.comm_util_library.NumberUtils;
 import com.ls.comm_util_library.ObjectCheck;
 
 public class GlideExtension {
@@ -31,12 +32,17 @@ public class GlideExtension {
         mRequestBuilder = requestBuilder;
     }
 
-    public GlideExtension load(String url){
-        mRequestBuilder = Glide.with(mContext).load(url);
+    public GlideExtension load(String str){
+        if(NumberUtils.isInteger(str)){
+            load(Integer.parseInt(str));
+        }
+        else {
+            mRequestBuilder = Glide.with(mContext).load(str);
+        }
         return this;
     }
 
-    public GlideExtension load(@RawRes @DrawableRes int id){
+    public GlideExtension load(@DrawableRes int id){
         mRequestBuilder = Glide.with(mContext).load(id);
         return this;
     }

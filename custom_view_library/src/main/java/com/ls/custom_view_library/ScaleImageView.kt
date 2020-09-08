@@ -42,7 +42,7 @@ class ScaleImageView
     private var mIsAutoScale = false
     private var mIsDownSlide = false
     private var mIsScale = false
-    private var mIsDisableScale = true
+    private var mIsDisableScale = false
     val mOptions = BitmapFactory.Options().apply {
         inPreferredConfig = Bitmap.Config.RGB_565
     }
@@ -308,28 +308,28 @@ class ScaleImageView
     }
 
     private fun loadBitmap(listener: IResultListener<InputStream>,unknownListener: IVoidListener){
-        post {
-            mWorkHandler.post {
-                mOptions.inJustDecodeBounds = true
-                var inputStream = listener.onResult()
-                BitmapFactory.decodeStream(inputStream,null,mOptions)
-                if(isGif(mOptions.outMimeType)){
-                    post {
-                        unknownListener.invoke()
-                    }
-                    return@post
+        mIsDisableScale = true
+        mWorkHandler.post {
+            mOptions.inJustDecodeBounds = true
+            var inputStream = listener.onResult()
+            BitmapFactory.decodeStream(inputStream,null,mOptions)
+            if(isGif(mOptions.outMimeType)){
+                post {
+                    mIsDisableScale = false
+                    unknownListener.invoke()
                 }
-                inputStream = listener.onResult()
-                mBitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
-                mBitmapWidth = mOptions.outWidth
-                mBitmapHeight = mOptions.outHeight
-                mOptions.inSampleSize = calculateInSampleSize(mBitmapWidth,mBitmapHeight,width,height)
-                mOptions.inJustDecodeBounds = false
-                inputStream = listener.onResult()
-                val bitmap = BitmapFactory.decodeStream(inputStream,null,mOptions)
-//                val cache = AndroidFileUtils.getCachePath(context) + "bitmap_${System.currentTimeMillis()}"
-                setBitmap(bitmap)
+                return@post
             }
+            inputStream = listener.onResult()
+            mBitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
+            mBitmapWidth = mOptions.outWidth
+            mBitmapHeight = mOptions.outHeight
+            mOptions.inSampleSize = calculateInSampleSize(mBitmapWidth,mBitmapHeight,width,height)
+            mOptions.inJustDecodeBounds = false
+            inputStream = listener.onResult()
+            val bitmap = BitmapFactory.decodeStream(inputStream,null,mOptions)
+//                val cache = AndroidFileUtils.getCachePath(context) + "bitmap_${System.currentTimeMillis()}"
+            setBitmap(bitmap)
         }
     }
 
@@ -347,7 +347,6 @@ class ScaleImageView
                 inSampleSize *= 2
             }
         }
-        Log.e("aaaaa","inSampleSize $inSampleSize srcWidth $srcWidth srcHeight $srcHeight reqWidth $reqWidth reqHeight $reqHeight")
         return inSampleSize
     }
 

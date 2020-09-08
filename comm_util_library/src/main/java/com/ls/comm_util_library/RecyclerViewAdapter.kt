@@ -13,24 +13,26 @@ import androidx.recyclerview.widget.RecyclerView
  * @Date: 2020/3/10 13:48
  */
 abstract class RecyclerViewAdapter<VH: RecyclerView.ViewHolder,T>(context: Context,datas: MutableList<T>?): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    @JvmField
     protected var mContext = context
+    @JvmField
     protected var mDatas = datas
 
     final override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            HEADER_TYPE -> {
-                HeaderViewHolder(mContext)
-            }
-            FOOTER_TYPE -> {
-                FooterViewHolder(mContext)
-            }
+            HEADER_TYPE -> HeaderViewHolder(mContext)
+            FOOTER_TYPE -> FooterViewHolder(mContext)
             else -> {
-                onCreateItemViewHolder(parent, viewType)
+                onCreateItemViewHolder(parent, viewType)?: onCreateNullViewHolder()
             }
         }
     }
 
-    abstract fun onCreateItemViewHolder(parent: ViewGroup,viewType: Int): VH
+    private fun onCreateNullViewHolder(): RecyclerView.ViewHolder{
+        return object: RecyclerView.ViewHolder(View(mContext)) {}
+    }
+
+    abstract fun onCreateItemViewHolder(parent: ViewGroup,viewType: Int): VH?
 
     final override fun getItemCount(): Int {
         return getRealItemCount() + (if(mHeaderView != null) 1 else 0) + (if(mFooterView != null) 1 else 0)
@@ -45,14 +47,26 @@ abstract class RecyclerViewAdapter<VH: RecyclerView.ViewHolder,T>(context: Conte
         return when{
             position == 0 && mHeaderView != null -> HEADER_TYPE
             position == itemCount - 1 && mFooterView != null -> FOOTER_TYPE
-            else -> getViewType(getRealPosition(position))
+            else -> getViewType(getDataIndex(position))
         }
     }
 
     open fun getViewType(position: Int): Int{ return 0 }
 
-    private fun getRealPosition(position: Int): Int{
+    /**
+     * @param position view的实际位置
+     * @return 在数据集中的位置
+     */
+    fun getDataIndex(position: Int): Int{
         return if(mHeaderView != null) position - 1 else position
+    }
+
+    /**
+     * @param index 在数据集中的位置
+     * @return view的实际位置
+     */
+    fun getViewPosition(index: Int): Int{
+        return if(mHeaderView != null) index + 1 else index
     }
 
     fun isHeader(position: Int): Boolean{
@@ -71,7 +85,7 @@ abstract class RecyclerViewAdapter<VH: RecyclerView.ViewHolder,T>(context: Conte
             (holder as FooterViewHolder).updateView(mFooterView)
         }
         else {
-            onBindItemViewHolder(holder as VH, getRealPosition(position))
+            onBindItemViewHolder(holder as VH, getDataIndex(position))
         }
     }
 
