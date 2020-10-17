@@ -120,7 +120,7 @@ public final class Size {
      */
     public static Size parseSize(String string)
             throws NumberFormatException {
-        ObjectCheck.requireNonNull(string, "string must not be null");
+        ObjectUtil.requireNonNull(string, "string must not be null");
 
         int sep_ix = string.indexOf('*');
         if (sep_ix < 0) {

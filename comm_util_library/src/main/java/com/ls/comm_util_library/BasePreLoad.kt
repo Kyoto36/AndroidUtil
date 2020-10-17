@@ -9,10 +9,20 @@ package com.ls.comm_util_library
 abstract class BasePreLoad {
     protected var mNoMore = false
     protected var isLoading = false
+    protected var mInit = false
+    protected var mNeedTrigger = false
 
     abstract fun isCanPreLoad(): Boolean
 
     abstract fun preLoad()
+
+    fun init(){
+        mInit = true
+    }
+
+    fun setNeedTrigger(needTrigger: Boolean){
+        mNeedTrigger = needTrigger
+    }
 
     open fun endLoad(){
         isLoading = false
@@ -22,10 +32,15 @@ abstract class BasePreLoad {
         mNoMore = nomore
     }
 
-    open fun startLoad(){
-        if(!mNoMore && !isLoading){
+    protected open fun startLoad(){
+        if(!mNeedTrigger && mInit && !mNoMore && !isLoading){
             isLoading = true
             preLoad()
         }
+    }
+
+    fun justLoad(){
+        setNeedTrigger(false)
+        startLoad()
     }
 }

@@ -10,6 +10,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Retrofit
@@ -144,7 +145,7 @@ class Upload {
     }
 
     private fun getFileRQ(file: File,listener: IProgressListener<String>): RequestBody{
-        var fileRQ = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+        var fileRQ = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
         fileRQ = UploadRequestBody(fileRQ, IDoubleListener { progress, total ->
             listener.onProgress(progress,total)
         })

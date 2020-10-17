@@ -4,7 +4,9 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
+import java.lang.Exception
 
 /**
  * @ClassName: RecyclerViewAdapter
@@ -22,6 +24,7 @@ abstract class RecyclerViewAdapter<VH: RecyclerView.ViewHolder,T>(context: Conte
         return when (viewType) {
             HEADER_TYPE -> HeaderViewHolder(mContext)
             FOOTER_TYPE -> FooterViewHolder(mContext)
+            NULL_TYPE -> onCreateNullViewHolder()
             else -> {
                 onCreateItemViewHolder(parent, viewType)?: onCreateNullViewHolder()
             }
@@ -51,7 +54,7 @@ abstract class RecyclerViewAdapter<VH: RecyclerView.ViewHolder,T>(context: Conte
         }
     }
 
-    open fun getViewType(position: Int): Int{ return 0 }
+    open fun getViewType(index: Int): Int{ return 0 }
 
     /**
      * @param position view的实际位置
@@ -82,19 +85,38 @@ abstract class RecyclerViewAdapter<VH: RecyclerView.ViewHolder,T>(context: Conte
             (holder as HeaderViewHolder).updateView(mHeaderView)
         }
         else if(isFooter(position)){
+            LogUtils.d("onBindViewHolder","updateView(mFooterView)")
             (holder as FooterViewHolder).updateView(mFooterView)
         }
-        else {
-            onBindItemViewHolder(holder as VH, getDataIndex(position))
+        else{
+            try {
+                onBindItemViewHolder(holder as VH, getDataIndex(position))
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
         }
     }
 
 
-    abstract fun onBindItemViewHolder(holder: VH,position: Int)
+    abstract fun onBindItemViewHolder(holder: VH,index: Int)
 
     private var mHeaderView: View? = null
     fun setHeaderView(view: View?){
         mHeaderView = view
+    }
+
+    fun getHeaderView(): View?{
+        return mHeaderView
+    }
+
+    fun updateHeader(view: View?){
+        mHeaderView = view
+        if(mHeaderView == null){
+            notifyItemInserted(0)
+        }
+        else{
+            notifyItemChanged(0)
+        }
     }
 
     private var mFooterView: View? = null
@@ -102,15 +124,37 @@ abstract class RecyclerViewAdapter<VH: RecyclerView.ViewHolder,T>(context: Conte
         mFooterView = view
     }
 
+    fun getFooterView(): View?{
+        return mFooterView
+    }
+
+    fun updateFooter(view: View?){
+        mFooterView = view
+        if(mFooterView == null){
+            notifyItemInserted(itemCount)
+        }
+        else{
+            notifyItemChanged(itemCount)
+        }
+    }
+
     open class HeaderViewHolder(context: Context): RecyclerView.ViewHolder(RelativeLayout(context)){
         open fun updateView(view : View?){
             val headerView = itemView as ViewGroup
-            headerView.removeAllViews()
             if(view == null){
+                headerView.removeAllViews()
                 headerView.visibility = View.GONE
             }
-            else {
+            else if(headerView.childCount > 0 && headerView[0] == view){
                 headerView.visibility = View.VISIBLE
+            }
+            else{
+                if(headerView.childCount > 0){
+                    headerView.removeAllViews()
+                }
+                if(view.parent != null){
+                    (view.parent as ViewGroup).removeAllViews()
+                }
                 headerView.addView(view)
             }
         }
@@ -119,19 +163,28 @@ abstract class RecyclerViewAdapter<VH: RecyclerView.ViewHolder,T>(context: Conte
     open class FooterViewHolder(context: Context): RecyclerView.ViewHolder(RelativeLayout(context)){
         open fun updateView(view : View?){
             val footerView = itemView as ViewGroup
-            footerView.removeAllViews()
             if(view == null){
+                footerView.removeAllViews()
                 footerView.visibility = View.GONE
             }
-            else {
+            else if(footerView.childCount > 0 && footerView[0] == view){
                 footerView.visibility = View.VISIBLE
+            }
+            else{
+                if(footerView.childCount > 0){
+                    footerView.removeAllViews()
+                }
+                if(view.parent != null){
+                    (view.parent as ViewGroup).removeAllViews()
+                }
                 footerView.addView(view)
             }
         }
     }
 
     companion object{
-        private val HEADER_TYPE = 3001
-        private val FOOTER_TYPE = 3002
+        const val HEADER_TYPE = 3001
+        const val FOOTER_TYPE = 3002
+        const val NULL_TYPE = 3003
     }
 }

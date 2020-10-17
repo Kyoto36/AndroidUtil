@@ -36,13 +36,14 @@ class SlideSwitch @JvmOverloads constructor(
 
     init {
         val array = context.obtainStyledAttributes(attrs, R.styleable.SwitchView)
-        mOnColor = array.getColor(R.styleable.SwitchView_onColor,mOnColor)
-        mOffColor = array.getColor(R.styleable.SwitchView_offColor,mOffColor)
-        mIndicatorColor = array.getColor(R.styleable.SwitchView_indicatorColor,mIndicatorColor)
+        mOnColor = array.getColor(R.styleable.SwitchView_onColor, mOnColor)
+        mOffColor = array.getColor(R.styleable.SwitchView_offColor, mOffColor)
+        mIndicatorColor = array.getColor(R.styleable.SwitchView_indicatorColor, mIndicatorColor)
+        mTouch = array.getBoolean(R.styleable.SwitchView_enableTouch, mTouch)
         array.recycle()
     }
 
-    fun setTouch(enableTouch: Boolean){
+    fun setTouch(enableTouch: Boolean) {
         mTouch = enableTouch
     }
 
@@ -75,8 +76,8 @@ class SlideSwitch @JvmOverloads constructor(
 
     private var mSwitchOnAnim: ValueAnimator? = null
     fun switchOn() {
-        if(!isOn) {
-            if(null != mSwitchOffAnim && mSwitchOffAnim!!.isRunning){
+        if (!isOn) {
+            if (null != mSwitchOffAnim && mSwitchOffAnim!!.isRunning) {
                 mSwitchOffAnim!!.end()
             }
             isOn = true
@@ -92,9 +93,9 @@ class SlideSwitch @JvmOverloads constructor(
     }
 
     private var mSwitchOffAnim: ValueAnimator? = null
-    fun switchOff(){
-        if(isOn) {
-            if(null != mSwitchOnAnim && mSwitchOnAnim!!.isRunning){
+    fun switchOff() {
+        if (isOn) {
+            if (null != mSwitchOnAnim && mSwitchOnAnim!!.isRunning) {
                 mSwitchOnAnim!!.end()
             }
             isOn = false
@@ -109,31 +110,35 @@ class SlideSwitch @JvmOverloads constructor(
         }
     }
 
-    fun toggleSwitch(listener: OnStateChangedListener){
+    fun toggleSwitch(listener: OnStateChangedListener) {
         setOnStateChangedListener(listener)
-        if(isOn){
+        if (isOn) {
             switchOff()
-        }
-        else{
+        } else {
             switchOn()
         }
     }
 
-    fun setOn(on: Boolean){
-        isOn = on
+    fun setOn(on: Boolean, isAnim: Boolean) {
         post {
-            if(isOn){
+            if (isAnim) {
+                if (on) switchOn() else switchOff()
+                return@post
+            }
+            if (on) {
                 curX = lineEnd
                 postInvalidate()
-            }
-            else{
+
+            } else {
                 curX = lineStart
                 postInvalidate()
+
             }
+            isOn = on
         }
     }
 
-    fun isOn(): Boolean{
+    fun isOn(): Boolean {
         return isOn
     }
 
@@ -145,7 +150,7 @@ class SlideSwitch @JvmOverloads constructor(
         viewWidth = this.measuredWidth.toFloat()
         radius = viewWidth / SCALE
         lineWidth = radius * 2f //直线宽度等于滑块直径
-        if(curX == 0F) {
+        if (curX == 0F) {
             curX = radius
         }
         centerY = (this.measuredWidth / SCALE).toFloat() //centerY为高度的一半
@@ -159,7 +164,7 @@ class SlideSwitch @JvmOverloads constructor(
         curX = if (curX > lineEnd) lineEnd else curX
         curX = if (curX < lineStart) lineStart else curX
 
-        val save = canvas.saveLayer(0F,0F,width.toFloat(),height.toFloat(),mPaint, Canvas.ALL_SAVE_FLAG)
+        val save = canvas.saveLayer(0F, 0F, width.toFloat(), height.toFloat(), mPaint, Canvas.ALL_SAVE_FLAG)
         /*划线*/
         mPaint.style = Paint.Style.STROKE
         mPaint.strokeWidth = lineWidth
@@ -174,7 +179,7 @@ class SlideSwitch @JvmOverloads constructor(
         /*画最左和最右的圆，直径为直线段宽度， 即在直线段两边分别再加上一个半圆*/
 //        mPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OUT)
         mPaint.style = Paint.Style.FILL
-        mPaint.color = if (curX == lineEnd)  mOnColor else mOffColor
+        mPaint.color = if (curX == lineEnd) mOnColor else mOffColor
         canvas.drawCircle(lineEnd, centerY, lineWidth / 2, mPaint)
         mPaint.color = if (curX == lineStart) mOffColor else mOnColor
         canvas.drawCircle(lineStart, centerY, lineWidth / 2, mPaint)

@@ -1,5 +1,7 @@
 package com.ls.comm_util_library;
 
+import android.text.TextUtils;
+
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.regex.Pattern;
@@ -14,6 +16,26 @@ public class NumberUtils {
     public static String numberFormat(long number){
         if(number <= 0){
             return "";
+        }
+        else if(number >= 100000000){
+            return String.format("%s亿",toFixed((float)number / 100000000,2));
+        }
+        else if(number >= 10000){
+            return String.format("%s万",toFixed((float)number / 10000,2));
+        }
+        else{
+            return number + "";
+        }
+    }
+
+    /**
+     * 格式化数字，一般用于点赞数
+     * @param number 需要格式化的数字
+     * @return
+     */
+    public static String numberFormat(long number,String defaultStr){
+        if(number <= 0){
+            return defaultStr;
         }
         else if(number >= 10000){
             return String.format("%s万",toFixed((float)number / 10000,2));
@@ -99,6 +121,7 @@ public class NumberUtils {
      * @return
      */
     public static boolean isInteger(String str){
+        if(TextUtils.isEmpty(str)) return false;
         Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
         return pattern.matcher(str).matches();
     }

@@ -9,13 +9,13 @@ import com.ls.comm_util_library.ThreadUtils
  * @Author: ls
  * @Date: 2019/8/28 16:54
  */
-class LiveDoubleData<T,S>: MutableLiveData<DoubleData<T, S>>() {
+open class LiveDoubleData<T,S>: MutableLiveData<DoubleData<T, S>>() {
 
-    fun notifyValue(t: T?,s: S?) = if(ThreadUtils.isMainThread) value = DoubleData(t,s) else postValue(DoubleData(t,s))
+    open fun notifyValue(t: T?,s: S?) = if(ThreadUtils.isMainThread) value = DoubleData(t,s) else postValue(DoubleData(t,s))
 
-    fun notifyValueT(t: T?) = if(ThreadUtils.isMainThread) value = DoubleData(t,value?.s) else postValue(DoubleData(t,value?.s))
+    open fun notifyValueT(t: T?) = if(ThreadUtils.isMainThread) value = DoubleData(t,value?.s) else postValue(DoubleData(t,value?.s))
 
-    fun notifyValueS(s: S?) = if(ThreadUtils.isMainThread) value = DoubleData(value?.t,s) else postValue(DoubleData(value?.t,s))
+    open fun notifyValueS(s: S?) = if(ThreadUtils.isMainThread) value = DoubleData(value?.t,s) else postValue(DoubleData(value?.t,s))
 
     fun getT(): T?{
         return value?.t

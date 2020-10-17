@@ -14,6 +14,7 @@ abstract class CommRecyclerViewAdapter<VH: CommRecyclerViewAdapter.CommViewHolde
 
     protected var mIsScrolling = false
     protected var mOnItemClickListener: IDoubleListener<Int,T>? = null
+    protected var mOnChildViewClickListener: IThreeListener<Int,Int,T>? = null
 
     fun setScrolling(isScrolling: Boolean){
         mIsScrolling = isScrolling
@@ -24,7 +25,7 @@ abstract class CommRecyclerViewAdapter<VH: CommRecyclerViewAdapter.CommViewHolde
         notifyDataSetChanged()
     }
     
-    open fun getDatas(): List<T>?{
+    open fun getDatas(): MutableList<T>?{
         return mDatas
     }
 
@@ -37,20 +38,60 @@ abstract class CommRecyclerViewAdapter<VH: CommRecyclerViewAdapter.CommViewHolde
         notifyItemRangeInserted(getViewPosition(mDatas!!.size - data.size),data.size)
     }
 
+    fun updateData(index: Int){
+        if(mDatas?.size?:0 > index){
+            notifyItemChanged(getViewPosition(index))
+        }
+    }
+
+    fun updateData(index: Int, data: T?){
+        if(data == null){
+            updateData(index)
+            return
+        }
+        if(mDatas?.size?:0 > index){
+            mDatas!![index] = data
+            notifyItemChanged(getViewPosition(index))
+        }
+    }
+
+    fun getItemData(index: Int): T?{
+        if(mDatas?.size?:0 > index){
+            return mDatas?.get(index)
+        }
+        return null
+    }
+
     fun insertData(index: Int,data: T){
         if(mDatas == null) mDatas = ArrayList()
+        var position = 0
         if(index <= 0){
             mDatas!!.add(0,data)
-            notifyItemInserted(0)
-            return
+            position = getViewPosition(0)
+            notifyItemInserted(position)
         }
-        if(index >= mDatas!!.size){
+        else if(index >= mDatas!!.size){
             mDatas!!.add(data)
-            notifyItemInserted(mDatas!!.size - 1)
-            return
+            position = getViewPosition(mDatas!!.size - 1)
+            notifyItemInserted(position)
         }
-        mDatas!!.add(index,data)
-        notifyItemInserted(getViewPosition(index))
+        else {
+            mDatas!!.add(index,data)
+            position = getViewPosition(index)
+            notifyItemInserted(position)
+        }
+        if((itemCount - position) > 0) {
+            LogUtils.d("insertData", "position ${position} itemCount - position ${itemCount - position} $itemCount")
+            notifyItemRangeChanged(position, itemCount - position)
+        }
+    }
+
+    fun removeData(index: Int){
+        if(!mDatas.isNullOrEmpty()){
+            mDatas!!.removeAt(index)
+            notifyItemRemoved(getViewPosition(index))
+            notifyItemRangeChanged(getViewPosition(index), mDatas!!.size - index)
+        }
     }
 
     fun addData(items: MutableList<out T>?){
@@ -66,25 +107,31 @@ abstract class CommRecyclerViewAdapter<VH: CommRecyclerViewAdapter.CommViewHolde
         mOnItemClickListener = listener
     }
 
+    fun setOnChildViewClickListener(onChildViewClickListener: IThreeListener<Int,Int,T>){
+        mOnChildViewClickListener = onChildViewClickListener
+    }
+
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
         if(holder is CommViewHolder<*>) holder.onViewRecycled()
     }
 
-    override fun onBindItemViewHolder(holder: VH, position: Int) {
+    override fun onBindItemViewHolder(holder: VH, index: Int) {
         holder.itemCount = itemCount
         holder.setScrolling(mIsScrolling)
 
-        val item = mDatas!![position]
+        val item = mDatas!![index]
         holder.itemView.setOnClickListener {
-            mOnItemClickListener?.onValue(position,item)
+            mOnItemClickListener?.onValue(index,item)
         }
-        holder.bindData(item,position)
+        holder.setOnChildViewClickListener(mOnChildViewClickListener)
+        holder.bindData(item,index)
     }
 
     abstract class CommViewHolder<T>(view: View): RecyclerView.ViewHolder(view){
         var itemCount = 0
-        abstract fun bindData(data: T,position: Int)
+        protected var mOnChildViewClickListener: IThreeListener<Int,Int,T>? = null
+        abstract fun bindData(data: T,index: Int)
 
         open fun onViewRecycled(){}
 
@@ -92,6 +139,10 @@ abstract class CommRecyclerViewAdapter<VH: CommRecyclerViewAdapter.CommViewHolde
 
         fun setScrolling(isScrolling: Boolean){
             mIsScrolling = isScrolling
+        }
+
+        fun setOnChildViewClickListener(onChildViewClickListener: IThreeListener<Int,Int,T>?){
+            mOnChildViewClickListener = onChildViewClickListener
         }
     }
 }

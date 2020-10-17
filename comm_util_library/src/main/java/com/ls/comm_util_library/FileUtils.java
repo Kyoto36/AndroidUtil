@@ -31,7 +31,9 @@ public class FileUtils {
      */
     public static String createDir(String path){
         File file = new File(path);
-        file.mkdirs();
+        if(!file.exists()) {
+            file.mkdirs();
+        }
         return path;
     }
 
@@ -1923,14 +1925,38 @@ public class FileUtils {
 
     /**
      * 删除文件（包括目录）
+     * @param files 目标文件
+     */
+    public static void deleteFiles(File... files) {
+        if(files != null && files.length > 0){
+            for (File file : files){
+                deleteFile(file);
+            }
+        }
+    }
+
+    /**
+     * 删除文件（包括目录）
      * @param file 目标文件
      */
-    public static void deleteFile(File file) {
+    public static void deleteFile(File file){
         if (file.exists()) {
             if (file.isDirectory()) {
                 deleteDir(file);
             } else {
                 file.delete();
+            }
+        }
+    }
+
+    /**
+     * 删除文件（包括目录）
+     * @param paths 目标文件路径
+     */
+    public static void deleteFiles(String... paths) {
+        if(paths != null && paths.length > 0){
+            for (String path : paths){
+                deleteFile(path);
             }
         }
     }
@@ -1958,6 +1984,21 @@ public class FileUtils {
 
     /**
      * 计算文件大小（包括目录）
+     * @param files 目标文件
+     * @return 返回数字，需要自己转换
+     */
+    public static long calcFilesSize(File... files) {
+        long size = 0;
+        if(files != null && files.length > 0){
+            for (File file : files){
+                size += calcFileSize(file);
+            }
+        }
+        return size;
+    }
+
+    /**
+     * 计算文件大小（包括目录）
      * @param file 目标文件
      * @return 返回数字，需要自己转换
      */
@@ -1972,6 +2013,21 @@ public class FileUtils {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+        return size;
+    }
+
+    /**
+     * 计算文件大小（包括目录）
+     * @param paths 目标文件路径
+     * @return 返回数字，需要自己转换
+     */
+    public static long calcFilesSize(String... paths) {
+        long size = 0;
+        if(paths != null && paths.length > 0){
+            for (String path : paths){
+                size += calcFileSize(path);
             }
         }
         return size;

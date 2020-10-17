@@ -19,6 +19,7 @@
         <attr name="onColor" format="color"/>
         <attr name="offColor" format="color"/>
         <attr name="indicatorColor" format="color"/>
+        <attr name="enableTouch" format="boolean"/>
     </declare-styleable>
 
     <declare-styleable name="CodeView">

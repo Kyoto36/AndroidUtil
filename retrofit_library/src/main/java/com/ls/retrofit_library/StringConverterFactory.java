@@ -1,7 +1,5 @@
 package com.ls.retrofit_library;
 
-import com.ls.comm_util_library.LogUtils;
-
 import java.lang.annotation.Annotation;
 
 import java.lang.reflect.Type;

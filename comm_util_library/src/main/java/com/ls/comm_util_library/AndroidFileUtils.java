@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * android文件帮助类（兼容android10）
  */
-public abstract class AndroidFileUtils {
+public class AndroidFileUtils {
 
     /**
      * 获取app缓存路径
@@ -29,12 +29,12 @@ public abstract class AndroidFileUtils {
      * @param context
      * @return
      */
-    public static String getCachePath(Context context){
+    public static String cachePath(Context context){
         if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) || !Environment.isExternalStorageRemovable()){
             return Objects.requireNonNull(context.getExternalCacheDir()).getAbsolutePath();
         }
         else{
-            return context.getCacheDir().getAbsolutePath();
+            return innerCacheDir(context);
         }
     }
 
@@ -45,13 +45,31 @@ public abstract class AndroidFileUtils {
      * @param context
      * @return
      */
-    public static String getFilesPath(Context context,String type){
+    public static String filesPath(Context context,String type){
         if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) || !Environment.isExternalStorageRemovable()){
-            return Objects.requireNonNull(context.getExternalFilesDir(null)).getAbsolutePath();
+            return Objects.requireNonNull(context.getExternalFilesDir(type)).getAbsolutePath();
         }
         else{
-            return context.getFilesDir().getAbsolutePath();
+            return innerFilesDir(context);
         }
+    }
+
+    /**
+     * 获取app内部私有缓存路径
+     * @param context
+     * @return
+     */
+    public static String innerCacheDir(Context context){
+        return context.getCacheDir().getAbsolutePath();
+    }
+
+    /**
+     * 获取APP内部私有文件存储路径
+     * @param context
+     * @return
+     */
+    public static String innerFilesDir(Context context){
+        return context.getFilesDir().getAbsolutePath();
     }
 
     /**

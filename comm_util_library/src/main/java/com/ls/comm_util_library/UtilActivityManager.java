@@ -58,7 +58,7 @@ public class UtilActivityManager {
      * @param clazz
      * @return
      */
-    public static List<Activity> existActivity(Class<Activity> clazz){
+    public static List<Activity> existActivity(Class<? extends Activity> clazz){
         List<Activity> activities = new ArrayList<>();
         for (Activity activity : get().mActivities){
             if(activity.getClass().equals(clazz)){
@@ -74,6 +74,30 @@ public class UtilActivityManager {
      */
     public static boolean isSingleActivity(){
         return get().mActivities.size() == 1;
+    }
+
+    /**
+     * finish所有Activity 除了clazz类型之外
+     * @param clazz
+     */
+    public static void finishOther(Class<? extends Activity> clazz){
+        for (Activity activity: get().mActivities){
+            if(!activity.getClass().equals(clazz) && !activity.isFinishing()){
+                activity.finish();
+            }
+        }
+    }
+
+    /**
+     * finish所有Activity 除了activity类型之外
+     * @param activity
+     */
+    public static void finishOther(Activity activity){
+        for (Activity item: get().mActivities){
+            if(item != activity && !item.isFinishing()){
+                item.finish();
+            }
+        }
     }
 
     /**

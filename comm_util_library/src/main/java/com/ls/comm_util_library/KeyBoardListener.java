@@ -12,9 +12,9 @@ public class KeyBoardListener {
         new KeyBoardListener(activity, null, true);
     }
 
-//    public static void resizeView(View view){
-//        new KeyBoardListener(view,null,true);
-//    }
+    public static void resizeView(View view){
+        new KeyBoardListener(view,null,true);
+    }
 
     public static void listener(Activity activity, IDoubleListener<Integer, Integer> listener) {
         new KeyBoardListener(activity, listener, false);

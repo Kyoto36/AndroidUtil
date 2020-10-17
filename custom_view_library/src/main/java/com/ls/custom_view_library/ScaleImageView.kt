@@ -1,5 +1,7 @@
 package com.ls.custom_view_library
 
+import android.animation.Animator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
 import android.net.Uri
@@ -13,6 +15,8 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.ViewTreeObserver
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.LinearInterpolator
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.toRect
 import com.ls.comm_util_library.*
@@ -71,16 +75,16 @@ class ScaleImageView
             val scale = getScale()
 
             if(scale >= mMaxScale){
-                postDelayed(AutoScale(mBaseScale), 15)
+                autoScale(mBaseScale)
             }
             else if(scale >= mNormalScale){
-                postDelayed(AutoScale(mMaxScale), 15)
+                autoScale(mMaxScale)
             }
             else if(scale >= mBaseScale){
-                postDelayed(AutoScale(mNormalScale), 15)
+                autoScale(mNormalScale)
             }
             else{
-                postDelayed(AutoScale(mBaseScale), 15)
+                autoScale(mBaseScale)
             }
             mIsAutoScale = true
             mIsScale = true
@@ -190,9 +194,9 @@ class ScaleImageView
             override fun onScaleEnd(detector: ScaleGestureDetector) {
                 super.onScaleEnd(detector)
                 if (getScale() > mMaxScale) {
-                    postDelayed(AutoScale(mMaxScale), 15)
+                    autoScale(mMaxScale)
                 } else if (getScale() < mMinScale) {
-                    postDelayed(AutoScale(mMinScale), 15)
+                    autoScale(mMinScale)
                 } else {
                     reDraw()
                     mIsScale = false
@@ -444,6 +448,9 @@ class ScaleImageView
         return rectF
     }
 
+    /**
+     * 换成属性动画也挺丝滑的
+     */
     inner class AutoScale(targetScale: Float) : Runnable {
 
         private val BIGGER = 1.07f
@@ -482,6 +489,38 @@ class ScaleImageView
             }
         }
 
+    }
+
+    private fun autoScale(targetScale: Float){
+//        postDelayed(AutoScale(targetScale), 15)
+//        return
+        if(getScale() == targetScale) {
+            mIsAutoScale = false
+            mIsScale = false
+            return
+        }
+        val animator = ValueAnimator.ofFloat(getScale(),targetScale)
+        animator.duration = 300
+        animator.interpolator = DecelerateInterpolator()
+        animator.addUpdateListener {
+            scale(it.animatedValue as Float)
+        }
+        animator.addListener(object : Animator.AnimatorListener{
+            override fun onAnimationRepeat(animation: Animator?) {}
+            override fun onAnimationEnd(animation: Animator?) {
+                scale(targetScale)
+                mIsAutoScale = false
+                mIsScale = false
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+                scale(targetScale)
+                mIsAutoScale = false
+                mIsScale = false
+            }
+            override fun onAnimationStart(animation: Animator?) {}
+        })
+        animator.start()
     }
 
     interface IOnDownSlideListener {

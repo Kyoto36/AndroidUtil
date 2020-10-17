@@ -92,11 +92,8 @@ object AnimUtils {
 
     fun startShakeHorizontalByViewAnim(view: View?,range: Float,cycles: Float,duration: Long){
         if(view == null) return
-//        val translateAnimation = TranslateAnimation(Animation.RELATIVE_TO_SELF,-range,Animation.RELATIVE_TO_SELF,range,Animation.RELATIVE_TO_SELF,0F,Animation.RELATIVE_TO_SELF,0F)
-        val translateAnimation = TranslateAnimation(-range,range,0F,0F)
-        translateAnimation.repeatCount = cycles.toInt()
-        translateAnimation.repeatMode = Animation.REVERSE
-        translateAnimation.duration = (duration / cycles).toLong()
+        val translateAnimation = TranslateAnimation(0F,range,0F,0F)
+        translateAnimation.duration = duration
         translateAnimation.interpolator = CycleInterpolator(cycles)
         view.startAnimation(translateAnimation)
     }

@@ -7,27 +7,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ReflectUtils {
-    public static boolean reflectMethod(Object obj, String methodName, Object... args){
-        try {
-            Class[] clazz = new Class[args.length];
-            for (int i = 0; i < args.length; i++) {
-                clazz[i] = args[i].getClass();
+    public static boolean reflectMethod(Object obj, String methodName, Object... args) {
+
+        Class[] argClazzs = new Class[args.length];
+        for (int i = 0; i < args.length; i++) {
+            argClazzs[i] = args[i].getClass();
+        }
+        Method method = null;
+        for (Class<?> clazz = obj.getClass(); clazz != Object.class; clazz = clazz.getSuperclass()) {
+            try {
+                method = clazz.getDeclaredMethod(methodName, argClazzs);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            Method method = obj.getClass().getDeclaredMethod(methodName, clazz);
-            method.setAccessible(true);
-            method.invoke(obj, args);
-            return true;
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            if(method != null) {
+                method.setAccessible(true);
+                break;
+            }
+        }
+        if (method != null) {
+            try {
+                method.invoke(obj, args);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }
 
-    public static Object reflectStaticMethodResult(Class clazz, String methodName, Object... args){
+    public static Object reflectStaticMethodResult(Class clazz, String methodName, Object... args) {
         try {
             Class[] paramClazz = new Class[args.length];
             for (int i = 0; i < args.length; i++) {
@@ -35,7 +44,7 @@ public class ReflectUtils {
             }
             Method method = clazz.getDeclaredMethod(methodName, paramClazz);
             method.setAccessible(true);
-            return method.invoke( null, args);
+            return method.invoke(null, args);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -46,7 +55,7 @@ public class ReflectUtils {
         return null;
     }
 
-    public static Object reflectMethodResult(Object obj, String methodName, Object... args){
+    public static Object reflectMethodResult(Object obj, String methodName, Object... args) {
         try {
             Class[] paramClazz = new Class[args.length];
             for (int i = 0; i < args.length; i++) {
@@ -54,7 +63,7 @@ public class ReflectUtils {
             }
             Method method = obj.getClass().getDeclaredMethod(methodName, paramClazz);
             method.setAccessible(true);
-            return method.invoke( obj, args);
+            return method.invoke(obj, args);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -65,7 +74,7 @@ public class ReflectUtils {
         return null;
     }
 
-    public static Class getClass(String className){
+    public static Class getClass(String className) {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
@@ -76,19 +85,20 @@ public class ReflectUtils {
 
     /**
      * 获取属性的值
+     *
      * @return
      * @throws IllegalAccessException
      * @throws IllegalArgumentException
      */
-    public static Map<String,String> getFieldValue(Object obj) {
-        Map<String,String> map = new HashMap<>();
+    public static Map<String, String> getFieldValue(Object obj) {
+        Map<String, String> map = new HashMap<>();
         Field[] fields = obj.getClass().getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             //获取属性值
             try {
                 //开启反射获取私有属性值
                 fields[i].setAccessible(true);
-                map.put(fields[i].getName(),fields[i].get(obj).toString());
+                map.put(fields[i].getName(), fields[i].get(obj).toString());
             } catch (Exception e) {
                 // TODO: handle exception
                 e.printStackTrace();
