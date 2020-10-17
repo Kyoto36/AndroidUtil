@@ -6,11 +6,10 @@ import android.net.Uri;
 import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.RawRes;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
-import com.ls.comm_util_library.ObjectCheck;
+import com.ls.comm_util_library.ObjectUtil;
 import com.ls.glide_library.strategy.ILoadStrategy;
 
 public class GlideLoader {
@@ -47,7 +46,7 @@ public class GlideLoader {
     }
 
     public void to(ImageView view){
-        ObjectCheck.requireNonNull(mRequestBuilder,"call after from()");
+        ObjectUtil.requireNonNull(mRequestBuilder,"call after from()");
         mRequestBuilder.into(view);
     }
 }

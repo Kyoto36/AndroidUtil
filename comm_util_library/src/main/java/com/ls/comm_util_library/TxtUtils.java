@@ -115,10 +115,10 @@ public class TxtUtils {
      * 拦截TextView中的链接点击事件，用于自定义跳转
      * @param view TextView
      * @param listener 点击监听
-     * @deprecated use {@link ViewUtils#interceptUrlClick(TextView,ISingleListener<String>)}
+     * @deprecated use {@link ViewUtils#interceptUrlClick(TextView,ISingleListener<CharSequence>)}
      */
     @Deprecated
-    public static void interceptUrlClick(TextView view,ISingleListener<String> listener){
+    public static void interceptUrlClick(TextView view,ISingleListener<CharSequence> listener){
         ViewUtils.interceptUrlClick(view, listener);
     }
 
@@ -140,61 +140,7 @@ public class TxtUtils {
      * @param listener 点击监听
      */
     public static void setStringClickable(SpannableString string, int color,boolean underline, View.OnClickListener listener){
-        string.setSpan(new ClickableSpan() {
-            @Override
-            public void onClick(@NonNull View widget) {
-                listener.onClick(widget);
-            }
-
-            public void updateDrawState(TextPaint ds) {
-                super.updateDrawState(ds);
-                //设置颜色
-                ds.setColor(color);
-                //设置是否要下划线
-                ds.setUnderlineText(underline);
-            }
-
-        },0,string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-
-    private static void setLinkClickable(final Context context, final SpannableStringBuilder clickableHtmlBuilder,
-                                         final URLSpan urlSpan,int color) {
-        int start = clickableHtmlBuilder.getSpanStart(urlSpan);
-        int end = clickableHtmlBuilder.getSpanEnd(urlSpan);
-        int flags = clickableHtmlBuilder.getSpanFlags(urlSpan);
-        ClickableSpan clickableSpan = new ClickableSpan() {
-
-            public void onClick(View view) {
-                //Do something with URL here.
-                String url = urlSpan.getURL();
-            }
-
-            public void updateDrawState(TextPaint ds) {
-                //设置颜色
-                ds.setColor(color);
-                //设置是否要下划线
-                ds.setUnderlineText(true);
-            }
-
-        };
-        clickableHtmlBuilder.setSpan(clickableSpan, start, end, flags);
-    }
-
-    /**
-     * 获取可点击的字符串
-     * @param context
-     * @param html html字符串
-     * @param color 设置可点击字符串的颜色
-     * @return
-     */
-    public static CharSequence getClickableLink(Context context, String html, int color) {
-        Spanned spannedHtml = Html.fromHtml(html);
-        SpannableStringBuilder clickableHtmlBuilder = new SpannableStringBuilder(spannedHtml);
-        URLSpan[] urls = clickableHtmlBuilder.getSpans(0, spannedHtml.length(), URLSpan.class);
-        for (final URLSpan span : urls) {
-            setLinkClickable(context,clickableHtmlBuilder, span,color);
-        }
-        return clickableHtmlBuilder;
+        string.setSpan(new CustomClickSpan(string,color,underline,listener),0,string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     /**

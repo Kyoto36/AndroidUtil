@@ -8,6 +8,7 @@ import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.ls.comm_util_library.ISingleListener
 import com.ls.comm_util_library.LogUtils
 
 /**
@@ -34,6 +35,12 @@ class HeaderZoomRecyclerView @JvmOverloads constructor(
 
     fun setZoomView(zoomView: View?) {
         this.zoomView = zoomView
+    }
+
+    // 缩放的高度距离
+    private var mDistanceListener: ISingleListener<Int>? = null
+    fun setDistanceListener(listener: ISingleListener<Int>){
+        mDistanceListener = listener
     }
 
     //    滑动放大系数，系数越大，滑动时放大程度越大
@@ -104,6 +111,8 @@ class HeaderZoomRecyclerView @JvmOverloads constructor(
         val layoutParams = zoomView!!.layoutParams
         layoutParams.width = (zoomViewWidth + s).toInt()
         layoutParams.height = (zoomViewHeight * ((zoomViewWidth + s) / zoomViewWidth)).toInt()
+        // 高度上下都会增加，所以给出去的距离应该 /2
+        mDistanceListener?.onValue((layoutParams.height - zoomViewHeight)/2)
         //        设置控件水平居中
         (layoutParams as MarginLayoutParams).setMargins(-(layoutParams.width - zoomViewWidth) / 2, 0, 0, 0)
         zoomView!!.layoutParams = layoutParams

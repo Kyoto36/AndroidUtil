@@ -4,6 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 
+/**
+ * @property mContext Context?
+ */
+@Deprecated("use SharedPreferencesHelper instead")
 class SharedPreferencesUtils private constructor(){
 
     private var mContext: Context? = null

@@ -1,11 +1,13 @@
 package com.ls.comm_util_library;
 
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class TimeUtils {
 
@@ -161,5 +163,26 @@ public class TimeUtils {
         }
         else if(DAYS_31_MONTH.contains(month)) return 31;
         else return 30;
+    }
+
+    /**
+     * 获取今日零点零时零分零秒时间戳
+     * @return 毫秒
+     */
+    public static long getToDay0(){
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getDefault());
+        String now = sdf.format(date);
+        try
+        {
+            Date newDate = sdf.parse(now);
+            return newDate.getTime();
+        }
+        catch (ParseException e)
+        {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

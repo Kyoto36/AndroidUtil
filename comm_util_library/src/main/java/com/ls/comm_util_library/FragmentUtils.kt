@@ -19,8 +19,33 @@ class FragmentUtils {
             return fragment!! as T
         }
 
+        fun <T: Fragment> replaceFragment(resId: Int,fragment: T,fragmentManager: FragmentManager,initListener: ((T) -> Unit)): T{
+            val transaction = fragmentManager.beginTransaction()
+            transaction.replace(resId,fragment)
+            initListener.invoke(fragment)
+            transaction.commit()
+            return fragment
+        }
+
+        fun <T: Fragment> removeFragment(fragment: T,fragmentManager: FragmentManager){
+            val transaction = fragmentManager.beginTransaction()
+            transaction.remove(fragment)
+            transaction.commit()
+        }
+
         fun <T : Fragment> switchFragment(resId: Int, currentFragment: T?, fragment: T, fragmentManager: FragmentManager, initListener: ((T) -> Unit)): T {
             return switchFragment(resId, currentFragment, fragment, fragmentManager,0,0,0,0, initListener)
+        }
+
+        fun <T: Fragment> showFragment(resId: Int,fragment: T,fragmentManager: FragmentManager,initListener: ((T) -> Unit)): T{
+            val transaction = fragmentManager.beginTransaction()
+            if (!fragment.isAdded) {
+                initListener.invoke(fragment)
+                transaction.add(resId, fragment, fragment.javaClass.name).show(fragment).commit()
+            } else {
+                transaction.show(fragment).commit()
+            }
+            return fragment
         }
 
         fun <T : Fragment> switchFragment(resId: Int, currentFragment: T?, fragment: T, fragmentManager: FragmentManager,

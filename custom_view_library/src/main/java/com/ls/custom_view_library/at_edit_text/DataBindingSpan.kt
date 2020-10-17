@@ -1,0 +1,3 @@
+package com.ls.custom_view_library.at_edit_text
+
+interface DataBindingSpan

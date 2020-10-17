@@ -204,10 +204,10 @@ class Util{
          * Java可调用Util.Companion.customToast(view,this)
          * 创建自定义Toast
          */
-        fun customToast(view:View,context: Context): Toast{
+        fun customToast(view:View,context: Context,gravity: Int,xOffset: Int = 0,yOffset: Int = 0): Toast{
             val toast = Toast(context)
             toast.view = view
-            toast.setGravity(Gravity.CENTER,0,0)
+            toast.setGravity(gravity,xOffset,yOffset)
             toast.duration = Toast.LENGTH_SHORT
             return toast
         }

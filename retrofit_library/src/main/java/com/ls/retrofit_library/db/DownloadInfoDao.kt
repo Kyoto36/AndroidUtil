@@ -15,7 +15,7 @@ import kotlin.collections.ArrayList
  */
 class DownloadInfoDao(context: Context) {
 
-    private val mDBHelper = DBHelper(context)
+    private val mDBHelper = DBHelper.get(context)
 
     fun save(info: DownloadInfo) {
         val list = query(info.url, info.savePath)

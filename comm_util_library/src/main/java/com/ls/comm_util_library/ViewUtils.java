@@ -34,7 +34,7 @@ public class ViewUtils {
      * @param view TextView
      * @param listener 点击监听
      */
-    public static void interceptUrlClick(TextView view, ISingleListener<String> listener){
+    public static void interceptUrlClick(TextView view, ISingleListener<CharSequence> listener){
         view.setMovementMethod(LinkMovementMethod.getInstance());
         CharSequence text = view.getText();
         if(text instanceof Spannable){
@@ -102,11 +102,11 @@ public class ViewUtils {
         }
     }
 
-    public static void showKeyBoard(View view) {
+    public static void showKeyBoard(EditText view) {
         InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (null != imm) {
             view.requestFocus();
-            imm.showSoftInput(view, InputMethodManager.SHOW_FORCED);
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
         }
     }
 

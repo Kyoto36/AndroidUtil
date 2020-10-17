@@ -8,6 +8,19 @@ import androidx.annotation.Nullable;
 
 public class DBHelper extends SQLiteOpenHelper {
 
+    private static DBHelper instance;
+
+    public static DBHelper get(Context context){
+        if(instance == null){
+            synchronized (DBHelper.class){
+                if(instance == null){
+                    instance = new DBHelper(context);
+                }
+            }
+        }
+        return instance;
+    }
+
     public DBHelper(@Nullable Context context) {
         super(context, "ls_retrofit_util.db", null, 1);
     }

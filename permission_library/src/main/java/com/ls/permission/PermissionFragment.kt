@@ -28,7 +28,6 @@ class PermissionFragment : Fragment() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == Permissions.PERMISSION_CODE) {
             for (i in permissions.indices){
-                Log.d("123123",permissions[i] + " " + (grantResults[i] == PackageManager.PERMISSION_GRANTED))
                 mGrants!![permissions[i]] = grantResults[i] == PackageManager.PERMISSION_GRANTED
             }
             mCallback!!.invoke(mGrants!!)

@@ -19,4 +19,11 @@ public class ObjectBearing<T> {
     public void set(T t) {
         this.t = t;
     }
+
+    @Override
+    public String toString() {
+        return "ObjectBearing{" +
+                "t=" + t +
+                '}';
+    }
 }

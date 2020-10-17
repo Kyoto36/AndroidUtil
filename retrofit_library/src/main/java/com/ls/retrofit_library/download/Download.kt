@@ -28,6 +28,7 @@ import java.net.UnknownHostException
  * @Date: 2020/3/27 12:53
  */
 class Download {
+
     companion object{
         private val PATH_KEY = "path:"
         private val URI_KEY = "uri:"
@@ -73,7 +74,7 @@ class Download {
         }
     }
 
-    private fun getDownloadEntity(key: String,url: String,listener: IProgressListener<String>,start: Long): DownloadEntity?{
+    private fun getDownloadEntity(key: String,url: String,listener: IProgressListener<String>): DownloadEntity?{
         var entity = mDownloadEntityMap[key]
         if(entity == null || !TextUtils.equals(entity.info.url,url)){
             entity = DownloadEntity()
@@ -90,12 +91,6 @@ class Download {
             return null
         }
         entity.listener = listener
-        if(start != 0L) {
-            entity.info.alreadySize = start
-        }
-        if(entity.info.alreadySize >= entity.info.totalSize){
-            entity.info.alreadySize = 0
-        }
         return entity
     }
 
@@ -156,8 +151,9 @@ class Download {
 
     // 单线程下载
     fun start(url: String,uri: Uri,listener: IProgressListener<String>,timeout: Long){
+        val entity = getDownloadEntity(getUriKey(uri),url, listener) ?: return
         val start = AndroidFileUtils.getFileSizeByUri(mContext,uri)
-        val entity = getDownloadEntity(getUriKey(uri),url, listener,start) ?: return
+        entity.info.alreadySize = start
         // wa 是追加写入的意思
         val out = mContext.contentResolver.openOutputStream(uri,"wa")
         val download = mDownloadApi.download("bytes=$start-",url)
@@ -179,7 +175,7 @@ class Download {
 
     // 单线程下载
     fun start(url: String,savePath: String,listener: IProgressListener<String>,timeout: Long){
-        val entity = getDownloadEntity(getPathKey(savePath),url, listener,0) ?: return
+        val entity = getDownloadEntity(getPathKey(savePath),url, listener) ?: return
         var start = 0L
         val file = File(savePath)
         if(file.exists() && entity.info.alreadySize != 0L && entity.info.downState != 1){

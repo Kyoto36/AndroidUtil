@@ -103,4 +103,5 @@ object LogUtils {
         logX(tag,content, ISingleListener { Log.e(TAG,it) })
     }
 
+
 }

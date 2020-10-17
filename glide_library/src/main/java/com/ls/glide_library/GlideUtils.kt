@@ -32,6 +32,7 @@ import com.ls.comm_util_library.IVoidListener
 import java.security.MessageDigest
 import com.bumptech.glide.request.RequestListener as RequestListener
 
+@Deprecated("use GlideApp or GlideLoader")
 object GlideUtils {
 
     /**

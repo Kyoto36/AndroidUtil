@@ -371,6 +371,12 @@ public class NetUtils {
                 case TelephonyManager.NETWORK_TYPE_LTE:
                     return "4G";
                 default:
+                    String strSubTypeName = networkInfo.getSubtypeName();
+                    if (strSubTypeName.equalsIgnoreCase("TD-SCDMA")
+                            || strSubTypeName.equalsIgnoreCase("WCDMA")
+                            || strSubTypeName.equalsIgnoreCase("CDMA2000")) {
+                        return "3G";
+                    }
                     return "unkonw network";
                 }
             }
