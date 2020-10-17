@@ -28,6 +28,7 @@ class ViewMeasureActivity : AppCompatActivity() {
                 (it as TextView).text = TxtUtils.randomString(Random.nextInt(20))
                 i++ < 100
             })
+            LogUtils.d("123123123","i = $i")
         }
     }
 

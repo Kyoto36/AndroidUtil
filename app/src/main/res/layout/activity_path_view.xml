@@ -13,10 +13,45 @@
         android:src="@drawable/verification_code_1"
         android:scaleType="centerCrop"/>
 
-    <com.ls.comm_util_library.PathImageView
-        android:id="@+id/pathView"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_toRightOf="@id/circleView"/>
+    <LinearLayout
+        android:id="@+id/operate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/circleView"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="add"/>
+
+        <Button
+            android:id="@+id/remove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="remove"/>
+
+        <Button
+            android:id="@+id/addAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="add All"/>
+
+        <Button
+            android:id="@+id/removeAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="remove All"/>
+
+    </LinearLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_below="@id/operate"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
 
 </RelativeLayout>

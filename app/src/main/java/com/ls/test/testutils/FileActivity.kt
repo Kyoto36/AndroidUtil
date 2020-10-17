@@ -16,17 +16,17 @@ class FileActivity : AppCompatActivity() {
     private val mTempFileName = "temp"
 
     private val mSrcPath by lazy {
-        AndroidFileUtils.getCachePath(this) + "/"
+        AndroidFileUtils.cachePath(this) + "/"
     }
 
     private val mDestPath by lazy {
-        AndroidFileUtils.getCachePath(this) + "/dest/"
+        AndroidFileUtils.cachePath(this) + "/dest/"
     }
     private val mNioDestPath by lazy {
-        AndroidFileUtils.getCachePath(this) + "/destNIO/"
+        AndroidFileUtils.cachePath(this) + "/destNIO/"
     }
     private val mMappedDestPath by lazy {
-        AndroidFileUtils.getCachePath(this) + "/destMapped/"
+        AndroidFileUtils.cachePath(this) + "/destMapped/"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

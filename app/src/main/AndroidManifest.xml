@@ -17,10 +17,19 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ViewMeasureActivity"></activity>
+        <activity android:name=".TextActivity"></activity>
+        <activity android:name=".TextViewActivity" />
+        <activity android:name=".intensify.TestActivity" />
+        <activity android:name=".intensify.IntensifyActivity" />
+        <activity android:name=".CoordinatorActivity" />
+        <activity android:name=".BottomSheetBehaviorDouYinListActivity" />
+        <activity android:name=".ClipChildrenActivity" />
+        <activity android:name=".ViewMeasureActivity" />
         <activity android:name=".PathViewActivity" />
         <activity android:name=".PuzzleVerifyActivity" />
-        <activity android:name=".ScaleActivity" />
+        <activity
+            android:name=".ScaleActivity"
+            android:theme="@style/Theme.ScaleView" />
         <activity android:name=".PictureActivity" />
         <activity android:name=".RecyclerViewActivity" />
         <activity android:name=".FileActivity" />

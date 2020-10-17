@@ -74,5 +74,41 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="view测量测试" />
+
+        <Button
+            android:id="@+id/clipChildren"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="clipChildren" />
+
+        <Button
+            android:id="@+id/rxjavaTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RxJava 测试" />
+
+        <Button
+            android:id="@+id/coordinatorTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="coordinator 测试" />
+
+        <Button
+            android:id="@+id/roomTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Room 测试" />
+
+        <Button
+            android:id="@+id/textTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="text 测试" />
+
+        <Button
+            android:id="@+id/editTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="edit 测试" />
     </LinearLayout>
 </ScrollView>

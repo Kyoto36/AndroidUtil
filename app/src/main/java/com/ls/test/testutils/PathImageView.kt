@@ -31,6 +31,7 @@ class PathImageView @JvmOverloads constructor(
     private val mBorderWidth = 10F
 
     init {
+        setLayerType(LAYER_TYPE_SOFTWARE,null)
         mBorderPaint.strokeWidth = mBorderWidth
     }
 
@@ -62,11 +63,8 @@ class PathImageView @JvmOverloads constructor(
         mPaint.color = Color.RED
         canvas.drawPath(mCurrpath!!,mPaint)
         mPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-        if(mBitmap == null){
-            getBitmap()
-        }
         canvas.rotate(-30F, (width/2).toFloat(), (height/2).toFloat())
-        canvas.drawBitmap(mBitmap!!,0F,0F,mPaint)
+        canvas.drawBitmap(getBitmap(),0F,0F,mPaint)
         mPaint.xfermode = null
         canvas.rotate(30F, (width/2).toFloat(), (height/2).toFloat())
         mBorderPaint.color = Color.parseColor("#F5EEEA")
@@ -120,11 +118,25 @@ class PathImageView @JvmOverloads constructor(
     }
 
     private var mBitmap: Bitmap? = null
+    private var mCanvas: Canvas? = null
 
-    private fun getBitmap(){
-        mBitmap = Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(mBitmap!!)
-        canvas.concat(imageMatrix)
-        drawable.draw(canvas)
+    private fun getBitmap(): Bitmap{
+        if(mBitmap == null) {
+            mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        }
+        if(mBitmap!!.width != width) {
+            mBitmap!!.width = width
+        }
+        if(mBitmap!!.height != height) {
+            mBitmap!!.height = height
+        }
+        if(mCanvas == null) {
+            mCanvas = Canvas(mBitmap!!)
+        }
+        mCanvas!!.setBitmap(mBitmap)
+        mCanvas!!.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        mCanvas!!.concat(imageMatrix)
+        drawable?.draw(mCanvas)
+        return mBitmap!!
     }
 }

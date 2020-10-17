@@ -36,6 +36,7 @@ public class CanvasView extends View {
 
     public CanvasView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        setLayerType(LAYER_TYPE_SOFTWARE,null);
         setBackgroundColor(Color.WHITE);
         mPaint = new Paint();
         mPaint.setColor(Color.RED);
@@ -113,13 +114,15 @@ public class CanvasView extends View {
 //        if(mBitmap != null){
 //            canvas.drawBitmap(mBitmap,0,0,null);
 //        }
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
         canvas.rotate(30,getWidth()/2,getHeight()/2);
         Path path = getPath(6,getWidth() / 2);
-        canvas.drawPath(path,mPaint);
+        canvas.drawPath(path,paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
         canvas.rotate(-30,getWidth()/2,getHeight()/2);
-        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
         canvas.drawBitmap(getBitmap(),0,0,mPaint);
-        mPaint.setXfermode(null);
+        paint.setXfermode(null);
 
 //        //设置背景色
 //        canvas.drawARGB(255, 139, 197, 186);

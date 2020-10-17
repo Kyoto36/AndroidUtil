@@ -6,15 +6,18 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowNoTitle">true</item><!-- 无标题 -->
-        <item name="android:windowIsTranslucent">true</item><!-- 半透明,设置为false无透明效果 -->
-        <item name="android:backgroundDimEnabled">true</item><!-- 模糊 -->
         <item name="android:windowDrawsSystemBarBackgrounds" tools:ignore="NewApi">false</item>
         <item name="android:windowLayoutInDisplayCutoutMode" tools:ignore="NewApi">
             shortEdges <!-- default, shortEdges, never -->
         </item>
+    </style>
+
+    <style name="Theme.ScaleView" parent="AppTheme">
+            <item name="android:windowBackground">@android:color/transparent</item>
+            <item name="android:windowFullscreen">true</item>
+            <item name="android:windowNoTitle">true</item><!-- 无标题 -->
+            <item name="android:windowIsTranslucent">true</item><!-- 半透明,设置为false无透明效果 -->
+            <item name="android:backgroundDimEnabled">true</item><!-- 模糊 -->
     </style>
 
 </resources>

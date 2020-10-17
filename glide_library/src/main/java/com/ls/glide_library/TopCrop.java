@@ -37,7 +37,6 @@ public class TopCrop extends BitmapTransformation {
 
   @Override
   public void updateDiskCacheKey(@NonNull MessageDigest messageDigest) {
-    byte[] a = ("" + System.currentTimeMillis()).getBytes(CHARSET);
-    messageDigest.update(a);
+    messageDigest.update(ID_BYTES);
   }
 }

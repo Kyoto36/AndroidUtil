@@ -1,6 +1,7 @@
 package com.ls.test.testutils.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +19,7 @@ import kotlinx.android.synthetic.main.item_image.view.*
  */
 class ArticleDetailAdapter(context: Context,list: MutableList<String>?) : RecyclerView.Adapter<ArticleDetailAdapter.ViewHolder>() {
     private val mContext = context
-    private val mList = list
+    private var mList = list
 
     inner class ViewHolder : RecyclerView.ViewHolder{
         val mImage: ImageView
@@ -29,6 +30,7 @@ class ArticleDetailAdapter(context: Context,list: MutableList<String>?) : Recycl
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        Log.d("789789","onCreateViewHolder")
         return ViewHolder(parent)
     }
 
@@ -37,6 +39,12 @@ class ArticleDetailAdapter(context: Context,list: MutableList<String>?) : Recycl
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        Log.d("789789","position $position")
         GlideUtils.load(mList!![position],holder.mImage,-1,-1)
+    }
+
+    fun setData(data: MutableList<String>?){
+        mList = data
+        notifyDataSetChanged()
     }
 }

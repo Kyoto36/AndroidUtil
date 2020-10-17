@@ -171,8 +171,8 @@ public final class CustomTransformationUtils {
             dy = (height - inBitmap.getHeight() * scale) * 0.5f;
         }
 
-//        m.setScale(scale, scale,0,0);
-//        m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
+        m.setScale(scale, scale);
+        m.postTranslate((int) (dx + 0.5f), 0);
 
         Bitmap result = pool.get(width, height, getNonNullConfig(inBitmap));
         // We don't add or remove alpha, so keep the alpha setting of the Bitmap we were given.

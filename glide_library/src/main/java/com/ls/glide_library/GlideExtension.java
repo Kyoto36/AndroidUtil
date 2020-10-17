@@ -85,7 +85,7 @@ public class GlideExtension {
 
     public GlideExtension topCropRoundCorners(int roundingRadius){
         RequestOptions requestOptions = RequestOptions.noTransformation()
-                .transform(new TopCrop());
+                .transform(new TopCrop(),new RoundedCorners(roundingRadius));
         mRequestBuilder = mRequestBuilder.apply(requestOptions);
         return this;
     }
