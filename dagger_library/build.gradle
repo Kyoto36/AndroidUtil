@@ -27,6 +27,7 @@ android {
 }
 
 dependencies {
+    implementation project(':comm_util_library')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -39,7 +40,8 @@ dependencies {
 
     // dagger.android
     implementation "com.google.dagger:dagger-android:2.23.2"
-    implementation "com.google.dagger:dagger-android-support:2.23.2"
+    // 这个支持的是support包，使用androidx就用不到，相应的androidx中的支持需要自己实现
+//    implementation "com.google.dagger:dagger-android-support:2.23.2"
     // if you use the support libraries
     annotationProcessor "com.google.dagger:dagger-android-processor:2.23.2"
     kapt "com.google.dagger:dagger-android-processor:2.23.2"
