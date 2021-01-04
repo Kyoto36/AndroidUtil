@@ -35,20 +35,6 @@ import com.bumptech.glide.request.RequestListener as RequestListener
 @Deprecated("use GlideApp or GlideLoader")
 object GlideUtils {
 
-    /**
-     * 设置Glide的缓存大小与路径
-     */
-    @SuppressLint("VisibleForTests")
-    fun setDiskCachePath(context: Context, path: String) {
-        val builder = GlideBuilder()
-        val bitmapPoolSizeBytes = 1024 * 1024 * 30L // 30mb
-        builder.setBitmapPool(LruBitmapPool(bitmapPoolSizeBytes))
-        val diskCacheSizeBytes = 1024 * 1024 * 10L // 100mb
-        builder.setDiskCache(DiskLruCacheFactory(path, diskCacheSizeBytes))
-        Glide.init(context, builder)
-    }
-
-
     private fun <T> loadObject(obj: Any, requestBuilder: RequestBuilder<T>): RequestBuilder<T> {
         return when (obj) {
             is Int -> requestBuilder.load(obj)
@@ -182,6 +168,7 @@ object GlideUtils {
 
     private fun loadGif(requestBuilder: RequestBuilder<Drawable>, view: ImageView,loopCount: Int, placeholder: Int, error: Int): ISingleListener<IVoidListener> {
         return ISingleListener {
+
             addPlaceholder(requestBuilder,placeholder, error)
                     .skipMemoryCache(true)
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE)

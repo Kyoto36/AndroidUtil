@@ -2,6 +2,7 @@ package com.ls.comm_util_library
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.viewpager.widget.ViewPager
 
 /**
  * 目前只能无限循环，无法做到只有一个的时候不循环
@@ -13,6 +14,7 @@ abstract class LoopViewPagerAdapter<T>(datas: MutableList<T>?) : ReuseViewPagerA
     protected var mCurrentView: View? = null
     private val mAdapterData = ArrayList<T>()
     private var mInitPosition = 0
+    private var mViewPager: ViewPager? = null
 
     init {
         dealAdapterData(datas ?: ArrayList())

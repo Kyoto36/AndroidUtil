@@ -1,6 +1,7 @@
 package com.ls.comm_util_library;
 
 import android.graphics.Path;
+import android.graphics.RectF;
 
 /**
  * @ClassName: PathUtils
@@ -12,6 +13,12 @@ public class PathFactory {
     public static Path getCircle(float radius,float borderWidth){
         Path path = new Path();
         path.addCircle(radius,radius,radius - (borderWidth / 2),Path.Direction.CW);
+        return path;
+    }
+
+    public static Path getRound(Size size,float round){
+        Path path = new Path();
+        path.addRoundRect(new RectF(0,0,size.getWidth(),size.getHeight()),round,round,Path.Direction.CW);
         return path;
     }
 

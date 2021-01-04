@@ -23,7 +23,16 @@ public class GlideLoader {
         mStrategy = strategy;
     }
 
+    public RequestBuilder<Drawable> toGlide(){
+        return mRequestBuilder;
+    }
+
     public GlideLoader from(String url){
+        mRequestBuilder = from(GlideApp.with(mContext).load(url).mRequestBuilder);
+        return this;
+    }
+
+    public GlideLoader fromBitmap(String url){
         mRequestBuilder = from(GlideApp.with(mContext).load(url).mRequestBuilder);
         return this;
     }

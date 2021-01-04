@@ -22,8 +22,9 @@ abstract class ReuseViewPagerAdapter<T>(datas: MutableList<T>?): PagerAdapter(){
         return view == `object`
     }
 
-    protected var mOnItemClickListener: ISingleListener<T>? = null
-    fun setOnItemClickListener(listener: ISingleListener<T>){
+
+    protected var mOnItemClickListener: IDoubleListener<Int,T>? = null
+    fun setOnItemClickListener(listener: IDoubleListener<Int,T>){
         mOnItemClickListener = listener
     }
 
@@ -47,10 +48,12 @@ abstract class ReuseViewPagerAdapter<T>(datas: MutableList<T>?): PagerAdapter(){
             mReusePool.removeFirst()
         }
         container.addView(view)
-        view.setOnClickListener {
-            mOnItemClickListener?.onValue(getItem(position))
-        }
-        bindData(getItem(position),view)
+        view.setOnClickListener (object : OnMultiClickListener() {
+            override fun onMultiClick(v: View) {
+                mOnItemClickListener?.onValue(position, getItem(position))
+            }
+        })
+        bindData(position,getItem(position),view)
         return view
     }
 
@@ -64,6 +67,6 @@ abstract class ReuseViewPagerAdapter<T>(datas: MutableList<T>?): PagerAdapter(){
 
     abstract fun createView(): View
 
-    abstract fun bindData(data: T,view: View)
+    abstract fun bindData(position: Int,data: T,view: View)
 
 }

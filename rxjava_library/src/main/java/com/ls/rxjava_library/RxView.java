@@ -1,18 +1,22 @@
 package com.ls.rxjava_library;
 
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.TextView;
 
+import com.ls.comm_util_library.ISingleListener;
+import com.ls.comm_util_library.ISingleResultListener;
 import com.ls.comm_util_library.ObjectUtil;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 /**
  * @ClassName: RxClick
@@ -44,9 +48,41 @@ public class RxView {
         return click(view, millis, TimeUnit.MILLISECONDS);
     }
 
+    public static Disposable multipleClick(final View view, long millis, ISingleResultListener<Integer,Boolean> clickListener) {
+        ObjectUtil.requireNonNull(view, "view not is null");
+        final AtomicInteger count = new AtomicInteger(0);
+        AtomicLong lastTime = new AtomicLong();
+        return Observable.create((ObservableOnSubscribe<View>) emitter -> {
+            view.setOnClickListener(v -> {
+                if (!emitter.isDisposed()) {
+                    emitter.onNext(v);
+                }
+            });
+        })
+                .map(view1 -> {
+                    long now = System.currentTimeMillis();
+                    if(now - lastTime.longValue() > millis){
+                        count.set(0);
+                    }
+                    lastTime.set(now);
+                    return count.addAndGet(1);
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(integer -> {
+                    if(clickListener != null){
+                        boolean result = clickListener.onResult(integer);
+                        if(result){
+                            count.set(0);
+                        }
+                    }
+                });
+
+    }
+
     /**
      * textView的内容改变监听
      * 每个内容在延迟指定时间后发出，如果中途改变内容，就会取消上一次内容发射，重新计算时间
+     *
      * @param textView
      * @param num
      * @param unit
@@ -58,9 +94,12 @@ public class RxView {
                 (ObservableOnSubscribe<String>) emitter -> {
                     textView.addTextChangedListener(new TextWatcher() {
                         @Override
-                        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        }
+
                         @Override
-                        public void onTextChanged(CharSequence s, int start, int before, int count) { }
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        }
 
                         @Override
                         public void afterTextChanged(Editable s) {

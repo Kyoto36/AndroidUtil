@@ -1,14 +1,21 @@
 package com.ls.comm_util_library;
 
 import android.app.Activity;
+import android.app.Application;
+import android.os.Build;
+import android.os.Bundle;
+
+import com.google.gson.internal.LinkedHashTreeMap;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * activity管理类
- * 但是要配合BaseUtilActivity使用，所有activity都需要继承与BaseUtilActivity
+ *
  */
 public class UtilActivityManager {
     private static UtilActivityManager sInstance;
@@ -26,6 +33,55 @@ public class UtilActivityManager {
             }
         }
         return sInstance;
+    }
+
+    public void registerActivityListener(Application application) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+                @Override
+                public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+                    /**
+                     *  监听到 Activity创建事件 将该 Activity 加入list
+                     */
+                    addActivity(activity);
+                }
+
+                @Override
+                public void onActivityStarted(Activity activity) {
+
+                }
+
+                @Override
+                public void onActivityResumed(Activity activity) {
+
+                }
+
+                @Override
+                public void onActivityPaused(Activity activity) {
+
+                }
+
+                @Override
+                public void onActivityStopped(Activity activity) {
+
+                }
+
+                @Override
+                public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+                }
+
+                @Override
+                public void onActivityDestroyed(Activity activity) {
+                    if (isExistActivity(activity)) {
+                        /**
+                         *  监听到 Activity销毁事件 将该Activity 从list中移除
+                         */
+                        removeActivity(activity);
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -86,6 +142,7 @@ public class UtilActivityManager {
                 activity.finish();
             }
         }
+        clearFinishing();
     }
 
     /**
@@ -98,12 +155,66 @@ public class UtilActivityManager {
                 item.finish();
             }
         }
+        clearFinishing();
+    }
+
+    private static void clearFinishing(){
+        List<Integer> indexList = new ArrayList<>();
+        Activity activity;
+        for (int i = 0; i < get().mActivities.size(); i++){
+            activity = get().mActivities.get(i);
+            if(activity == null || activity.isFinishing()){
+                indexList.add(i);
+            }
+        }
+        for (int index : indexList){
+            get().mActivities.remove(index);
+        }
     }
 
     /**
-     * 退出app，循环遍历所有正在运行的activity并finish
+     * finish所有Activity，除了首个未finish的activity
+     * @return
      */
-    public static void exitApp(){
+    public static Activity finishResultTop(){
+        Activity activity = null;
+        while (get().mActivities.size() > 0) {
+            activity = get().mActivities.removeFirst();
+            if(activity != null && !activity.isFinishing()){
+                break;
+            }
+        }
+        for (Activity item: get().mActivities){
+            if(!item.isFinishing()){
+                item.finish();
+            }
+        }
+        get().mActivities.clear();
+        return activity;
+    }
+
+    /**
+     * 获取
+     * @return
+     */
+    public static Activity getTopActivity(){
+        Activity activity = null;
+        while (get().mActivities.size() > 0) {
+            activity = get().mActivities.getFirst();
+            if(activity != null && !activity.isFinishing()){
+                break;
+            }
+            else{
+                get().mActivities.removeFirst();
+            }
+        }
+        return activity;
+    }
+
+    /**
+     * finish所有Activity，循环遍历所有正在运行的activity并finish
+     */
+    public static void exitAllActivity(){
         for (Activity activity : get().mActivities){
             if(!activity.isFinishing()) {
                 activity.finish();
@@ -112,11 +223,11 @@ public class UtilActivityManager {
     }
 
     /**
-     * 退出app，循环遍历所有正在运行的activity并finish
+     * 退出所有activity，循环遍历所有正在运行的activity并finish
      * 但是把当前activity留到最后finish
      * @param activity 当前activity
      */
-    public static void exitApp(Activity activity){
+    public static void exitAllActivity(Activity activity){
         for (Activity item : get().mActivities){
             if(item != activity && !item.isFinishing()) {
                 item.finish();
@@ -125,7 +236,8 @@ public class UtilActivityManager {
         if(!activity.isFinishing()) {
             activity.finish();
         }
+        get().mActivities.clear();
     }
 
-    private HashSet<Activity> mActivities = new HashSet<>();
+    private LinkedList<Activity> mActivities = new LinkedList<>();
 }

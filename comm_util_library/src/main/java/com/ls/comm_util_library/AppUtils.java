@@ -3,7 +3,9 @@ package com.ls.comm_util_library;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -41,6 +43,12 @@ import java.util.List;
 import static android.content.Context.ACTIVITY_SERVICE;
 
 public class AppUtils {
+
+    public static void launcher(Context applicationContext){
+        Intent intent = IntentUtils.getLauncherIntent(applicationContext);
+        applicationContext.startActivity(intent);
+    }
+
     /**
      * 获取app版本
      *
@@ -157,15 +165,36 @@ public class AppUtils {
     }
 
     /**
-     * 退出app
+     * 注册所有Activity监听
+     * @param app
      */
-    public static void exitApp(Context context) {
-        if (context instanceof Activity) {
-            UtilActivityManager.exitApp((Activity) context);
-        } else {
-            UtilActivityManager.exitApp();
-        }
+    public static void registerActivityListener(Application app){
+        UtilActivityManager.get().registerActivityListener(app);
     }
+
+    /**
+     * 退出app
+     * 必须配合registerActivityListener使用
+     */
+    public static void exitApp(Activity activity) {
+        if (activity != null) {
+            UtilActivityManager.exitAllActivity(activity);
+        } else {
+            UtilActivityManager.exitAllActivity();
+        }
+        ThreadUtils.Companion.execMain(() -> {
+            System.exit(0);
+        },300);
+    }
+
+    /**
+     * 退出app
+     * 必须配合registerActivityListener使用
+     */
+    public static void exitApp() {
+        exitApp(null);
+    }
+
 
     /**
      * 获取APP签名MD5

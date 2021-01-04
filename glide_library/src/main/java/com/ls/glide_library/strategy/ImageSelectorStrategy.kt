@@ -5,7 +5,7 @@ import androidx.annotation.DrawableRes
 import com.bumptech.glide.RequestBuilder
 import com.ls.glide_library.GlideApp
 
-class ImageSelectorStrategy() : ILoadStrategy {
+open class ImageSelectorStrategy() : ILoadStrategy {
 
     private var mPlaceholder: Int = -1
     private var mError: Int = -1

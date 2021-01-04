@@ -13,6 +13,7 @@ import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Call
 import retrofit2.Retrofit
 import java.io.File
 import java.lang.Exception
@@ -31,7 +32,6 @@ class Upload {
 
     private val mContext: Context
     private val mRetrofit: Retrofit
-    private val mHandler: Handler
     private val mUploadApi: UploadApi
     private val mUploadMap : MutableMap<String,Disposable>
 
@@ -39,8 +39,21 @@ class Upload {
         mContext = context
         mRetrofit = retrofit
         mUploadApi = mRetrofit.create(UploadApi::class.java)
-        mHandler = Handler()
         mUploadMap = HashMap()
+    }
+
+    /**
+     * 同步单文件上传
+     * @param url String
+     * @param headers Map<String, String>?
+     * @param body Map<String, String>?
+     * @param fileKey String
+     * @param file File
+     * @return Call<String>
+     */
+    fun syncStart(url: String,headers: Map<String,String>?,body: Map<String,String>?,fileKey: String ,file: File,listener: IProgressListener<String>? = null): Call<String>{
+        val requestBody = getSingleRequestBody(body,fileKey,file,listener)
+        return getSyncUpload(url,headers,requestBody)
     }
 
     /**
@@ -68,21 +81,25 @@ class Upload {
                     LogUtils.d(TAG,"" + it.message)
                     it.printStackTrace()
                 })*/
-        val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
-        if(body != null){
-            for (item in body){
-                builder.addFormDataPart(item.key,item.value)
-            }
-        }
-        builder.addFormDataPart(fileKey,file.name,getFileRQ(file,listener))
-        val uploadKey = TxtUtils.randomString(5) + System.currentTimeMillis()
-        mUploadMap[uploadKey] = getUpload(url,headers,builder.build())
+        val requestBody = getSingleRequestBody(body, fileKey, file, listener)
+        val uploadKey = TxtUtils.randomString(10) + System.currentTimeMillis()
+        mUploadMap[uploadKey] = getUpload(url,headers,requestBody)
                 .subscribe({
                     listener.onFinish(it)
                 },{
                     listener.onFailed(Exception(it))
                 })
         return uploadKey
+    }
+
+    private fun getSingleRequestBody(body: Map<String,String>?,fileKey: String ,file: File,listener: IProgressListener<String>?): MultipartBody{
+        val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
+        if(body != null){
+            for (item in body){
+                builder.addFormDataPart(item.key,item.value)
+            }
+        }
+        return builder.addFormDataPart(fileKey,file.name,getFileRQ(file,listener)).build()
     }
 
     /**
@@ -144,10 +161,19 @@ class Upload {
         .observeOn(AndroidSchedulers.mainThread())
     }
 
-    private fun getFileRQ(file: File,listener: IProgressListener<String>): RequestBody{
+    private fun getSyncUpload(url: String,headers: Map<String,String>?,body: MultipartBody): Call<String> {
+        return if(headers == null){
+            mUploadApi.syncUpload(url, body)
+        }
+        else {
+            mUploadApi.syncUpload(url, headers, body)
+        }
+    }
+
+    private fun getFileRQ(file: File,listener: IProgressListener<String>?): RequestBody{
         var fileRQ = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
         fileRQ = UploadRequestBody(fileRQ, IDoubleListener { progress, total ->
-            listener.onProgress(progress,total)
+            listener?.onProgress(progress,total)
         })
         return fileRQ
     }

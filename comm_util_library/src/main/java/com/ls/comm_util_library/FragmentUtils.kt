@@ -11,8 +11,8 @@ import androidx.fragment.app.FragmentManager
  */
 class FragmentUtils {
     companion object {
-        fun <T : Fragment> getFragment(fragmentManager: FragmentManager, fragmentClazz: Class<T>): T {
-            var fragment = fragmentManager.findFragmentByTag(fragmentClazz.name)
+        fun <T : Fragment> getFragment(fragmentManager: FragmentManager, fragmentClazz: Class<T>,tag: String = fragmentClazz.name): T {
+            var fragment = fragmentManager.findFragmentByTag(tag)
             if (fragment == null) {
                 fragment = fragmentClazz.newInstance()
             }
@@ -23,14 +23,14 @@ class FragmentUtils {
             val transaction = fragmentManager.beginTransaction()
             transaction.replace(resId,fragment)
             initListener.invoke(fragment)
-            transaction.commit()
+            transaction.commitAllowingStateLoss()
             return fragment
         }
 
         fun <T: Fragment> removeFragment(fragment: T,fragmentManager: FragmentManager){
             val transaction = fragmentManager.beginTransaction()
             transaction.remove(fragment)
-            transaction.commit()
+            transaction.commitAllowingStateLoss()
         }
 
         fun <T : Fragment> switchFragment(resId: Int, currentFragment: T?, fragment: T, fragmentManager: FragmentManager, initListener: ((T) -> Unit)): T {
@@ -41,11 +41,19 @@ class FragmentUtils {
             val transaction = fragmentManager.beginTransaction()
             if (!fragment.isAdded) {
                 initListener.invoke(fragment)
-                transaction.add(resId, fragment, fragment.javaClass.name).show(fragment).commit()
+                transaction.add(resId, fragment, fragment.javaClass.name).show(fragment).commitAllowingStateLoss()
             } else {
-                transaction.show(fragment).commit()
+                transaction.show(fragment).commitAllowingStateLoss()
             }
             return fragment
+        }
+
+        fun <T: Fragment> hideFragment(fragment: T,fragmentManager: FragmentManager,enterAnim: Int, exitAnim: Int){
+            val transaction = fragmentManager.beginTransaction()
+            transaction.setCustomAnimations(enterAnim,exitAnim,0,0)
+            if (fragment.isAdded) {
+                transaction.hide(fragment).commitAllowingStateLoss()
+            }
         }
 
         fun <T : Fragment> switchFragment(resId: Int, currentFragment: T?, fragment: T, fragmentManager: FragmentManager,
@@ -59,9 +67,9 @@ class FragmentUtils {
                 }
                 if (!fragment.isAdded) {
                     initListener.invoke(fragment)
-                    transaction.add(resId, fragment, fragment.javaClass.name).show(fragment).commit()
+                    transaction.add(resId, fragment, fragment.javaClass.name).show(fragment).commitAllowingStateLoss()
                 } else {
-                    transaction.show(fragment).commit()
+                    transaction.show(fragment).commitAllowingStateLoss()
                 }
             }
             return fragment

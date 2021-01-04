@@ -5,6 +5,7 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
 
 import androidx.annotation.NonNull;
 
@@ -44,9 +45,8 @@ public class GlideCircleCrop extends BitmapTransformation {
         if(borderWidth > 0) {
             mBorderWidth = borderWidth;
             mBorderColor = borderColor;
-            mBorderPaint = new Paint();
-            mBorderPaint.setDither(true);
-            mBorderPaint.setAntiAlias(true);
+            mBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+//            mBorderPaint.setDither(true);
             mBorderPaint.setColor(mBorderColor);
             mBorderPaint.setStyle(Paint.Style.STROKE);
             mBorderPaint.setStrokeWidth(mBorderWidth);
@@ -64,9 +64,9 @@ public class GlideCircleCrop extends BitmapTransformation {
         Bitmap squared = Bitmap.createBitmap(toTransform, x, y, size, size);
         Bitmap result = pool.get(size, size, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(result);
-        Paint paint = new Paint();
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setShader(new BitmapShader(squared, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP));
-        paint.setAntiAlias(true);
+        canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG));
         float radius = size / 2f;
         float bitmapRadius = radius;
         if(mBorderWidth > 0){

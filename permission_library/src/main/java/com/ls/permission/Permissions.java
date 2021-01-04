@@ -56,6 +56,10 @@ public class Permissions {
         return request(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
+    public Permissions requestCamera(){
+        return request(Manifest.permission.CAMERA);
+    }
+
     public void callback(final Callback callback){
         if(mPermissionFragment == null || mPermissions == null){
             throw new NullPointerException("call Permissions.with(activity|fragment).request(String... permissions).callback");

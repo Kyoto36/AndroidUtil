@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.PointF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -496,6 +497,10 @@ public class SwipeMenuLayout extends ViewGroup {
 
     private boolean isExpand;//代表当前是否是展开状态 2016 11 03 add
 
+    public boolean isExpand(){
+        return isExpand;
+    }
+
     public void smoothExpand() {
         //Log.d(TAG, "smoothExpand() called" + this);
         /*mScroller.startScroll(getScrollX(), 0, mRightMenuWidths - getScrollX(), 0);
@@ -604,11 +609,23 @@ public class SwipeMenuLayout extends ViewGroup {
     // 2 侧滑删除后自己后，这个View被Recycler回收，复用，下一个进入屏幕的View的状态应该是普通状态，而不是展开状态。
     @Override
     protected void onDetachedFromWindow() {
-        if (this == mViewCache) {
+        if(mAuto){
+            smoothCloseCache();
+        }
+        super.onDetachedFromWindow();
+    }
+
+    // 是否自动关闭view的展开状态
+    private static boolean mAuto = false;
+    public static void setAutoClose(boolean auto){
+        mAuto = auto;
+    }
+
+    public static void smoothCloseCache(){
+        if(mViewCache != null && mViewCache.isExpand){
             mViewCache.smoothClose();
             mViewCache = null;
         }
-        super.onDetachedFromWindow();
     }
 
     //展开时，禁止长按
@@ -639,6 +656,7 @@ public class SwipeMenuLayout extends ViewGroup {
      */
     public void quickClose() {
         if (this == mViewCache) {
+            isExpand = false;
             //先取消展开动画
             cancelAnim();
             mViewCache.scrollTo(0, 0);//关闭

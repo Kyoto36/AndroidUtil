@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.CenterInside;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
@@ -61,6 +62,13 @@ public class GlideExtension {
         return circle(0,-1);
     }
 
+    public GlideExtension widthCenter(){
+        RequestOptions requestOptions = RequestOptions.noTransformation()
+                .transform(new CenterInside());
+        mRequestBuilder = mRequestBuilder.apply(requestOptions);
+        return this;
+    }
+
     public GlideExtension noCache(){
         mRequestBuilder = mRequestBuilder.skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE);
         return this;
@@ -68,6 +76,11 @@ public class GlideExtension {
 
     public GlideExtension noDisk(){
         mRequestBuilder = mRequestBuilder.diskCacheStrategy(DiskCacheStrategy.NONE);
+        return this;
+    }
+
+    public GlideExtension sourceDisk(){
+        mRequestBuilder = mRequestBuilder.diskCacheStrategy(DiskCacheStrategy.DATA);
         return this;
     }
 
@@ -86,6 +99,13 @@ public class GlideExtension {
     public GlideExtension topCropRoundCorners(int roundingRadius){
         RequestOptions requestOptions = RequestOptions.noTransformation()
                 .transform(new TopCrop(),new RoundedCorners(roundingRadius));
+        mRequestBuilder = mRequestBuilder.apply(requestOptions);
+        return this;
+    }
+
+    public GlideExtension topCrop(){
+        RequestOptions requestOptions = RequestOptions.noTransformation()
+                .transform(new TopCrop());
         mRequestBuilder = mRequestBuilder.apply(requestOptions);
         return this;
     }

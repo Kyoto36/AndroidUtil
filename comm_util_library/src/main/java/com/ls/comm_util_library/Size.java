@@ -32,6 +32,7 @@ public final class Size {
         mHeight = height;
     }
 
+
     /**
      * Get the width of the size (in pixels).
      * @return width

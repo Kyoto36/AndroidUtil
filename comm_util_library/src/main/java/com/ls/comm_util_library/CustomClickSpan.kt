@@ -46,6 +46,7 @@ class CustomClickSpan: ClickableSpan {
         if(mColor != -1) {
             //设置颜色
             ds.color = mColor
+            ds.linkColor = mColor
         }
         //设置是否要下划线
         ds.isUnderlineText = mUnderline

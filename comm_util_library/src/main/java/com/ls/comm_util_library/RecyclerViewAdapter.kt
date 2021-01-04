@@ -85,7 +85,6 @@ abstract class RecyclerViewAdapter<VH: RecyclerView.ViewHolder,T>(context: Conte
             (holder as HeaderViewHolder).updateView(mHeaderView)
         }
         else if(isFooter(position)){
-            LogUtils.d("onBindViewHolder","updateView(mFooterView)")
             (holder as FooterViewHolder).updateView(mFooterView)
         }
         else{
@@ -97,8 +96,17 @@ abstract class RecyclerViewAdapter<VH: RecyclerView.ViewHolder,T>(context: Conte
         }
     }
 
-
     abstract fun onBindItemViewHolder(holder: VH,index: Int)
+
+    /*private var mHeaderHolder: SpecialHolder<out Any>? = null
+    fun setHeaderHolder(holder: SpecialHolder<out Any>){
+        mHeaderHolder = holder
+    }
+
+    private var mFooterHolder: SpecialHolder<out Any>? = null
+    fun setFooterHolder(holder: SpecialHolder<out Any>){
+        mFooterHolder = holder
+    }*/
 
     private var mHeaderView: View? = null
     fun setHeaderView(view: View?){
@@ -137,6 +145,77 @@ abstract class RecyclerViewAdapter<VH: RecyclerView.ViewHolder,T>(context: Conte
             notifyItemChanged(itemCount)
         }
     }
+
+    /*abstract class SpecialHolder<T>(view: View,t: T){
+        private var mView = view
+        private var mT = t
+
+        fun getT(): T{
+            return mT
+        }
+
+        fun setT(t: T){
+            mT = t
+        }
+
+        fun getView(): View{
+            return mView
+        }
+
+        fun setView(view: View){
+            mView = view
+        }
+
+        abstract fun bindView()
+    }
+
+    open class HeaderViewHolder1(context: Context): RecyclerView.ViewHolder(RelativeLayout(context)){
+        open fun update(holder: SpecialHolder<out Any>){
+            val headerView = itemView as ViewGroup
+            val view: View? = holder.getView()
+            if(view == null){
+                headerView.removeAllViews()
+                headerView.visibility = View.GONE
+            }
+            else if(headerView.childCount > 0 && headerView[0] == view){
+                headerView.visibility = View.VISIBLE
+            }
+            else{
+                if(headerView.childCount > 0){
+                    headerView.removeAllViews()
+                }
+                if(view.parent != null){
+                    (view.parent as ViewGroup).removeAllViews()
+                }
+                headerView.addView(view)
+            }
+            holder.bindView()
+        }
+    }
+
+    open class FooterViewHolder1(context: Context): RecyclerView.ViewHolder(RelativeLayout(context)){
+        open fun updateView(holder: SpecialHolder<out Any>){
+            val footerView = itemView as ViewGroup
+            val view: View? = holder.getView()
+            if(view == null){
+                footerView.removeAllViews()
+                footerView.visibility = View.GONE
+            }
+            else if(footerView.childCount > 0 && footerView[0] == view){
+                footerView.visibility = View.VISIBLE
+            }
+            else{
+                if(footerView.childCount > 0){
+                    footerView.removeAllViews()
+                }
+                if(view.parent != null){
+                    (view.parent as ViewGroup).removeAllViews()
+                }
+                footerView.addView(view)
+            }
+            holder.bindView()
+        }
+    }*/
 
     open class HeaderViewHolder(context: Context): RecyclerView.ViewHolder(RelativeLayout(context)){
         open fun updateView(view : View?){

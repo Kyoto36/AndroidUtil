@@ -56,6 +56,8 @@
 
     <declare-styleable name="AutoLineLayout">
         <attr name="maxLines" format="integer"/>
+        <!--达到行上限后，最后展示不全的是否显示-->
+        <attr name="limitIncompleteShow" format="boolean"/>
     </declare-styleable>
     
     <declare-styleable name="CircularProgressView">
@@ -87,5 +89,13 @@
         <attr name="deltaX" format="dimension"/>
         <attr name="deltaY" format="dimension"/>
         <attr name="enable" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="ShadowLayout">
+        <attr name="sl_shadowed" format="boolean"/>
+        <attr name="sl_shadow_distance" format="dimension"/>
+        <attr name="sl_shadow_angle" format="integer"/>
+        <attr name="sl_shadow_radius" format="dimension"/>
+        <attr name="sl_shadow_color" format="color"/>
     </declare-styleable>
 </resources>

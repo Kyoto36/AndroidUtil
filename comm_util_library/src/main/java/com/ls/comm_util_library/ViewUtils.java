@@ -4,8 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.PorterDuff;
+import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
@@ -14,6 +18,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -34,7 +39,7 @@ public class ViewUtils {
      * @param view TextView
      * @param listener 点击监听
      */
-    public static void interceptUrlClick(TextView view, ISingleListener<CharSequence> listener){
+    public static void interceptUrlClick(TextView view,ISingleListener<CharSequence> listener){
         view.setMovementMethod(LinkMovementMethod.getInstance());
         CharSequence text = view.getText();
         if(text instanceof Spannable){
@@ -43,11 +48,13 @@ public class ViewUtils {
             if(urls.length == 0){
                 return;
             }
-            SpannableStringBuilder spannable = new SpannableStringBuilder(text);
+            int start,end;
             for (URLSpan url: urls){
-                spannable.setSpan(new CustomClickSpan(url.getURL(), listener),sp.getSpanStart(url),sp.getSpanEnd(url),Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                start = sp.getSpanStart(url);
+                end = sp.getSpanEnd(url);
+                sp.setSpan(new CustomClickSpan(url.getURL(), listener),start,end,Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             }
-            view.setText(spannable);
+            view.setText(sp);
         }
     }
 
@@ -103,6 +110,9 @@ public class ViewUtils {
     }
 
     public static void showKeyBoard(EditText view) {
+        if(view == null){
+            return;
+        }
         InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (null != imm) {
             view.requestFocus();
@@ -111,6 +121,9 @@ public class ViewUtils {
     }
 
     public static void hideKeyBoard(View view) {
+        if(view == null){
+            return;
+        }
         InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (null != imm) {
             view.clearFocus();
@@ -198,6 +211,26 @@ public class ViewUtils {
         clickView.setOnClickListener(clickListener);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    public static void addViewClickDrak(View view, View.OnClickListener clickListener) {
+        view.setOnTouchListener((v, event) -> {
+            if(view.getBackground() == null){
+                return false;
+            }
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    view.getBackground().setColorFilter(new ColorMatrixColorFilter(BT_SELECTED_DARK));
+                    return false;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    view.getBackground().clearColorFilter();
+                    break;
+            }
+            return false;
+        });
+        view.setOnClickListener(clickListener);
+    }
+
     public static void addViewClickAlpha(final View view, @FloatRange(from = 0,to = 1) float alpha){
         addViewClickAlpha(view, alpha,null);
     }
@@ -219,4 +252,63 @@ public class ViewUtils {
         view.setOnClickListener(clickListener);
     }
 
+    /**
+     * 获取View大小
+     * @param view
+     * @return
+     */
+    public static Size getViewSize(View view){
+        int width = view.getMeasuredWidth();
+        int height = view.getMeasuredHeight();
+        ViewGroup.LayoutParams lp = view.getLayoutParams();
+        if(lp != null) {
+            if (width <= 0) {
+                width = lp.width;
+            }
+            if (height <= 0) {
+                height = lp.height;
+            }
+        }
+        width = width - view.getPaddingLeft() - view.getPaddingRight();
+        height = height - view.getPaddingTop() - view.getPaddingBottom();
+        return new Size(Math.max(width, 0), Math.max(height, 0));
+    }
+
+    /**
+     * 获取view的图片
+     * @param view
+     * @param widthSpec view的宽测量
+     * @param heightSpec view的高测量
+     * @return
+     */
+    public static Bitmap getViewBitmap(View view,int widthSpec,int heightSpec){
+        view.measure(widthSpec,heightSpec);
+        view.layout(0,0,view.getMeasuredWidth(),view.getMeasuredHeight());
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas temp = new Canvas(bitmap);
+        view.draw(temp);
+        return bitmap;
+    }
+
+    public static void calcTextEllipsis(final TextView view,final SpannableStringBuilder source,final SpannableStringBuilder endSpb,final boolean isAuto){
+        view.post(() -> {
+            if(view.getLayout() != null) {
+                String[] texts = view.getText().toString().split("\n");
+                SpannableStringBuilder newSpb;
+                int ellipsisSize = view.getLayout().getEllipsisCount(view.getLineCount() - 1);
+                if (!isAuto || ellipsisSize > 0) {
+                    int newSize = source.length() - ellipsisSize - endSpb.length();
+                    if (newSize < 0) {
+                        newSize = 0;
+                    }
+                    newSpb = source.delete(newSize, source.length());
+                    newSpb.append(endSpb);
+                    view.setText(newSpb);
+                }
+            }
+            else{
+                calcTextEllipsis(view, source, endSpb, isAuto);
+            }
+        });
+    }
 }

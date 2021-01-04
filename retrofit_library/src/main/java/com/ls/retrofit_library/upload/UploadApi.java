@@ -6,6 +6,7 @@ import java.util.Map;
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.HeaderMap;
 import retrofit2.http.Multipart;
@@ -24,6 +25,15 @@ public interface UploadApi {
     Observable<String> upload(@Url String url, @Body RequestBody body);
 
     /**
+     * 同步上传
+     * @param url
+     * @param body
+     * @return
+     */
+    @POST
+    Call<String> syncUpload(@Url String url, @Body RequestBody body);
+
+    /**
      * 通用文件上传
      * @param headers 请求头
      * @param body 需要上传的参数和文件的集合
@@ -31,6 +41,15 @@ public interface UploadApi {
      */
     @POST
     Observable<String> upload(@Url String url, @HeaderMap Map<String,String> headers, @Body RequestBody body);
+
+    /**
+     * 同步文件上传
+     * @param headers 请求头
+     * @param body 需要上传的参数和文件的集合
+     * @return
+     */
+    @POST
+    Call<String> syncUpload(@Url String url, @HeaderMap Map<String,String> headers, @Body RequestBody body);
 
     /**
      * 单文件上传
@@ -42,6 +61,15 @@ public interface UploadApi {
     Observable<String> upload(@Url String url,@Part MultipartBody.Part file);
 
     /**
+     * 同步单文件上传
+     * @param url 上传接口
+     * @return file 用文件生成的body
+     */
+    @Multipart
+    @POST
+    Call<String> syncUpload(@Url String url,@Part MultipartBody.Part file);
+
+    /**
      * 单文件上传
      * @param url 上传接口
      * @param headers 请求头
@@ -50,4 +78,14 @@ public interface UploadApi {
     @Multipart
     @POST
     Observable<String> upload(@Url String url, @HeaderMap Map<String,String> headers,@Part MultipartBody.Part file);
+
+    /**
+     * 同步单文件上传
+     * @param url 上传接口
+     * @param headers 请求头
+     * @return
+     */
+    @Multipart
+    @POST
+    Call<String> syncUpload(@Url String url, @HeaderMap Map<String,String> headers,@Part MultipartBody.Part file);
 }

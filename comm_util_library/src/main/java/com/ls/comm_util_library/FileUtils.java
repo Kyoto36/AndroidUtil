@@ -1,5 +1,7 @@
 package com.ls.comm_util_library;
 
+import android.text.TextUtils;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -52,6 +54,7 @@ public class FileUtils {
      * @param size 文件大小
      */
     public static void createFixFile(File file,long size){
+        createDir(file.getParent());
         try(
             RandomAccessFile randomAccessFile = new RandomAccessFile(file,"rw")
         ) {
@@ -2039,6 +2042,9 @@ public class FileUtils {
      * @return 返回数字，需要自己转换
      */
     public static long calcFileSize(String path) {
+        if(TextUtils.isEmpty(path)){
+            return 0;
+        }
         return calcFileSize(new File(path));
     }
 

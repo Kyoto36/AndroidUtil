@@ -1,15 +1,11 @@
 package com.ls.rxjava_library
 
-import android.util.Log
-import com.ls.comm_util_library.IResultListener
 import com.ls.comm_util_library.ThreadUtils
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.exceptions.OnErrorNotImplementedException
-import io.reactivex.functions.BiConsumer
-import io.reactivex.internal.operators.observable.ObservableMap
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.functions.Function as Fun
@@ -182,7 +178,6 @@ fun <T> Observable<T>.execute(run: (T) -> Unit): Observable<T>{
  */
 fun <T,R> Observable<T>.flatExecute(run: (T) -> Observable<R>): Observable<T>{
     return flatMap {source ->
-        Log.d("456789","flatExecute")
         run.invoke(source).map { source }
     }
 }

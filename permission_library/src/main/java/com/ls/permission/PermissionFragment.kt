@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 
 import java.util.HashMap
@@ -17,7 +18,21 @@ class PermissionFragment : Fragment() {
     fun request(vararg permissions: String,callback: (Map<String,Boolean>) -> Unit) {
         mGrants = HashMap()
         mCallback = callback
-        requestPermissions(permissions, Permissions.PERMISSION_CODE)
+        val temp = ArrayList<String>()
+        for (permission in permissions){
+            if(PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context!!,permission)){
+                temp.add(permission)
+            }
+            else{
+                mGrants!![permission] = true
+            }
+        }
+        if(temp.isEmpty()){
+            mCallback!!.invoke(mGrants!!)
+        }
+        else {
+            requestPermissions(temp.toTypedArray(), Permissions.PERMISSION_CODE)
+        }
     }
 
     override fun onRequestPermissionsResult(

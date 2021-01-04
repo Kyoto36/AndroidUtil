@@ -10,7 +10,7 @@ import com.ls.comm_util_library.IDoubleListener
  * @Author: ls
  * @Date: 2020/8/13 16:47
  */
-class DragItemHelperCallback(isHorizontal: Boolean,isVertical: Boolean): ItemTouchHelper.Callback() {
+open class DragItemHelperCallback(isHorizontal: Boolean,isVertical: Boolean): ItemTouchHelper.Callback() {
 
     private val mIsHorizontal = isHorizontal
     private val mIsVertical = isVertical

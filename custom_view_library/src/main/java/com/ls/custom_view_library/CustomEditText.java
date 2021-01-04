@@ -38,25 +38,28 @@ public class CustomEditText extends AppCompatEditText {
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
         int off;
-        Spannable text = SpannableString.valueOf(getText());
+        Spannable text = getText();
+        if(text == null){
+            return super.onTouchEvent(event);
+        }
         if (action == MotionEvent.ACTION_DOWN) {
-            off = calcOff(text, event);
+            off = calcOff(event);
             if (off != -1) {
                 CustomTextView.TextClickSpan[] spans = text.getSpans(off, off, CustomTextView.TextClickSpan.class);
                 if (spans != null && spans.length > 0 && spans[0] != null) {
-                    removeSpan(text, mBackgroundColorSpan);
+                    removeSpan(mBackgroundColorSpan);
                     CustomTextView.TextClickSpan click = spans[0];
                     if (click.getColor() != -1) {
                         int bgColor = ColorUtils.changeAlpha(spans[0].getColor(),0.5F);
                         mBackgroundColorSpan = new BackgroundColorSpan(bgColor);
-                        setSpan(text, mBackgroundColorSpan, text.getSpanStart(click), text.getSpanEnd(click));
+                        setSpan(mBackgroundColorSpan, text.getSpanStart(click), text.getSpanEnd(click));
                         return true;
                     }
                 }
             }
         } else if (action == MotionEvent.ACTION_UP) {
-            removeSpan(text, mBackgroundColorSpan);
-            off = calcOff(text, event);
+            removeSpan(mBackgroundColorSpan);
+            off = calcOff(event);
             if (off != -1) {
                 CustomTextView.TextClickSpan[] spans = text.getSpans(off, off, CustomTextView.TextClickSpan.class);
                 if (spans != null && spans.length > 0 && spans[0] != null) {
@@ -66,14 +69,14 @@ public class CustomEditText extends AppCompatEditText {
             }
 
         } else if (action == MotionEvent.ACTION_CANCEL) {
-            removeSpan(text, mBackgroundColorSpan);
+            removeSpan(mBackgroundColorSpan);
         }
         return super.onTouchEvent(event);
     }
 
-    private int calcOff(Spannable text, MotionEvent event) {
+    private int calcOff(MotionEvent event) {
         int off = -1;
-        if(text != null) {
+        if(getText() != null) {
             int x = (int) event.getX();
             int y = (int) event.getY();
             x -= getTotalPaddingLeft();
@@ -89,17 +92,15 @@ public class CustomEditText extends AppCompatEditText {
         return off;
     }
 
-    private void setSpan(Spannable text, Object obj, int start, int end) {
-        if (text != null && obj != null) {
-            text.setSpan(obj, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            setText(text);
+    private void setSpan(Object obj, int start, int end) {
+        if (getText() != null && obj != null) {
+            getText().setSpan(obj, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
 
-    private void removeSpan(Spannable text, Object obj) {
-        if (text != null && obj != null) {
-            text.removeSpan(obj);
-            setText(text);
+    private void removeSpan(Object obj) {
+        if (getText() != null && obj != null) {
+            getText().removeSpan(obj);
         }
     }
 }

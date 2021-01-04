@@ -24,6 +24,7 @@ class AutoLineLayout @JvmOverloads constructor(
 
     private var mMaxLines = Int.MAX_VALUE
     private var mUpperLimit: Boolean = false
+    private var mIsShowLimit: Boolean = false
 
     private var mVisibilityViews: MutableList<MutableList<View>>? = null
 
@@ -31,6 +32,7 @@ class AutoLineLayout @JvmOverloads constructor(
         orientation = HORIZONTAL
         val ta = context.obtainStyledAttributes(attrs, R.styleable.AutoLineLayout)
         mMaxLines = ta.getInt(R.styleable.AutoLineLayout_maxLines,Int.MAX_VALUE)
+        mIsShowLimit = ta.getBoolean(R.styleable.AutoLineLayout_limitIncompleteShow,false)
         ta.recycle()
     }
 
@@ -62,8 +64,8 @@ class AutoLineLayout @JvmOverloads constructor(
             if(lineWidth + childWidth > widthSize){ // 如果当前view的宽度加上之间的累计宽度大于最大宽度，则新起一行
                 if(lineCount >= mMaxLines - 1){ // 如果行数大于等于最大行数 -1，则终止测量（-1是因为最后一行需要在后面统一加上）
                     val remainingWidth = widthSize - lineWidth - childLayoutParams.leftMargin - childLayoutParams.rightMargin - paddingRight
-                    // 如果剩余宽度大于原来childView宽度的1/4 或者大于容器宽度的1/6，就显示，否则就不显示
-                    if(remainingWidth > childWidth / 4 || remainingWidth > widthSize / 6) {
+                    // 如果剩余宽度大于原来childView宽度的1/2 或者大于容器宽度的1/4，就显示，否则就不显示
+                    if((mIsShowLimit && (remainingWidth > childWidth / 2 || remainingWidth > widthSize / 4)) || lineViews.size <= 0) {
                         // 修改了子view的宽度，重新测量，免得layout的时候出现子view的内容显示不全
                         childLayoutParams.width = remainingWidth
                         measureChild(childView,widthMeasureSpec,widthMeasureSpec)

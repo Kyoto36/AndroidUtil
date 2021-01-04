@@ -21,6 +21,8 @@ import com.bumptech.glide.load.Transformation;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.util.Preconditions;
 import com.bumptech.glide.util.Synthetic;
+import com.ls.comm_util_library.LogUtils;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -256,6 +258,7 @@ public final class CustomTransformationUtils {
      */
     public static Bitmap centerInside(
             @NonNull BitmapPool pool, @NonNull Bitmap inBitmap, int width, int height) {
+        LogUtils.INSTANCE.d("centerInside","inBitmap.width " + inBitmap.getWidth() + " inBitmap.height " + inBitmap.getHeight() + " width " + width + " height " + height);
         if (inBitmap.getWidth() <= width && inBitmap.getHeight() <= height) {
             if (Log.isLoggable(TAG, Log.VERBOSE)) {
                 Log.v(TAG, "requested target size larger or equal to input, returning input");
@@ -267,6 +270,42 @@ public final class CustomTransformationUtils {
             }
             return fitCenter(pool, inBitmap, width, height);
         }
+    }
+
+    /**
+     * 以宽度为基准剪裁高度，如果宽度大于请求宽度，先缩小
+     * @param pool
+     * @param inBitmap
+     * @param width
+     * @param height
+     * @return
+     */
+    public static Bitmap widthCenter(
+            @NonNull BitmapPool pool, @NonNull Bitmap inBitmap, int width, int height) {
+        LogUtils.INSTANCE.d("widthCenter","inBitmap.width " + inBitmap.getWidth() + " inBitmap.height " + inBitmap.getHeight() + " width " + width + " height " + height);
+        if (inBitmap.getWidth() <= width && inBitmap.getHeight() <= height) {
+            return inBitmap;
+        }
+        // From ImageView/Bitmap.createScaledBitmap.
+        final float scale;
+        final float dy;
+        Matrix m = new Matrix();
+        if(inBitmap.getWidth() <= width && inBitmap.getHeight() > height){
+            scale = 1;
+            dy = (height - inBitmap.getHeight()) * 0.5F;
+        }
+        else {
+            scale = (float) width / (float) inBitmap.getWidth();
+            dy = (height - inBitmap.getHeight() * scale) * 0.5f;
+        }
+        m.postScale(scale,scale);
+        m.postTranslate(0,dy + 0.5F);
+        Bitmap result = pool.get(width, height, getNonNullConfig(inBitmap));
+        // We don't add or remove alpha, so keep the alpha setting of the Bitmap we were given.
+        setAlpha(inBitmap, result);
+
+        applyMatrix(inBitmap, result, m);
+        return result;
     }
 
     /**

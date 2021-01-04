@@ -1,6 +1,5 @@
 package com.ls.comm_util_library
 
-import android.annotation.TargetApi
 import android.app.Dialog
 import android.content.Context
 import android.content.res.Resources
@@ -157,11 +156,11 @@ class Util{
          * 创建自定义dialog
          */
         fun customDialog(@LayoutRes layoutId: Int,context: Context,fullScreen: Boolean) : Dialog{
-            var dialog = Dialog(context,R.style.CommDialog)
+            val dialog = Dialog(context,R.style.CommDialog)
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             if(fullScreen){
                 setDialogFullScreen(dialog)
             }
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setContentView(layoutId)
             return dialog
         }
@@ -179,11 +178,11 @@ class Util{
          * 创建自定义dialog
          */
         fun customDialog(view: View,context: Context,fullScreen: Boolean) : Dialog{
-            var dialog = Dialog(context,R.style.CommDialog)
+            val dialog = Dialog(context,R.style.CommDialog)
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             if(fullScreen){
                 setDialogFullScreen(dialog)
             }
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setContentView(view)
             return dialog
         }
@@ -193,12 +192,12 @@ class Util{
          * 设置dialog全屏显示，要在show之前调用
          */
         fun setDialogFullScreen(dialog: Dialog){
-            dialog.window.decorView.setPadding(0, 0, 0, 0)
-            dialog.window.decorView.setBackgroundColor(Color.WHITE)
+            dialog.window.decorView.setPadding(0,0,0,0)
             dialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            // 单独加这个没用，需要结合上面的内边距和背景
-            dialog.window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,WindowManager.LayoutParams.WRAP_CONTENT)
-
+            val lp = dialog.window.attributes
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT
+            lp.height = WindowManager.LayoutParams.MATCH_PARENT
+            dialog.window.attributes = lp
         }
         /**
          * Java可调用Util.Companion.customToast(view,this)

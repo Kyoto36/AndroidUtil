@@ -21,7 +21,7 @@ import java.security.MessageDigest;
  * A {@link BitmapTransformation} which rounds the corners of a bitmap.
  */
 public final class CenterCropRoundedCorners extends BitmapTransformation {
-  private static final String ID = "com.bumptech.glide.load.resource.bitmap.RoundedCorners";
+  private static final String ID = "com.ls.glide_library.CenterCropRoundedCorners";
   private static final byte[] ID_BYTES = ID.getBytes(CHARSET);
 
   private final int roundingRadius;

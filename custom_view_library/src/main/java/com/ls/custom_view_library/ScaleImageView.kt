@@ -10,19 +10,16 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.text.TextUtils
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.ViewTreeObserver
 import android.view.animation.DecelerateInterpolator
-import android.view.animation.LinearInterpolator
+import android.widget.Scroller
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.graphics.toRect
 import com.ls.comm_util_library.*
 import java.io.File
 import java.io.InputStream
-import kotlin.properties.Delegates
 
 
 class ScaleImageView
@@ -55,6 +52,7 @@ class ScaleImageView
     var mBitmapRegionDecoder : BitmapRegionDecoder? = null
 
     private var mOnDownSlideListener: IOnDownSlideListener? = null
+    private var mScroller = Scroller(context)
 
     private val mOnGestureListener = object : GestureDetector.SimpleOnGestureListener() {
 
@@ -65,10 +63,9 @@ class ScaleImageView
 
         override fun onDoubleTap(e: MotionEvent): Boolean {
 //            if (mIsAutoScale || !getMatrixRectF().contains(e.x, e.y)) {
-            if (mIsDisableScale || mIsAutoScale){
+            if(mIsDisableScale || mIsAutoScale){
                 return false
             }
-
             mFocusPoint.x = e.x
             mFocusPoint.y = e.y
 
@@ -100,63 +97,25 @@ class ScaleImageView
             distanceY: Float
         ): Boolean {
             if (mIsScale) return false
-            val rect = getMatrixRectF()
-            var deltaX = 0f
-            var deltaY = 0f
-            val width = width
-            val height = height
-            // 检查是否可以滑动
-            if (rect.left < 0 && distanceX < 0) {
-                if (Math.abs(distanceX) < Math.abs(rect.left)) {
-                    deltaX = -distanceX
-                } else {
-                    deltaX = -rect.left
-                }
-            }
-            if (rect.right > width && distanceX > 0) {
-                val rightDis = rect.right - width
-                if (Math.abs(distanceX) < Math.abs(rightDis)) {
-                    deltaX = -distanceX
-                } else {
-                    deltaX = -rightDis
-                }
-            }
-            if (rect.top < 0 && distanceY < 0) {
-                if (Math.abs(distanceY) < Math.abs(rect.top)) {
-                    deltaY = -distanceY
-                } else {
-                    deltaY = -rect.top
-                }
-            }
-            if (rect.bottom > height && distanceY > 0) {
-                val bottomDis = rect.bottom - height
-                if (Math.abs(distanceY) < Math.abs(bottomDis)) {
-                    deltaY = -distanceY
-                } else {
-                    deltaY = -bottomDis
-                }
-            }
-            if (deltaX != 0F || deltaY != 0F) {
-                parent.requestDisallowInterceptTouchEvent(true)
-                mScaleMatrix.postTranslate(deltaX, deltaY)
-                reDraw()
-                endDownSlide()
+            if(scroll(distanceX,distanceY)){
                 return true
             }
             val distanceRawY = e1.rawY - e2.rawY
             val distanceRawX = e1.rawX - e2.rawX
-            if (Math.abs(distanceRawY) > 0) {
+            if (Math.abs(distanceRawY) > 0 && Math.abs(distanceRawY) > Math.abs(distanceRawX) + dp2px(20F) && getScale() <= mBaseScale) {
                 if (!mIsDownSlide) {
                     mIsDownSlide = true
                     mLastDownSlideDis = distanceRawY
                     mOnDownSlideListener?.onStart()
                 }
                 if (mIsDownSlide) {
+                    parent?.requestDisallowInterceptTouchEvent(true)
                     mOnDownSlideListener?.onScroll(mLastDownSlideDis - distanceRawY)
                     mLastDownSlideDis = distanceRawY
                     return true
                 }
             }
+            parent?.requestDisallowInterceptTouchEvent(false)
             return false
         }
 
@@ -166,9 +125,73 @@ class ScaleImageView
             velocityX: Float,
             velocityY: Float
         ): Boolean {
-            endDownSlide(mIsScale || getScale() > mBaseScale, velocityY)
-            return super.onFling(e1, e2, velocityX, velocityY)
+            return if(getScale() > mBaseScale){
+//                val rect = getMatrixRectF()
+//                mScroller.fling(e2.x.toInt(),e2.y.toInt(),velocityX.toInt(),velocityY.toInt(),0, 100,0, 100)
+//                invalidate()
+                true
+            } else {
+                parent?.requestDisallowInterceptTouchEvent(false)
+                endDownSlide(mIsScale, velocityY)
+                super.onFling(e1, e2, velocityX, velocityY)
+            }
         }
+    }
+
+    override fun computeScroll() {
+        super.computeScroll()
+        if (mScroller.computeScrollOffset()) {
+            scroll((mScroller.currX - mScroller.startX).toFloat(), (mScroller.currY - mScroller.startY).toFloat())
+            postInvalidate()
+        }
+    }
+
+    private fun scroll(distanceX: Float,distanceY: Float): Boolean{
+        val rect = getMatrixRectF()
+        var deltaX = 0f
+        var deltaY = 0f
+        val width = width
+        val height = height
+        // 检查是否可以滑动
+        if (rect.left < 0 && distanceX < 0) {
+            if (Math.abs(distanceX) < Math.abs(rect.left)) {
+                deltaX = -distanceX
+            } else {
+                deltaX = -rect.left
+            }
+        }
+        if (rect.right > width && distanceX > 0) {
+            val rightDis = rect.right - width
+            if (Math.abs(distanceX) < Math.abs(rightDis)) {
+                deltaX = -distanceX
+            } else {
+                deltaX = -rightDis
+            }
+        }
+        if (rect.top < 0 && distanceY < 0) {
+            if (Math.abs(distanceY) < Math.abs(rect.top)) {
+                deltaY = -distanceY
+            } else {
+                deltaY = -rect.top
+            }
+        }
+        if (rect.bottom > height && distanceY > 0) {
+            val bottomDis = rect.bottom - height
+            if (Math.abs(distanceY) < Math.abs(bottomDis)) {
+                deltaY = -distanceY
+            } else {
+                deltaY = -bottomDis
+            }
+        }
+        if (deltaX != 0F || deltaY != 0F) {
+            parent.requestDisallowInterceptTouchEvent(true)
+            mScaleMatrix.postTranslate(deltaX, deltaY)
+            reDraw()
+//                endDownSlide()
+            return true
+        }
+        parent.requestDisallowInterceptTouchEvent(false)
+        return false
     }
 
     private val mOnScaleGestureListener =
@@ -187,7 +210,7 @@ class ScaleImageView
                 mFocusPoint.set(detector.focusX, detector.focusY)
                 mScaleFactorOld = getScale()
                 mIsScale = true
-                endDownSlide()
+//                endDownSlide()
                 return true
             }
 
@@ -219,8 +242,16 @@ class ScaleImageView
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val scaleTouch = mScaleGestureDetector.onTouchEvent(event)
         val touch = mGestureDetector.onTouchEvent(event)
-        if ((event.action and MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+        if (event.action == MotionEvent.ACTION_UP) {
             endDownSlide()
+        }
+        if(event.action == MotionEvent.ACTION_DOWN){
+            if(getScale() > mBaseScale){
+                parent?.requestDisallowInterceptTouchEvent(true)
+            }
+            else{
+                parent.requestDisallowInterceptTouchEvent(false)
+            }
         }
         return true
     }
@@ -267,6 +298,9 @@ class ScaleImageView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             viewTreeObserver.removeOnGlobalLayoutListener(this)
         }
+        mScaleMatrix.reset()
+        mWorkHandler.removeCallbacksAndMessages(null)
+        setImageDrawable(null)
     }
 
     private fun loadImage(){
@@ -313,27 +347,33 @@ class ScaleImageView
 
     private fun loadBitmap(listener: IResultListener<InputStream>,unknownListener: IVoidListener){
         mIsDisableScale = true
-        mWorkHandler.post {
-            mOptions.inJustDecodeBounds = true
-            var inputStream = listener.onResult()
-            BitmapFactory.decodeStream(inputStream,null,mOptions)
-            if(isGif(mOptions.outMimeType)){
-                post {
-                    mIsDisableScale = false
-                    unknownListener.invoke()
+        post {
+            mWorkHandler.post {
+                mOptions.inJustDecodeBounds = true
+                var inputStream = listener.onResult()
+                BitmapFactory.decodeStream(inputStream, null, mOptions)
+                if (isGif(mOptions.outMimeType)) {
+                    post {
+                        mIsDisableScale = false
+                        unknownListener.invoke()
+                    }
                 }
-                return@post
-            }
-            inputStream = listener.onResult()
-            mBitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
-            mBitmapWidth = mOptions.outWidth
-            mBitmapHeight = mOptions.outHeight
-            mOptions.inSampleSize = calculateInSampleSize(mBitmapWidth,mBitmapHeight,width,height)
-            mOptions.inJustDecodeBounds = false
-            inputStream = listener.onResult()
-            val bitmap = BitmapFactory.decodeStream(inputStream,null,mOptions)
+                else {
+//            inputStream = listener.onResult()
+//            mBitmapRegionDecoder = BitmapRegionDecoder.newInstance(inputStream, false)
+                    mBitmapWidth = mOptions.outWidth
+                    mBitmapHeight = mOptions.outHeight
+                    mOptions.inSampleSize = calculateInSampleSize(mBitmapWidth, mBitmapHeight, measuredWidth, measuredHeight)
+                    mOptions.inJustDecodeBounds = false
+                    LogUtils.d("123456456", "mOptions.inSampleSize ${mOptions.inSampleSize} mBitmapWidth $mBitmapWidth mBitmapHeight $mBitmapHeight")
+                    inputStream?.close()
+                    inputStream = listener.onResult()
+                    val bitmap = BitmapFactory.decodeStream(inputStream, null, mOptions)
+                    inputStream?.close()
 //                val cache = AndroidFileUtils.getCachePath(context) + "bitmap_${System.currentTimeMillis()}"
-            setBitmap(bitmap)
+                    setBitmap(bitmap)
+                }
+            }
         }
     }
 
@@ -344,13 +384,10 @@ class ScaleImageView
      */
     private fun calculateInSampleSize(srcWidth: Int,srcHeight: Int, reqWidth: Int, reqHeight: Int): Int {
         var inSampleSize = 1
-        if (reqWidth < srcWidth || reqHeight < srcHeight) {
-            val halfWidth = srcWidth / 2
-            val halfHeight = srcHeight / 2
-            while (halfHeight / inSampleSize > reqHeight && halfWidth / inSampleSize > reqWidth) {
-                inSampleSize *= 2
-            }
+        while ((srcWidth / inSampleSize) > reqHeight || (srcHeight / inSampleSize) > reqWidth) {
+            inSampleSize *= 2
         }
+        LogUtils.d("123456456","srcWidth $srcWidth srcHeight $srcHeight reqWidth $reqWidth reqHeight $reqHeight inSampleSize $inSampleSize")
         return inSampleSize
     }
 

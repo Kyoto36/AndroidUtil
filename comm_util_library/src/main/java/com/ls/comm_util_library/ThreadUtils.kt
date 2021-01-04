@@ -2,11 +2,7 @@ package com.ls.comm_util_library
 
 import android.os.Handler
 import android.os.Looper
-
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 
 /**
 * @FileName: ThreadUtils.kt
@@ -48,11 +44,29 @@ class ThreadUtils private constructor() {
         }
 
         /**
+         * 执行在IO线程的可控线程
+         * @param call Callable<T>
+         * @return Future<T>
+         */
+        fun <T> execIO(call: Callable<T>): Future<T>{
+            return get().mIOThread.submit(call)
+        }
+
+        /**
          * 执行在compute线程
          * @param run
          */
         fun execCompute(run: Runnable) {
             get().mComputeThread.submit(run)
+        }
+
+        /**
+         * 执行在compute线程的可控线程
+         * @param call Callable<T>
+         * @return Future<T>
+         */
+        fun <T> execCompute(call: Callable<T>): Future<T>{
+            return get().mComputeThread.submit(call)
         }
 
         /**

@@ -39,6 +39,15 @@ public class AndroidFileUtils {
     }
 
     /**
+     * 获取download文件夹路径
+     * 在android10之后就不能用了，targetSDK >= 29
+     * @return
+     */
+    public static String downloadPath(){
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+    }
+
+    /**
      * 获取app缓存路径
      * 如果有外部存储，就使用外部存储（现在的手机都内置了外部存储）sdcard/Android/data/{包名}/files
      * 否则就是用内部存储 data/data/{包名}/files
@@ -107,6 +116,15 @@ public class AndroidFileUtils {
      */
     public static InputStream getInputStreamByAsset(Context context, String fileName) throws IOException {
         return new BufferedInputStream(context.getAssets().open(fileName));
+    }
+
+    /**
+     * 根据assets下的文件路劲获取Uri，可用于Glide加载
+     * @param filePath
+     * @return
+     */
+    public static Uri getAssetsUri(String filePath){
+        return Uri.parse("file:///android_asset/" + filePath);
     }
 
     /**

@@ -31,6 +31,7 @@ class DisposableControl : LifecycleObserver {
                     disposable.dispose()
                 }
             }
+            mDisposables?.clear()
         }
     }
 }

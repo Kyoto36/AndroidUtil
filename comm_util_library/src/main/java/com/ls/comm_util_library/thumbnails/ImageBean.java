@@ -8,7 +8,7 @@ public class ImageBean implements Parcelable {
     private int id;
     private String name;
     private String path;
-    private Uri uri;
+    private transient Uri uri;
     private String extend;
 
     public ImageBean(String extend){

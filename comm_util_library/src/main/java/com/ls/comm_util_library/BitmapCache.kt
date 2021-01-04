@@ -24,9 +24,7 @@ open class BitmapCache {
      * @param bitmap
      */
     open fun addBitmap(key: String?, bitmap: Bitmap?) {
-        if (getBitmap(key) == null) {
-            mCache.put(key, bitmap)
-        }
+        mCache.put(key, bitmap)
     }
 
     /**

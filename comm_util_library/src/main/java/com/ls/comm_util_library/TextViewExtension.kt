@@ -4,7 +4,7 @@ import android.os.Build
 import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
-import android.widget.EditText
+import android.view.ViewTreeObserver
 import android.widget.TextView
 
 /**
@@ -41,15 +41,8 @@ inline fun TextView.doCustomOnTextChange(crossinline onTextChanged: (text: CharS
     addCustomTextChangedListener(onTextChanged = onTextChanged)
 }
 
-inline fun TextView.calcTextEllipsis(source: SpannableStringBuilder, endSpb: SpannableStringBuilder) {
-    post {
-        val newSpb: SpannableStringBuilder
-        val size = layout.getEllipsisCount(lineCount - 1)
-        if (size > 0) {
-            newSpb = source.delete(source.length - size - endSpb.length, source.length)
-            newSpb.append(endSpb)
-            text = newSpb
-        }
-    }
+inline fun TextView.calcTextEllipsis(source: SpannableStringBuilder, endSpb: SpannableStringBuilder,isAuto: Boolean = true) {
+    ViewUtils.calcTextEllipsis(this,source, endSpb, isAuto)
 }
+
 

@@ -116,6 +116,16 @@ public class NumberUtils {
     }
 
     /**
+     * 数字上限显示效果 99+
+     * @param number
+     * @param limit
+     * @return
+     */
+    public static String numberLimit(long number,int limit){
+        return number > limit ? limit + "+": number + "";
+    }
+
+    /**
      * 判断是否是整数
      * @param str
      * @return

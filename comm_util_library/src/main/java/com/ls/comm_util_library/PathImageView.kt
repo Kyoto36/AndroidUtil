@@ -1,5 +1,6 @@
 package com.ls.comm_util_library
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.os.Build
@@ -67,7 +68,7 @@ open class PathImageView @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
-        if(mConfig.getPath() == null) {
+        if(mConfig.getPath() == null || measuredWidth <= 0 || measuredHeight <= 0) {
             super.onDraw(canvas)
             return
         }
@@ -82,7 +83,7 @@ open class PathImageView @JvmOverloads constructor(
     fun setConfig(configListener: ISingleResultListener<Size,Config>){
         mConfigListener = configListener
         post {
-            mConfig = mConfigListener!!.onResult(Size(width,height))
+            mConfig = mConfigListener!!.onResult(Size(measuredWidth,measuredHeight))
             invalidate()
         }
     }
@@ -92,11 +93,13 @@ open class PathImageView @JvmOverloads constructor(
         val canvas = Canvas(bitmap)
         val paint = Paint().apply {
             isAntiAlias = true
+            color = mConfig.getBorderColor()
+            style = Paint.Style.FILL
         }
-        canvas.rotate(mConfig.getRotate(), (width/2).toFloat(), (height/2).toFloat())
+        canvas.rotate(mConfig.getRotate(), (measuredWidth/2).toFloat(), (measuredHeight/2).toFloat())
         canvas.drawPath(path,paint)
         paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-        canvas.rotate(-mConfig.getRotate(), (width/2).toFloat(), (height/2).toFloat())
+        canvas.rotate(-mConfig.getRotate(), (measuredWidth/2).toFloat(), (measuredHeight/2).toFloat())
         canvas.drawBitmap(getImageBitmap(), 0F, 0F, paint)
         paint.xfermode = null
         paint.apply {
@@ -104,9 +107,9 @@ open class PathImageView @JvmOverloads constructor(
             color = mConfig.getBorderColor()
             strokeWidth = mConfig.getBorderWidth()
         }
-        canvas.rotate(mConfig.getRotate(), (width/2).toFloat(), (height/2).toFloat())
+        canvas.rotate(mConfig.getRotate(), (measuredWidth/2).toFloat(), (measuredHeight/2).toFloat())
         canvas.drawPath(path,paint)
-        canvas.rotate(-mConfig.getRotate(), (width/2).toFloat(), (height/2).toFloat())
+        canvas.rotate(-mConfig.getRotate(), (measuredWidth/2).toFloat(), (measuredHeight/2).toFloat())
         return bitmap
     }
 
@@ -116,7 +119,7 @@ open class PathImageView @JvmOverloads constructor(
     private fun getImageBitmap(): Bitmap{
         val bitmap = recyclerBitmap(mImageBitmap)
         val canvas = Canvas(bitmap)
-        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        canvas.drawColor(mConfig.getBorderColor(), PorterDuff.Mode.CLEAR);
         canvas.concat(imageMatrix)
         drawable?.draw(canvas)
         return bitmap
@@ -125,15 +128,15 @@ open class PathImageView @JvmOverloads constructor(
     protected fun recyclerBitmap(bitmap: Bitmap?): Bitmap{
         var resultBitmap = bitmap
         if(resultBitmap == null) {
-            resultBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            resultBitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
         }
-        else if(resultBitmap.width != width || resultBitmap.height != height) {
+        else if(resultBitmap.width != measuredWidth || resultBitmap.height != measuredHeight) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                resultBitmap.reconfigure(width,height,resultBitmap.config)
+                resultBitmap.reconfigure(measuredWidth,measuredHeight,resultBitmap.config)
             }
             else{
                 resultBitmap.recycle()
-                resultBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                resultBitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
             }
         }
         return resultBitmap!!

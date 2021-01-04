@@ -61,7 +61,6 @@ public class KeyBoardListener {
 
     //重新调整跟布局的高度 
     private void possiblyResizeChildOfContent(int usableHeightNow) {
-        LogUtils.INSTANCE.d("usableHeightNow = ", usableHeightNow + "");
         //当前可见高度和上一次可见高度不一致 布局变动
         if (usableHeightNow != usableHeightPrevious) {
             //int usableHeightSansKeyboard2 = mChildOfContent.getHeight();//兼容华为等机型

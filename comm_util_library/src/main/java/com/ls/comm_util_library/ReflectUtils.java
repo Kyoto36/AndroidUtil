@@ -84,26 +84,42 @@ public class ReflectUtils {
     }
 
     /**
-     * 获取属性的值
-     *
-     * @return
+     * 获取该对象所有属性的值
+     * @return 属性名 -> 属性值，键值对
      * @throws IllegalAccessException
      * @throws IllegalArgumentException
      */
-    public static Map<String, String> getFieldValue(Object obj) {
-        Map<String, String> map = new HashMap<>();
+    public static Map<String, Object> getAllFieldValue(Object obj) {
+        Map<String, Object> map = new HashMap<>();
         Field[] fields = obj.getClass().getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             //获取属性值
             try {
                 //开启反射获取私有属性值
                 fields[i].setAccessible(true);
-                map.put(fields[i].getName(), fields[i].get(obj).toString());
+                map.put(fields[i].getName(), fields[i].get(obj));
             } catch (Exception e) {
                 // TODO: handle exception
                 e.printStackTrace();
             }
         }
         return map;
+    }
+
+    /**
+     * 获取单个属性值
+     * @param obj
+     * @param fieldName
+     * @return
+     */
+    public static Object getFieldValue(Object obj,String fieldName){
+        try {
+            Field field = obj.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field.get(obj);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

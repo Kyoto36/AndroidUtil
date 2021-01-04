@@ -14,10 +14,19 @@ public class TimeUtils {
     public static final String DEFAULT_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
     public static final String LACK_SEC_FORMAT = "yyyy-MM-dd HH:mm";
+    public static final String DEFAULT_DATE_FORMAT_CHINESE = "yyyy年MM月dd日";
+    public static final String LACK_SEC_FORMAT_CHINESE = "yyyy年MM月dd日 HH:mm";
     public static final String LACK_YEAR_FORMAT = "MM-dd HH:mm";
     public static final String TIME_FORMAT = "HH:mm";
     public static final String MONTH_DAY_FORMAT = "MM-dd";
     public static final String MONTH_DAY_TIME_FORMAT = "MM-dd HH:mm";
+    public static final String MONTH_DAY_FORMAT_CHINESE = "MM月dd日";
+    public static final String MONTH_DAY_TIME_FORMAT_CHINESE = "MM月dd日 HH:mm";
+
+    public static final int SEC = 1000;
+    public static final int MIN = SEC * 60;
+    public static final int HOUR = MIN * 60;
+    public static final int DAY = HOUR * 24;
 
     /**
      * 获取几年的毫秒数
@@ -56,6 +65,11 @@ public class TimeUtils {
         return dateFormat.format(new Date(millis));
     }
 
+    public static String sec2String(long sec,String format){
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        return dateFormat.format(new Date(sec * 1000));
+    }
+
     public static Date string2Date(String str){
         return string2Date(str, DEFAULT_FORMAT);
     }
@@ -79,7 +93,7 @@ public class TimeUtils {
         else if(diff / 60 / 60 / 24 <= 0){
             return (diff / 60 / 60) + "小时前";
         }
-        else if(diff / 60 / 60 / 24 / 4 <= 0){
+        else if(diff / 60 / 60 / 24 / 7 <= 0){
             return (diff / 60 / 60 / 24) + "天前";
         }
         else if(diff / 60 / 60 / 24 / 30 <= 0){
@@ -98,10 +112,16 @@ public class TimeUtils {
 
     }
 
-    public static String dateFlashback(long millis,boolean showTime){
-        long sec = millis / 1000;
+    public static String dateFlashback(long sec,boolean showTime){
+        long millis =  sec * 1000;
         long currSec = new Date().getTime() / 1000;
         long diff = currSec - sec;
+        Calendar datetime = Calendar.getInstance();
+        datetime.setTime(new Date(millis));
+        Calendar now = Calendar.getInstance();
+        now.setTime(new Date());
+        int dayDiff = now.get(Calendar.DAY_OF_YEAR) - datetime.get(Calendar.DAY_OF_YEAR);
+        int yearDiff = now.get(Calendar.YEAR) - datetime.get(Calendar.YEAR);
         if(diff / 60 <= 0){
             return "刚刚";
         }
@@ -111,14 +131,18 @@ public class TimeUtils {
         else if(diff / 60 / 60 / 24 <= 0){
             return (diff / 60 / 60) + "小时前";
         }
-        else if(diff / 60 / 60 / 24 / 2 <= 0){
+//        else if(diff / 60 / 60 / 24 / 2 <= 0){
+        else if(dayDiff == 1){
             return "昨天" + millis2String(millis,TIME_FORMAT);
         }
-        else if(diff / 60 / 60 / 24 / 365 <= 0){
-            return millis2String(millis,showTime ? MONTH_DAY_FORMAT : MONTH_DAY_TIME_FORMAT);
+//        else if(diff / 60 / 60 / 24 / 365 <= 0){
+        else if(yearDiff > 0){
+            return millis2String(millis,showTime ? LACK_SEC_FORMAT_CHINESE : DEFAULT_DATE_FORMAT_CHINESE );
+//            return millis2String(millis,showTime ? MONTH_DAY_TIME_FORMAT : MONTH_DAY_FORMAT);
         }
         else{
-            return millis2String(millis,showTime ? DEFAULT_DATE_FORMAT : DEFAULT_DATE_FORMAT);
+//            return millis2String(millis,showTime ? LACK_SEC_FORMAT : DEFAULT_DATE_FORMAT );
+            return millis2String(millis,showTime ? MONTH_DAY_TIME_FORMAT_CHINESE : MONTH_DAY_FORMAT_CHINESE);
         }
     }
 
@@ -129,20 +153,28 @@ public class TimeUtils {
         return (minute < 10 ? "0" + minute : "" + minute) + ":" + (sec < 10 ? "0" + sec : "" + sec);
     }
 
-    public static String commentTime2String(Date replyTime){
+    public static String sec2String(long sec){
+        return time2String(new Date(sec * 1000));
+    }
+
+    public static String time2String(long time){
+        return time2String(new Date(time));
+    }
+
+    public static String time2String(Date time){
         Calendar datetime = Calendar.getInstance();
-        datetime.setTime(replyTime);
+        datetime.setTime(time);
         Calendar now = Calendar.getInstance();
         now.setTime(new Date());
         int delay = now.get(Calendar.DAY_OF_YEAR) - datetime.get(Calendar.DAY_OF_YEAR);
         if(delay == 0){
-            return date2String(replyTime, TIME_FORMAT);
+            return date2String(time, TIME_FORMAT);
         }
         if(delay == 1){
-            return "昨天 " + date2String(replyTime, TIME_FORMAT);
+            return "昨天 " + date2String(time, TIME_FORMAT);
         }
         else{
-            return date2String(replyTime);
+            return date2String(time,LACK_SEC_FORMAT);
         }
     }
 
