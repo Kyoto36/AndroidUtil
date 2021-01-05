@@ -1,32 +1,34 @@
 package com.ls.test.testutils
 
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
+import com.ls.comm_util_library.Util
 import com.ls.test.testutils.adapter.ArticleDetailAdapter
 
-class CoordinatorActivity : AppCompatActivity() {
-
-    private val mAdapter by lazy {
-        ArticleDetailAdapter(this, RecyclerViewActivity.getImages())
-    }
-
-    private val mLayoutManager = LinearLayoutManager(this)
-
+class NestedScrollActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_coordinator)
+        setContentView(R.layout.activity_nested_scroll)
+//        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+//        recyclerView.adapter = ArticleDetailAdapter(this, RecyclerViewActivity.getImages())
+//        recyclerView.layoutManager = LinearLayoutManager(this)
 
-        findViewById<ViewPager>(R.id.viewPager).adapter = object : FragmentPagerAdapter(supportFragmentManager,FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT){
+        val viewPager = findViewById<ViewPager>(R.id.viewPager)
+        viewPager.post {
+            viewPager.layoutParams.height = Util.getDisplayHeight(this)
+        }
+        viewPager.adapter = object : FragmentPagerAdapter(supportFragmentManager,
+            FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT){
             override fun getItem(position: Int): Fragment {
                 return RecyclerFragment(position)
             }
@@ -35,8 +37,6 @@ class CoordinatorActivity : AppCompatActivity() {
                 return 3
             }
         }
-//        recyclerView.layoutManager = mLayoutManager
-//        recyclerView.adapter = mAdapter
     }
 
     class RecyclerFragment(position: Int): Fragment() {
@@ -49,7 +49,7 @@ class CoordinatorActivity : AppCompatActivity() {
         ): View? {
             Log.d("RecyclerFragment","onCreateView mPosition $mPosition")
             mInit = false
-            return RecyclerView(context!!)
+            return inflater.inflate(R.layout.recyclerview,container,false)
         }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,9 +61,9 @@ class CoordinatorActivity : AppCompatActivity() {
         override fun onResume() {
             Log.d("RecyclerFragment","onResume mPosition $mPosition")
             super.onResume()
-            if(view is RecyclerView && !mInit) {
+            if(!mInit) {
                 mInit = true
-                val recyclerView = view as RecyclerView
+                val recyclerView = view!!.findViewById<RecyclerView>(R.id.recyclerView)
                 recyclerView.layoutManager = LinearLayoutManager(context)
                 recyclerView.adapter = ArticleDetailAdapter(context!!, RecyclerViewActivity.getImages())
             }
@@ -83,12 +83,6 @@ class CoordinatorActivity : AppCompatActivity() {
             Log.d("RecyclerFragment","onStop mPosition $mPosition")
             super.onStop()
         }
-
-        override fun onDestroyView() {
-            Log.d("RecyclerFragment","onDestroyView mPosition $mPosition")
-            super.onDestroyView()
-        }
     }
-
 
 }

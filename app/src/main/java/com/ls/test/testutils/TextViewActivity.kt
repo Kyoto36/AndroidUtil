@@ -24,9 +24,12 @@ class TextViewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_text_view)
 
         val name = SpannableString("fhjdka")
-        name.setSpan(CustomTextView.TextClickSpan(name, Color.BLUE, ISingleListener {
-            toast(name.toString())
-        }),0,name.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+//        name.setSpan(CustomTextView.TextClickSpan(name, Color.BLUE, ISingleListener {
+//            toast(name.toString())
+//        }),0,name.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        name.setSpan(IconTextSpan(this,R.color.colorPrimaryDark,name.toString()),0,name.length,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+
 
         val sb = SpannableStringBuilder()
         sb.append(name)

@@ -110,5 +110,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="edit 测试" />
+
+        <Button
+            android:id="@+id/dbHelperTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="dbhelper 测试"/>
+
+        <Button
+            android:id="@+id/webViewTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="webView 测试"/>
+
+        <Button
+            android:id="@+id/dialogTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="dialog 测试"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="3"/>
     </LinearLayout>
 </ScrollView>

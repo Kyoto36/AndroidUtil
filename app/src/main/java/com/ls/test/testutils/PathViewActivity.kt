@@ -10,9 +10,12 @@ import android.widget.ImageView
 import androidx.core.graphics.PathUtils
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.ls.comm_util_library.ISingleResultListener
 import com.ls.comm_util_library.PathFactory
 import com.ls.comm_util_library.PathImageView
+import com.ls.comm_util_library.dp2px
 import com.ls.glide_library.GlideApp
 import kotlinx.android.synthetic.main.activity_path_view.*
 import kotlinx.android.synthetic.main.dialog_test_file_copy_layout.*
@@ -43,6 +46,11 @@ class PathViewActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         add.setOnClickListener {
+            val transformation = PathCropTransformation(PathFactory.getSquare(6,
+                (imageView.measuredWidth / 2).toFloat(),0F),30F,dp2px(1F),Color.RED)
+//            val transformation = PathCropTransformation(PathFactory.getCircle((imageView.measuredWidth / 2).toFloat(),0F),0F,dp2px(1F),Color.RED)
+            val options = RequestOptions.bitmapTransform(CustomCropTransformation((imageView.measuredWidth / 2).toFloat()))
+            Glide.with(this).load(getDrawableId()).apply(options).into(imageView)
             circleView.setImageResource(getDrawableId())
             mAdapter.add(1)
         }

@@ -13,6 +13,13 @@
         android:src="@drawable/verification_code_1"
         android:scaleType="centerCrop"/>
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_toRightOf="@id/circleView"
+        android:scaleType="centerInside"/>
+
     <LinearLayout
         android:id="@+id/operate"
         android:layout_width="match_parent"

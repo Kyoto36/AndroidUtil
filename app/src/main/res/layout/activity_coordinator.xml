@@ -6,30 +6,35 @@
     android:layout_height="match_parent"
     tools:context=".CoordinatorActivity">
 
-  <com.google.android.material.appbar.AppBarLayout
-      android:id="@+id/appBar"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:background="@null">
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null">
 
-    <include layout="@layout/test_header"/>
-  </com.google.android.material.appbar.AppBarLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@color/colorAccent"
+            app:layout_scrollFlags="scroll" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@color/colorPrimary" />
+    </com.google.android.material.appbar.AppBarLayout>
 
 
-  <LinearLayout
+  <androidx.viewpager.widget.ViewPager
+      android:id="@+id/viewPager"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:orientation="vertical"
-      app:behavior_hideable="true"
-      app:behavior_peekHeight="0dp"
-      app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-  </LinearLayout>
+      app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+  <!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/recyclerView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        app:layout_behavior="@string/appbar_scrolling_view_behavior" />-->
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

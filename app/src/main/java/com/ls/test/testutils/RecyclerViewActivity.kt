@@ -10,10 +10,9 @@ import android.view.animation.OvershootInterpolator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import com.ls.custom_view_library.recyclerview.adapters.AnimationAdapter
+import com.ls.custom_view_library.recyclerview.adapters.SlideInBottomAnimationAdapter
 import com.ls.test.testutils.adapter.ArticleDetailAdapter
-import jp.wasabeef.recyclerview.adapters.AnimationAdapter
-import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter
-import jp.wasabeef.recyclerview.adapters.SlideInLeftAnimationAdapter
 import kotlinx.android.synthetic.main.activity_recycler_view.*
 
 class RecyclerViewActivity : AppCompatActivity() {

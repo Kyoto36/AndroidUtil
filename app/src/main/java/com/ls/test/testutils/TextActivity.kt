@@ -17,6 +17,7 @@ class TextActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_text)
 
+
         appText.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN
                 && event.keyCode == KeyEvent.KEYCODE_DEL

@@ -1,32 +1,31 @@
 package com.ls.test.testutils
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
 import android.util.Log
-import android.view.LayoutInflater
+import android.view.View
 import android.widget.ImageView
-import com.bumptech.glide.Glide
+import androidx.appcompat.app.AppCompatActivity
 import com.ls.comm_util_library.*
-import com.ls.comm_util_library.thumbnails.ImageBean
 import com.ls.glide_library.GlideApp
-import com.ls.glide_library.GlideUtils
 import com.ls.permission.Permissions
-import com.ls.test.testutils.intensify.IntensifyActivity
+import com.ls.test.testutils.db_helper.DBHelperActivity
+import com.ls.test.testutils.glideprogress.GlideProgressActivity
 import com.ls.test.testutils.intensify.TestActivity
 import com.ls.test.testutils.room_test.RoomTestDatabase
 import com.ls.test.testutils.room_test.TestRoom
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.InterruptedIOException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 class MainActivity : AppCompatActivity() {
 
@@ -45,17 +44,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         testGlide.setOnClickListener {
-            val dialog = Dialog(this)
-            dialog.setContentView(R.layout.diaolog_test_glide_layout)
-            dialog.show()
-            val image = dialog.findViewById<ImageView>(R.id.image)
-            val url = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1602935991529&di=5931fccbbcf6459073846914c54f7fc4&imgtype=0&src=http%3A%2F%2Fcdn.duitang.com%2Fuploads%2Fitem%2F201407%2F27%2F20140727021208_rPEVK.jpeg"
-//            GlideUtils.load(
-//                url
-//                , image, R.mipmap.ic_launcher, R.mipmap.ic_launcher
-//            )
-            GlideApp.with(this).load(url).topCropRoundCorners(dp2px(5F).toInt()).to(image)
+//            val dialog = Dialog(this)
+//            dialog.setContentView(R.layout.diaolog_test_glide_layout)
+//            dialog.show()
+//            val image = dialog.findViewById<ImageView>(R.id.image)
+//            val url = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1602935991529&di=5931fccbbcf6459073846914c54f7fc4&imgtype=0&src=http%3A%2F%2Fcdn.duitang.com%2Fuploads%2Fitem%2F201407%2F27%2F20140727021208_rPEVK.jpeg"
+////            GlideUtils.load(
+////                url
+////                , image, R.mipmap.ic_launcher, R.mipmap.ic_launcher
+////            )
+//            GlideApp.with(this).load(url).topCropRoundCorners(dp2px(5F).toInt()).to(image)
 //            Glide.with(this).load(url).into(image)
+            startActivity(Intent(this,GlideProgressActivity::class.java))
         }
 
         testCircular.setOnClickListener {
@@ -96,14 +96,49 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ClipChildrenActivity::class.java))
         }
         rxjavaTest.setOnClickListener {
-//            cache()
+            cache()
 //            threadDispatch()
 //            mModelChangeSubject.onNext("123")
 
         }
+        dialogTest.setOnClickListener {
+            startActivity(Intent(this, DialogActivity::class.java))
+        }
 
-        coordinatorTest.setOnClickListener {
+        var isTrue = false
+        val clickListener = object : ISingleResultListener<Int,Boolean>{
+            override fun onResult(p: Int): Boolean {
+                if(!isTrue){
+                    isTrue = true
+                    return true
+                }
+                return false
+            }
+        }
+        var lastTime = 0L
+        val count = AtomicInteger(0)
+        val click = Observable.create<View> {emitter ->
+            coordinatorTest.setOnClickListener {view ->
+//            startActivity(Intent(this, NestedScrollActivity::class.java))
             startActivity(Intent(this, CoordinatorActivity::class.java))
+//                if(!emitter.isDisposed){
+//                    emitter.onNext(view)
+//                }
+            }
+        }
+        click.map {
+            val now = System.currentTimeMillis()
+            if(now - lastTime > 300){
+                count.set(0)
+            }
+            lastTime = now
+            count.addAndGet(1)
+        }.subscribe {
+            val result = clickListener.onResult(it)
+            if(result){
+                count.set(0)
+            }
+            LogUtils.e("456456","coordinatorTest click " + it)
         }
 
         roomTest.setOnClickListener {
@@ -129,7 +164,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         textTest.setOnClickListener {
-            startActivity(Intent(this,TextViewActivity::class.java))
+//            startActivity(Intent(this,TextViewActivity::class.java))
+            startActivity(Intent(this,FontFamilyActivity::class.java))
         }
 
         editTest.setOnClickListener {
@@ -158,6 +194,14 @@ class MainActivity : AppCompatActivity() {
                 toast(it)
             }
 
+        dbHelperTest.setOnClickListener {
+            startActivity(Intent(this,DBHelperActivity::class.java))
+        }
+
+        webViewTest.setOnClickListener {
+            startActivity(Intent(this,WebActivity::class.java))
+        }
+
         val buildId =
             Build.BOARD + Build.SERIAL + Build.PRODUCT + Build.DEVICE + Build.ID + Build.VERSION.INCREMENTAL
         val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
@@ -171,17 +215,24 @@ class MainActivity : AppCompatActivity() {
             it.onNext("123")
         }.subscribeOn(Schedulers.io())
             .flatMap {string ->
-            Observable.create<String> {
-                it.onNext(string)
-                while (true){
-//                    Thread.sleep(200)
-                    Log.d("123123","string = $string")
+                try {
+//                    while (true){
+////                    Thread.sleep(200)
+//                        Log.d("456456","string = $string")
+//                    }
+                }catch (e: InterruptedIOException){
+                    Log.d("456456","InterruptedIOException = $e")
+
                 }
-            }
+                Observable.just("45+6")
         }.observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-            toast(it)
-        }
+            .subscribe({
+//                Log.d("456456","onNext = $it")
+            },{
+                Log.d("456456","onError = $it")
+            },{
+                Log.d("456456","onComplate")
+            })
 
         Handler().postDelayed({
             Log.d("123123","dispose = ${dispose.isDisposed}")

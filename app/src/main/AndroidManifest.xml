@@ -17,7 +17,15 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".TextActivity"></activity>
+        <activity android:name=".glideprogress.GlideProgressActivity"></activity>
+        <activity android:name=".GlideActivity" />
+        <activity android:name=".DialogActivity" />
+        <activity android:name=".WebActivity" />
+        <activity android:name=".FontFamilyActivity" />
+        <activity android:name=".NestedScrollActivity" />
+        <activity android:name=".db_helper.DBHelperActivity" />
+        <activity android:name=".scleview.ScaleActivity" />
+        <activity android:name=".TextActivity" />
         <activity android:name=".TextViewActivity" />
         <activity android:name=".intensify.TestActivity" />
         <activity android:name=".intensify.IntensifyActivity" />
