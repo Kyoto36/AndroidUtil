@@ -128,6 +128,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="dialog 测试"/>
+        
+        <Button
+            android:id="@+id/ucopTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ucop test"/>
+
+        <Button
+            android:id="@+id/verticalTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="vertical Test"/>
 
         <EditText
             android:layout_width="match_parent"

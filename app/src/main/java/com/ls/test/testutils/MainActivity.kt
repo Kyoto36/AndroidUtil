@@ -2,6 +2,7 @@ package com.ls.test.testutils
 
 import android.app.Dialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -18,11 +19,14 @@ import com.ls.test.testutils.glideprogress.GlideProgressActivity
 import com.ls.test.testutils.intensify.TestActivity
 import com.ls.test.testutils.room_test.RoomTestDatabase
 import com.ls.test.testutils.room_test.TestRoom
+import com.ls.test.testutils.ucrop.CropActivity
+import com.yalantis.ucrop.UCrop
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 import java.io.InterruptedIOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -105,6 +109,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, DialogActivity::class.java))
         }
 
+        ucopTest.setOnClickListener {
+            startActivity(Intent(this, CropActivity::class.java))
+        }
+
         var isTrue = false
         val clickListener = object : ISingleResultListener<Int,Boolean>{
             override fun onResult(p: Int): Boolean {
@@ -164,12 +172,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         textTest.setOnClickListener {
-//            startActivity(Intent(this,TextViewActivity::class.java))
-            startActivity(Intent(this,FontFamilyActivity::class.java))
+            startActivity(Intent(this,TextViewActivity::class.java))
+//            startActivity(Intent(this,FontFamilyActivity::class.java))
         }
 
         editTest.setOnClickListener {
             startActivity(Intent(this,TextActivity::class.java))
+        }
+
+        verticalTest.setOnClickListener {
+            startActivity(Intent(this,VerticalActivity::class.java))
         }
 
         mModelChangeSubject

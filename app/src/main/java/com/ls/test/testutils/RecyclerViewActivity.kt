@@ -1,15 +1,22 @@
 package com.ls.test.testutils
 
+import android.app.Dialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
+import android.widget.ImageView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import com.bumptech.glide.Glide
+import com.ls.comm_util_library.BitmapUtils
+import com.ls.comm_util_library.ViewUtils
+import com.ls.comm_util_library.getScreenRealWidth
 import com.ls.custom_view_library.recyclerview.adapters.AnimationAdapter
 import com.ls.custom_view_library.recyclerview.adapters.SlideInBottomAnimationAdapter
 import com.ls.test.testutils.adapter.ArticleDetailAdapter
@@ -36,13 +43,28 @@ class RecyclerViewActivity : AppCompatActivity() {
         recyclerView.layoutManager = mLayoutManager
         recyclerView.adapter = animationAdapter
         Handler().postDelayed({mAdapter.setData(getImages())},1000)
+
+        generateImage.setOnClickListener {
+            val width = getScreenRealWidth()
+            val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST)
+            val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            val bitmap = ViewUtils.getViewBitmap(recyclerView,widthSpec,heightSpec)
+            val path = cacheDir.absolutePath + "/a.png"
+            BitmapUtils.saveBitmap(bitmap,path)
+            bitmap.recycle()
+            val dialog = Dialog(this)
+            dialog.setContentView(R.layout.diaolog_test_glide_layout)
+            dialog.show()
+            val image = dialog.findViewById<ImageView>(R.id.image)
+            Glide.with(this).load(path).into(image)
+        }
     }
 
 
     companion object{
         fun getImages(): MutableList<String>{
             val list = ArrayList<String>()
-            for (i in 0 .. 100){
+            for (i in 0 .. 2){
                 list.addAll(listOf("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1597224094137&di=70f85a437e46fdbc4eccafae5428ea90&imgtype=0&src=http%3A%2F%2Fa3.att.hudong.com%2F14%2F75%2F01300000164186121366756803686.jpg"
                     ,"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1597224094137&di=2c7497d4f48fd37c8263872ebc319acf&imgtype=0&src=http%3A%2F%2Fa2.att.hudong.com%2F36%2F48%2F19300001357258133412489354717.jpg"
                     ,"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1597224094137&di=31d3b6b87c64b35db0f8b20c29b32984&imgtype=0&src=http%3A%2F%2Fa0.att.hudong.com%2F56%2F12%2F01300000164151121576126282411.jpg"

@@ -1,24 +1,28 @@
 package com.ls.test.testutils
 
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
-import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ls.comm_util_library.ISingleListener
-import com.ls.comm_util_library.TxtUtils
 import com.ls.comm_util_library.toast
 import kotlinx.android.synthetic.main.activity_text_view.*
 import kotlinx.android.synthetic.main.item_text.view.*
 
 class TextViewActivity : AppCompatActivity() {
+
+    private val txt = """测试
+这是一段测试文字，主要是为了测试竖直排版TextView的显示效果。为了能更好的体验感受，我特意增加了比较接近书法的字体和颜色，如果有什么改进的建议请发邮件到我的邮箱吧。
+竖直排版的TextView需要配合HorizontalScrollView使用才能有更佳的效果。当然，如果你有时间的话，也可以给这个类加上滚动的功能。
+ 测试
+这是一段测试文字，主要是为了测试竖直排版TextView的显示效果。为了能更好的体验感受，我特意增加了比较接近书法的字体和颜色，如果有什么改进的建议请发邮件到我的邮箱吧。
+竖直排版的TextView需要配合HorizontalScrollView使用才能有更佳的效果。当然，如果你有时间的话，也可以给这个类加上滚动的功能。"""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_text_view)
@@ -29,6 +33,10 @@ class TextViewActivity : AppCompatActivity() {
 //        }),0,name.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         name.setSpan(IconTextSpan(this,R.color.colorPrimaryDark,name.toString()),0,name.length,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
+        textView.post {
+            val width = textView.measuredWidth - textView.paddingLeft - textView.paddingRight;
+            val height = textView.measuredHeight - textView.paddingTop - textView.paddingBottom
+        }
 
 
         val sb = SpannableStringBuilder()

@@ -62,4 +62,7 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:2.2.5"
 
     implementation 'com.github.fengxiaocan:ScaleImageView:v1.0.2'
+
+
+    implementation 'com.github.yalantis:ucrop:2.2.6'
 }

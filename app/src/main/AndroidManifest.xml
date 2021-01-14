@@ -17,7 +17,13 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".glideprogress.GlideProgressActivity"></activity>
+        <activity android:name=".VerticalActivity"></activity>
+        <activity android:name=".ucrop.CropActivity" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".glideprogress.GlideProgressActivity" />
         <activity android:name=".GlideActivity" />
         <activity android:name=".DialogActivity" />
         <activity android:name=".WebActivity" />
