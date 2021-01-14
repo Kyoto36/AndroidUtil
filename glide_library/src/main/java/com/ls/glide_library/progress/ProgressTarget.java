@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
+import com.ls.comm_util_library.ThreadUtils;
 
 public abstract class ProgressTarget<Z> extends WrappingTarget<Z> implements OnProgressListener {
 
@@ -56,8 +57,13 @@ public abstract class ProgressTarget<Z> extends WrappingTarget<Z> implements OnP
     @Override
     public void onProgress(String url, long bytesRead, long totalBytes, boolean isDone, GlideException exception) {
         if(TextUtils.equals(mUrl,url)){
-            float ppm = (float) (bytesRead / (totalBytes / 10000.0));
-            onProgress(ppm);
+            final float ppm = (float) (bytesRead / (totalBytes / 10000.0));
+            ThreadUtils.Companion.execMain(new Runnable() {
+                @Override
+                public void run() {
+                    onProgress(ppm);
+                }
+            });
         }
     }
 

@@ -208,7 +208,7 @@ public class TxtUtils {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < temp.length(); i++){
             sb.append(temp.charAt(i));
-            if(i == 2 || i == 6){
+            if((i == 2 || i == 6) && i < temp.length() - 1){
                 sb.append(" ");
             }
         }

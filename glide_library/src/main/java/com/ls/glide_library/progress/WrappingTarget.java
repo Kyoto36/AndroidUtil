@@ -19,8 +19,12 @@ public class WrappingTarget<Z> implements Target<Z> {
 
     @Override
     public void getSize(SizeReadyCallback cb) {
-        if (target != null)
+        if (target != null) {
             target.getSize(cb);
+        }
+        else{
+            cb.onSizeReady(SIZE_ORIGINAL,SIZE_ORIGINAL);
+        }
     }
 
     @Override
