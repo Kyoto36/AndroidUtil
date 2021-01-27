@@ -1,5 +1,6 @@
 package com.ls.comm_util_library;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -7,6 +8,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ReflectUtils {
+
+    /**
+     * 反射实例化对象
+     * @param clazz
+     * @param args
+     * @param <T>
+     * @return
+     */
+    public static <T> T reflectConstructor(Class<T> clazz, Object... args) {
+        try {
+            if (args == null || args.length <= 0) {
+                return clazz.newInstance();
+            }
+            Class[] argClazzs = new Class[args.length];
+            for (int i = 0; i < args.length; i++) {
+                argClazzs[i] = args[i].getClass();
+            }
+            Constructor<T> constructor = clazz.getDeclaredConstructor(argClazzs);
+            constructor.setAccessible(true);
+            return constructor.newInstance(args);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static boolean reflectMethod(Object obj, String methodName, Object... args) {
 
         Class[] argClazzs = new Class[args.length];
@@ -20,7 +53,7 @@ public class ReflectUtils {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if(method != null) {
+            if (method != null) {
                 method.setAccessible(true);
                 break;
             }
@@ -85,6 +118,7 @@ public class ReflectUtils {
 
     /**
      * 获取该对象所有属性的值
+     *
      * @return 属性名 -> 属性值，键值对
      * @throws IllegalAccessException
      * @throws IllegalArgumentException
@@ -108,11 +142,12 @@ public class ReflectUtils {
 
     /**
      * 获取单个属性值
+     *
      * @param obj
      * @param fieldName
      * @return
      */
-    public static Object getFieldValue(Object obj,String fieldName){
+    public static Object getFieldValue(Object obj, String fieldName) {
         try {
             Field field = obj.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);

@@ -19,6 +19,14 @@ class FragmentUtils {
             return fragment!! as T
         }
 
+        fun <T: Fragment> getFragment(fragmentManager: FragmentManager,fragmentClazz: Class<T>,tag: String = fragmentClazz.name,args: Any): T{
+            var fragment = fragmentManager.findFragmentByTag(tag)
+            if (fragment == null) {
+                fragment = ReflectUtils.reflectConstructor(fragmentClazz,args)
+            }
+            return fragment!! as T
+        }
+
         fun <T: Fragment> replaceFragment(resId: Int,fragment: T,fragmentManager: FragmentManager,initListener: ((T) -> Unit)): T{
             val transaction = fragmentManager.beginTransaction()
             transaction.replace(resId,fragment)

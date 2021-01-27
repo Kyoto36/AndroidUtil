@@ -1,6 +1,7 @@
 package com.ls.test.testutils
 
 import android.app.Dialog
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -50,7 +51,7 @@ class RecyclerViewActivity : AppCompatActivity() {
             val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
             val bitmap = ViewUtils.getViewBitmap(recyclerView,widthSpec,heightSpec)
             val path = cacheDir.absolutePath + "/a.png"
-            BitmapUtils.saveBitmap(bitmap,path)
+            BitmapUtils.saveBitmap(bitmap,path, Bitmap.CompressFormat.JPEG)
             bitmap.recycle()
             val dialog = Dialog(this)
             dialog.setContentView(R.layout.diaolog_test_glide_layout)

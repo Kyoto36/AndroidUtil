@@ -120,6 +120,27 @@ public class BitmapUtils {
     }
 
     /**
+     * 保存图片
+     * @param bitmap
+     * @param path
+     */
+    public static void saveBitmap(Bitmap bitmap, String path, Bitmap.CompressFormat format){
+        if(bitmap == null){
+            return;
+        }
+        try {
+            OutputStream os = FileUtils.getOutputStreamByFile(path);
+            bitmap.compress(Bitmap.CompressFormat.PNG,75,os);
+            os.flush();
+            os.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 获取assets下的图片
      * @param context
      * @param filePath
