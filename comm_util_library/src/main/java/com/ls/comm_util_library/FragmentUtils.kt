@@ -31,14 +31,14 @@ class FragmentUtils {
             val transaction = fragmentManager.beginTransaction()
             transaction.replace(resId,fragment)
             initListener.invoke(fragment)
-            transaction.commitAllowingStateLoss()
+            transaction.commitNowAllowingStateLoss()
             return fragment
         }
 
         fun <T: Fragment> removeFragment(fragment: T,fragmentManager: FragmentManager){
             val transaction = fragmentManager.beginTransaction()
             transaction.remove(fragment)
-            transaction.commitAllowingStateLoss()
+            transaction.commitNowAllowingStateLoss()
         }
 
         fun <T : Fragment> switchFragment(resId: Int, currentFragment: T?, fragment: T, fragmentManager: FragmentManager, initListener: ((T) -> Unit)): T {
@@ -49,9 +49,9 @@ class FragmentUtils {
             val transaction = fragmentManager.beginTransaction()
             if (!fragment.isAdded) {
                 initListener.invoke(fragment)
-                transaction.add(resId, fragment, fragment.javaClass.name).show(fragment).commitAllowingStateLoss()
+                transaction.add(resId, fragment, fragment.javaClass.name).show(fragment).commitNowAllowingStateLoss()
             } else {
-                transaction.show(fragment).commitAllowingStateLoss()
+                transaction.show(fragment).commitNowAllowingStateLoss()
             }
             return fragment
         }
@@ -60,7 +60,7 @@ class FragmentUtils {
             val transaction = fragmentManager.beginTransaction()
             transaction.setCustomAnimations(enterAnim,exitAnim,0,0)
             if (fragment.isAdded) {
-                transaction.hide(fragment).commitAllowingStateLoss()
+                transaction.hide(fragment).commitNowAllowingStateLoss()
             }
         }
 
@@ -75,9 +75,9 @@ class FragmentUtils {
                 }
                 if (!fragment.isAdded) {
                     initListener.invoke(fragment)
-                    transaction.add(resId, fragment, fragment.javaClass.name).show(fragment).commitAllowingStateLoss()
+                    transaction.add(resId, fragment, fragment.javaClass.name).show(fragment).commitNowAllowingStateLoss()
                 } else {
-                    transaction.show(fragment).commitAllowingStateLoss()
+                    transaction.show(fragment).commitNowAllowingStateLoss()
                 }
             }
             return fragment

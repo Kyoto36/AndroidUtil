@@ -22,7 +22,7 @@ abstract class CommRecyclerViewAdapter<VH: CommRecyclerViewAdapter.CommViewHolde
         mIsScrolling = isScrolling
     }
 
-    fun setDatas(datas: MutableList<T>?){
+    open fun setDatas(datas: MutableList<T>?){
         mDatas = datas
         notifyDataSetChanged()
     }
