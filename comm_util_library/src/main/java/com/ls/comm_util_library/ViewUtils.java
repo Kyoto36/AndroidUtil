@@ -290,6 +290,24 @@ public class ViewUtils {
         return bitmap;
     }
 
+    /**
+     * 获取view的图片
+     * @param view
+     * @param widthSpec view的宽测量
+     * @param heightSpec view的高测量
+     * @param color 底色
+     * @return
+     */
+    public static Bitmap getViewBitmap(View view,int widthSpec,int heightSpec,int color){
+        view.measure(widthSpec,heightSpec);
+        view.layout(0,0,view.getMeasuredWidth(),view.getMeasuredHeight());
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas temp = new Canvas(bitmap);
+        temp.drawColor(color);
+        view.draw(temp);
+        return bitmap;
+    }
+
     public static void calcTextEllipsis(final TextView view,final SpannableStringBuilder source,final SpannableStringBuilder endSpb,final boolean isAuto){
         view.post(() -> {
             if(view.getLayout() != null) {

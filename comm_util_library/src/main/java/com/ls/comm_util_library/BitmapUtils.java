@@ -109,7 +109,7 @@ public class BitmapUtils {
         }
         try {
             OutputStream os = FileUtils.getOutputStreamByFile(path);
-            bitmap.compress(Bitmap.CompressFormat.PNG,0,os);
+            bitmap.compress(Bitmap.CompressFormat.PNG,100,os);
             os.flush();
             os.close();
         } catch (FileNotFoundException e) {
