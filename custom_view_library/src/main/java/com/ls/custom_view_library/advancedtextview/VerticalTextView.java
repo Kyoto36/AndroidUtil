@@ -1122,7 +1122,8 @@ public class VerticalTextView extends AppCompatTextView {
     public boolean isUnicodeSymbol(String str) {
         String regex = ".*[_\"`!@#$%^&*()|{}':;,\\[\\].<>/?！￥…（）【】‘’；：”“。，、？︵ ︷︿︹︽﹁﹃︻︶︸﹀︺︾ˉ﹂﹄︼]$+.*";
         Matcher m = Pattern.compile(regex).matcher(str);
-        return m.matches();
+//        return m.matches();
+        return false;
     }
 
     /**
