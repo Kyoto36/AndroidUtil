@@ -144,4 +144,49 @@ public class NumberUtils {
     public static boolean isNumber(String str){
         return str.matches("-?[0-9]+.？[0-9]*");
     }
+
+    /**
+     * 简体中文数字
+     */
+    public static String[] SIMPLE_CHINESE_NUM = {"零", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
+    public static String[] SIMPLE_CHINESE_UNIT = {"", "十", "百", "千", "万", "十", "百", "千", "亿", "十", "百", "千"};
+
+    /**
+     * 获取不带单位的中文数字
+     * @param num
+     * @return
+     */
+    public static String getSimpleChineseUnUnit(int num){
+        int src = num;
+        int remainder = 0;
+        StringBuilder sb = new StringBuilder();
+        while(src > 0){
+            remainder = src % 10;
+            sb.insert(0,SIMPLE_CHINESE_NUM[remainder]);
+            src = src / 10;
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 获取带单位的中文数字
+     * @param num
+     * @return
+     */
+    public static String getSimpleChinese(int num){
+        int src = num;
+        int remainder = 0;
+        StringBuilder sb = new StringBuilder();
+        int digits = 0;
+        while(src > 0){
+            remainder = src % 10;
+            sb.insert(0,SIMPLE_CHINESE_UNIT[digits]);
+            sb.insert(0,SIMPLE_CHINESE_NUM[remainder]);
+            src = src / 10;
+            digits++;
+        }
+        return sb.toString().replaceAll("零[千百十]", "零").replaceAll("零+万", "万")
+                .replaceAll("零+亿", "亿").replaceAll("亿万", "亿零")
+                .replaceAll("零+", "零").replaceAll("零$", "");
+    }
 }

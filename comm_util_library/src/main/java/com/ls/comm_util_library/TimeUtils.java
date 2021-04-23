@@ -217,4 +217,43 @@ public class TimeUtils {
         }
         return 0;
     }
+
+    /**
+     * 对应 <code>getTimeArray(long millis)</code>返回的数组中年月日对应的下标
+     * @see #getTimeArray(long)
+     */
+    public static int YEAR_INDEX = 0;
+    public static int MONTH_INDEX = 1;
+    public static int DAY_INDEX = 2;
+    public static int HOUR_INDEX = 3;
+    public static int MINUTE_INDEX = 4;
+    public static int SECOND_INDEX = 5;
+    public static int WEEK_INDEX = 6;
+
+    /**
+     * 获取时间戳对应的年、月、日、时、分、秒、周
+     * @param millis 毫秒时间戳
+     * @return
+     */
+    public static int[] getTimeArray(long millis){
+        Calendar datetime = Calendar.getInstance();
+        datetime.setTime(new Date(millis));
+        return new int[]{
+                // 年
+                datetime.get(Calendar.YEAR),
+                // 月 0 = 一月，所以要 +1
+                datetime.get(Calendar.MONTH) + 1,
+                // 日
+                datetime.get(Calendar.DAY_OF_MONTH),
+                // 时
+                datetime.get(Calendar.HOUR),
+                // 分
+                datetime.get(Calendar.MINUTE),
+                // 秒
+                datetime.get(Calendar.SECOND),
+                // 周
+                datetime.get(Calendar.WEEK_OF_YEAR)
+        };
+    }
+
 }
