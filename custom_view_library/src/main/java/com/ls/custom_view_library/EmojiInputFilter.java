@@ -14,7 +14,8 @@ import java.util.regex.Pattern;
  * @Date: 2020/11/19 13:18
  */
 public class EmojiInputFilter implements InputFilter {
-    private Pattern emoji = Pattern.compile("[\ud83c\udc00-\ud83c\udfff]|[\ud83d\udc00-\ud83d\udfff]|[\u2600-\u27ff]", Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE);
+//    private Pattern emoji = Pattern.compile("[\ud83c\udc00-\ud83c\udfff]|[\ud83d\udc00-\ud83d\udfff]|[\u2600-\u27ff]", Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE);
+    private Pattern emoji = Pattern.compile("\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]|\uD83D[\uDE80-\uDEFF]|[\u2700-\u27BF]\uFE0F", Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE);
 
     @Override
     public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
@@ -24,4 +25,6 @@ public class EmojiInputFilter implements InputFilter {
         }
         return source;
     }
+
+
 }

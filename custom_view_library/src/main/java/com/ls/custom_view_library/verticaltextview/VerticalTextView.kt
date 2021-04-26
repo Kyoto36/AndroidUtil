@@ -2,10 +2,7 @@ package com.ls.custom_view_library.verticaltextview;
 
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Typeface
+import android.graphics.*
 import android.text.TextPaint
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -74,28 +71,28 @@ class VerticalTextView @JvmOverloads constructor(
     fun setHint(hint: String){
         mHint = hint
         if(TextUtils.isEmpty(mText)){ // 如果mText是空，那就立即重新绘制，以显示新的Hint，否则不用重新绘制，节省性能
-            requestLayout()
+            postInvalidate()
         }
     }
 
     fun setTextSizeSp(sp: Float){
         mPaint.textSize = sp2px(sp)
         if(!TextUtils.isEmpty(mText) || !TextUtils.isEmpty(mHint)){ // 如果mText和mHint其中一个不为空，那就立即重新绘制，以显示新的TextSize
-            requestLayout()
+            postInvalidate()
         }
     }
 
     fun setTextSizePx(px: Float){
         mPaint.textSize = px
         if(!TextUtils.isEmpty(mText) || !TextUtils.isEmpty(mHint)){ // 如果mText和mHint其中一个不为空，那就立即重新绘制，以显示新的TextSize
-            requestLayout()
+            postInvalidate()
         }
     }
 
     fun setHintColor(color: Int){
         mHintColor = color
         if(TextUtils.isEmpty(mText) && !TextUtils.isEmpty(mHint)){ // 如果mText为空，并且mHint不为空，那就立即重新绘制，以显示新的mHintColor
-            requestLayout()
+            postInvalidate()
         }
     }
 
@@ -107,7 +104,7 @@ class VerticalTextView @JvmOverloads constructor(
         mTypeface = typeface
         if(mTypeface != null){
             mPaint.typeface = mTypeface
-            requestLayout()
+            postInvalidate()
         }
     }
 
@@ -125,7 +122,7 @@ class VerticalTextView @JvmOverloads constructor(
      */
     fun setIncludeFontPadding(includepad : Boolean){
         mIncludePad = includepad
-        requestLayout()
+        postInvalidate()
     }
 
     /**
@@ -263,6 +260,9 @@ class VerticalTextView @JvmOverloads constructor(
         heightSize = if(maxHeight < 0) Math.max(heightSize,currHeight) else Math.min(Math.max(heightSize,currHeight), maxHeight.toFloat())
         currWidth += charMaxWidth
         line.setWidthAndHeight(charMaxWidth,if(currHeight > mWordSpace) currHeight - mWordSpace else currHeight)
+        if(mLineTexts.size > lineNum + 1){
+            mLineTexts.removeAll(mLineTexts.subList(lineNum + 1,mLineTexts.size))
+        }
         // 如果最大宽度小于0，说明测量模式是MeasureSpec.UNSPECIFIED，那就不用在意最大限定宽度了，直接取测量的宽度
         // 否则那测量宽度和最大限定宽度取最小值
         widthSize = if(maxWidth < 0) currWidth else Math.min(currWidth,maxWidth.toFloat())
