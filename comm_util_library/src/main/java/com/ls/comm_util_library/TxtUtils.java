@@ -26,6 +26,8 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import kotlin.text.Regex;
+
 public class TxtUtils {
 
 

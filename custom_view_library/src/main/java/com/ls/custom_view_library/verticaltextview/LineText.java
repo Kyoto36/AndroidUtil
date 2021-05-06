@@ -1,6 +1,6 @@
 package com.ls.custom_view_library.verticaltextview;
 
-public class LineText {
+public class LineText implements Cloneable{
     private StringBuilder text;
     private WidthAndHeight widthAndHeight;
 
@@ -13,6 +13,13 @@ public class LineText {
             text = new StringBuilder();
         }
         text.append(c);
+    }
+
+    public synchronized void removeLast(){
+        if(text == null || text.length() <= 0){
+            return;
+        }
+        text.deleteCharAt(text.length() - 1);
     }
 
     public synchronized void setWidthAndHeight(float width,float height){
@@ -47,6 +54,10 @@ public class LineText {
         return widthAndHeight == null ? 0 : widthAndHeight.getHeight();
     }
 
+    public void reverse(){
+        text = text.reverse();
+    }
+
     public LineText clear(){
         if(text != null) {
             text.delete(0, text.length());
@@ -55,6 +66,18 @@ public class LineText {
             widthAndHeight.setWidthAndHeight(0,0);
         }
         return this;
+    }
+
+    @Override
+    public LineText clone() throws CloneNotSupportedException {
+        LineText line = new LineText();
+        if(text != null) {
+            line.text = new StringBuilder(text);
+        }
+        if(widthAndHeight != null) {
+            line.widthAndHeight = new WidthAndHeight(widthAndHeight.getWidth(), widthAndHeight.getHeight());
+        }
+        return line;
     }
 
     @Override

@@ -24,6 +24,7 @@ class ThreadUtils private constructor() {
         /**
          * @return 单例对象
          */
+        @JvmStatic
         private fun get(): ThreadUtils {
             if (sInstance == null) {
                 synchronized(ThreadUtils::class.java) {
@@ -39,6 +40,7 @@ class ThreadUtils private constructor() {
          * 执行在io线程
          * @param run
          */
+        @JvmStatic
         fun execIO(run: Runnable) {
             get().mIOThread.submit(run)
         }
@@ -48,6 +50,7 @@ class ThreadUtils private constructor() {
          * @param call Callable<T>
          * @return Future<T>
          */
+        @JvmStatic
         fun <T> execIO(call: Callable<T>): Future<T>{
             return get().mIOThread.submit(call)
         }
@@ -56,6 +59,7 @@ class ThreadUtils private constructor() {
          * 执行在compute线程
          * @param run
          */
+        @JvmStatic
         fun execCompute(run: Runnable) {
             get().mComputeThread.submit(run)
         }
@@ -65,6 +69,7 @@ class ThreadUtils private constructor() {
          * @param call Callable<T>
          * @return Future<T>
          */
+        @JvmStatic
         fun <T> execCompute(call: Callable<T>): Future<T>{
             return get().mComputeThread.submit(call)
         }
@@ -73,6 +78,7 @@ class ThreadUtils private constructor() {
          * 执行在main线程
          * @param run
          */
+        @JvmStatic
         fun execMain(run: Runnable) {
             if (isMainThread) {
                 run.run()
@@ -86,10 +92,12 @@ class ThreadUtils private constructor() {
          * @param run
          * @param millis 延迟毫秒数
          */
+        @JvmStatic
         fun execMain(run: Runnable, millis: Long) {
             get().mMainThread.postDelayed(run, millis)
         }
 
+        @JvmStatic
         val isMainThread: Boolean
             get() = Looper.getMainLooper().thread === Thread.currentThread()
     }

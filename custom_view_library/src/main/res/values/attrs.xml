@@ -137,5 +137,7 @@
         <attr name="typeface" format="string"/>
         <!-- 是否去掉字体自带的内边距 -->
         <attr name="includeFontPadding" format="boolean"/>
+        <!-- 文字是否垂直显示 -->
+        <attr name="vertical" format="boolean"/>
     </declare-styleable>
 </resources>
