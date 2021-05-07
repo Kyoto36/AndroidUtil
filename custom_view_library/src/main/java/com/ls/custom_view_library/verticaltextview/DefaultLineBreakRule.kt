@@ -54,7 +54,7 @@ class DefaultLineBreakRule: ILineBreakRule {
                     lineTexts.add(temp)
                     temp
                 } else lineTexts[lineNum].clear()
-                currHeight = 0F
+                currHeight = 0F // 换行之后重置高度
                 if(char == '\n') { // 如果当前字符是换行符，那就不用统计其高度
                     continue
                 }
@@ -97,7 +97,7 @@ class DefaultLineBreakRule: ILineBreakRule {
             if(currWidth == 0F && maxWidth > 0 && charWidthAndHeight.width > maxWidth){ //如果每列第一个字的宽度都大雨最大限定宽度，那么就不用继续计算了，继续计算只会产生死循环
                 break
             }
-            if(maxHeight > 0 && currHeight > maxHeight){ // 如果高度不够显示当前列，那就也不用计算了，节约性能
+            if(maxHeight > 0 && currHeight > maxHeight){ // 如果高度不够显示当前行，那就也不用计算了，节约性能
                 charMaxHeight = 0F
                 break
             }
@@ -117,7 +117,7 @@ class DefaultLineBreakRule: ILineBreakRule {
                     lineTexts.add(temp)
                     temp
                 } else lineTexts[lineNum].clear()
-                currHeight = 0F
+                currWidth = 0F  // 换行之后重置宽度
                 if(char == '\n') { // 如果当前字符是换行符，那就不用统计其高度
                     continue
                 }

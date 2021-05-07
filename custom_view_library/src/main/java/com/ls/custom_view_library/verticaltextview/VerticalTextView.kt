@@ -64,6 +64,16 @@ class VerticalTextView @JvmOverloads constructor(
         return mText
     }
 
+    // 获取行间距
+    fun getLineSpace(): Float{
+        return mLineSpace
+    }
+
+    // 获取字间距
+    fun getWordSpace(): Float{
+        return mWordSpace
+    }
+
     fun setTextColor(color: Int){
         mTextColor = color
         if(!TextUtils.isEmpty(mText)){// 如果mText不为空，那就立即重新绘制，以显示新的mTextColor
@@ -161,10 +171,18 @@ class VerticalTextView @JvmOverloads constructor(
         if(mParentAllocateSize.width <= 0 || mParentAllocateSize.height <= 0){
             return false
         }
-        // 宽度不限定，高度限定为父容器提供的最大高度减去上下边距
-        val realWidthAndHeight = getTextSize(text,-1,(mParentAllocateSize.height - paddingTop - paddingBottom).toInt() + 2)
-        // 如果文字的显示宽度大于父容器提供的最大宽度减去左右边距 return false
-        return realWidthAndHeight.width + paddingLeft + paddingRight <= mParentAllocateSize.width
+        if(mIsVertical) {
+            // 宽度不限定，高度限定为父容器提供的最大高度减去上下边距
+            val realWidthAndHeight = getTextSize(text, -1, (mParentAllocateSize.height - paddingTop - paddingBottom).toInt() + 2)
+            // 如果文字的显示宽度大于父容器提供的最大宽度减去左右边距 return false
+            return realWidthAndHeight.width + paddingLeft + paddingRight <= mParentAllocateSize.width
+        }
+        else{
+            // 高度不限定，宽度限定为父容器提供的最大宽度减去左右边距
+            val realWidthAndHeight = getTextSize(text, (mParentAllocateSize.width - paddingLeft - paddingRight).toInt() + 2, -1)
+            // 如果文字的显示高度大于父容器提供的最大高度减去上下边距 return false
+            return realWidthAndHeight.height + paddingTop + paddingBottom <= mParentAllocateSize.height
+        }
     }
 
     /**
@@ -205,7 +223,7 @@ class VerticalTextView @JvmOverloads constructor(
             widthSize
         } else {
             Log.d("VerticalTextView","宽度不固定 width ${textSize.width}")
-            if(textSize.width <= 0) 0 else textSize.width.toInt() + 2 // 测量宽度 <=0，就用0，否者用测量宽度 +2
+            (if(textSize.width <= 0) 0 else textSize.width.toInt() + 2) + paddingLeft + paddingRight // 测量宽度 <=0，就用0，否者用测量宽度 +2
         }
         heightSize = if(heightMode == MeasureSpec.EXACTLY){
             Log.d("VerticalTextView","高度固定 height $heightSize")
@@ -213,76 +231,13 @@ class VerticalTextView @JvmOverloads constructor(
         }
         else{
             Log.d("VerticalTextView","高度不固定 height ${textSize.height}")
-            if(textSize.height <= 0) 0 else textSize.height.toInt() + 2 // 测量高度 <=0，就用0，否者用测量高度 +2
+            (if(textSize.height <= 0) 0 else textSize.height.toInt() + 2) + paddingTop + paddingBottom // 测量高度 <=0，就用0，否者用测量高度 +2
         }
         setMeasuredDimension(widthSize,heightSize) // +2是因为float转int的时候小数会抹掉，所以给点冗余空间
     }
 
     private fun getTextSize(text: String?,maxWidth: Int,maxHeight: Int): WidthAndHeight{
         return mLineBreadRule.getTextSize(text,maxWidth,maxHeight,mLineSpace,mWordSpace,mFixSize, IGetCharSize { getCharWidthAndHeight(it) },mLineTexts,mIsVertical)
-        /*if(maxHeight == 0 || maxWidth == 0 || TextUtils.isEmpty(text)){
-            return WidthAndHeight(0F,0F)
-        }
-        var widthSize = 0F
-        var heightSize = 0F
-        var currWidth = 0F
-        var currHeight = 0F
-        var charWidthAndHeight: WidthAndHeight
-        val tempWidthAndHeight = getTempCharWidthAndHeight()
-        var char: Char
-        var charMaxWidth = tempWidthAndHeight.width
-        var lineNum = 0
-        var line = if(mLineTexts.size <= lineNum)  {
-            val temp = LineText()
-            mLineTexts.add(temp)
-            temp
-        } else mLineTexts[lineNum].clear()
-        for (i in text!!.indices) {
-            char = text[i]
-            charWidthAndHeight = getCharWidthAndHeight(char)
-            if(currHeight == 0F && maxHeight > 0 && charWidthAndHeight.height > maxHeight){ //如果每列第一个字的高度都大雨最大限定高度，那么就不用继续计算了，继续计算只会产生死循环
-                break
-            }
-            if(maxWidth > 0 && currWidth > maxWidth){ // 如果宽度不够显示当前列，那就也不用计算了，节约性能
-                charMaxWidth = 0F
-                break
-            }
-            if(mFixSize in 1 .. i){
-                break
-            }
-            charMaxWidth = Math.max(charMaxWidth,charWidthAndHeight.width) // 本行字中宽度最大的
-            if(char == '\n' || (maxHeight > 0 && (currHeight + charWidthAndHeight.height) > maxHeight)){ // 如果当前字符是换行符或者剩余高度已经不能显示下当前字符，那就换列
-                // 如果最大高度小于0，说明测量模式是MeasureSpec.UNSPECIFIED，那就不用在意最大限定高度了，直接取历史最大高度和当前列的高度的最大值，
-                // 否则比完历史高度与当前列的高度最大值，然后再拿最大值与最大限定高度比最小值
-                heightSize = if(maxHeight < 0) Math.max(heightSize,currHeight) else Math.min(Math.max(heightSize,currHeight), maxHeight.toFloat())
-                currWidth += charMaxWidth + mLineSpace // 加上行间距
-                line.setWidthAndHeight(charMaxWidth,if(currHeight > mWordSpace) currHeight - mWordSpace else currHeight)
-                lineNum++
-                line = if(mLineTexts.size <= lineNum)  {
-                    val temp = LineText()
-                    mLineTexts.add(temp)
-                    temp
-                } else mLineTexts[lineNum].clear()
-                currHeight = 0F
-                if(char == '\n') { // 如果当前字符是换行符，那就不用统计其高度
-                    continue
-                }
-            }
-            line.addChar(char)
-            currHeight += charWidthAndHeight.height + mWordSpace // 加上字间距
-        }
-        // 最后一行也要统计在其中
-        heightSize = if(maxHeight < 0) Math.max(heightSize,currHeight) else Math.min(Math.max(heightSize,currHeight), maxHeight.toFloat())
-        currWidth += charMaxWidth
-        line.setWidthAndHeight(charMaxWidth,if(currHeight > mWordSpace) currHeight - mWordSpace else currHeight)
-        if(mLineTexts.size > lineNum + 1){
-            mLineTexts.removeAll(mLineTexts.subList(lineNum + 1,mLineTexts.size))
-        }
-        // 如果最大宽度小于0，说明测量模式是MeasureSpec.UNSPECIFIED，那就不用在意最大限定宽度了，直接取测量的宽度
-        // 否则那测量宽度和最大限定宽度取最小值
-        widthSize = if(maxWidth < 0) currWidth else Math.min(currWidth,maxWidth.toFloat())
-        Log.d("VerticalTextView","maxWidth $maxWidth currWidth $currWidth maxHeight $maxHeight heightSize $heightSize")
-        return WidthAndHeight(widthSize, heightSize)*/
     }
     
     override fun onDraw(canvas: Canvas?) {
@@ -307,58 +262,50 @@ class VerticalTextView @JvmOverloads constructor(
         Log.d(Companion.TAG, "drawText: mLineTexts = $mLineTexts")
         if(mIsVertical) drawTextFormVertical(canvas, paint)
         else drawTextFormHorizontal(canvas, paint)
-        /*for (i in text.indices) {
-            char = text[i]
-            charWidthAndHeight = getCharWidthAndHeight(char)
-            baseLine = charWidthAndHeight.height - paint.fontMetrics.bottom // 获取每个字的基线
-            charMaxWidth = if (charWidthAndHeight.width > charMaxWidth) charWidthAndHeight.width else charMaxWidth // 本行字中宽度最大的
-            if (startY + charWidthAndHeight.height + paddingBottom > measuredHeight && startX + charMaxWidth + paddingRight > measuredWidth) { // 如果高度和高度都超过限制那就不继续绘制了
-                break
-            }
-            if (char == '\n' || startY + charWidthAndHeight.height + paddingBottom > measuredHeight) { // 如果只是高度超过限制，那就另起一列继续绘制
-                startY = paddingTop.toFloat()
-                startX += (charMaxWidth + mLineSpace)  //加上当前行的宽度与行间距
-                charMaxWidth = tempWidthAndHeight.width
-            }
-            if(char == '\n'){
-                continue
-            }
-            canvas.drawText(char.toString(), startX, startY + baseLine, paint)
-            startY += (charWidthAndHeight.height + mWordSpace) // 绘制完之后下一个字的开始位置就是现在的开始位置加上现在的字的高度和字间距
-        }*/
     }
 
     private fun drawTextFormVertical(canvas: Canvas,paint: Paint){
-        var startX = if(mGravity == GRAVITY_LEFT) paddingLeft.toFloat() else measuredWidth - paddingRight.toFloat()
-        var startY = paddingTop.toFloat()
+        var startX = if((mGravity and GRAVITY_RIGHT) == GRAVITY_RIGHT) measuredWidth - paddingRight.toFloat() else paddingLeft.toFloat()
+        var startY = if((mGravity and GRAVITY_BOTTOM) == GRAVITY_BOTTOM) measuredHeight - paddingBottom.toFloat() else paddingTop.toFloat()
         var charWidthAndHeight: WidthAndHeight
-        val tempWidthAndHeight = getTempCharWidthAndHeight()
         var baseLine : Float
-        var charMaxWidth = tempWidthAndHeight.width
+        var lineText: String
         for (line in  mLineTexts){
             if(line == null || line.width <= 0){
                 continue
             }
-            if(mGravity == GRAVITY_RIGHT){
+            if((mGravity and GRAVITY_RIGHT) == GRAVITY_RIGHT){
                 // 从右至左需要在本行开始是用上一行的开始位置减去本行宽度
                 startX  -= line.width
             }
-            for (char in line.text){
+            lineText = line.text
+            if((mGravity and GRAVITY_BOTTOM) == GRAVITY_BOTTOM){
+                lineText = line.reverse()
+            }
+            for (char in lineText){
                 charWidthAndHeight = getCharWidthAndHeight(char)
+                if((mGravity and GRAVITY_BOTTOM) == GRAVITY_BOTTOM){
+                    startY -= charWidthAndHeight.height
+                }
                 // 获取每个字的基线，如果去掉字体自带边距就是用descent 否则用bottom 配合 getCharWidthAndHeight
                 baseLine = charWidthAndHeight.height - (if(!mIncludePad) paint.fontMetrics.descent else paint.fontMetrics.bottom)
                 canvas.drawText(char.toString(), startX, startY + baseLine, paint)
-                startY += (charWidthAndHeight.height + mWordSpace) // 绘制完之后下一个字的开始位置就是现在的开始位置加上现在的字的高度和字间距
+                if((mGravity and GRAVITY_BOTTOM) == GRAVITY_BOTTOM){
+                    startY -= mWordSpace
+                }
+                else {
+                    startY += (charWidthAndHeight.height + mWordSpace) // 绘制完之后下一个字的开始位置就是现在的开始位置加上现在的字的高度和字间距
+                }
             }
-            if(mGravity == GRAVITY_LEFT) {
-                // 从左至右排版，下一行的开始位置在 本行开始位置 + 本行宽度 + 行间距
-                startX += line.width + mLineSpace
-            }
-            else{
+            if((mGravity and GRAVITY_RIGHT) == GRAVITY_RIGHT) {
                 // 从右至左排版，下一行的开始位置 - 行间距 - 下一行的宽度 （因为在当前行获取不到下一行的宽度，就只减一个行间距，下一行的宽度在下一行的循环开始获取）
                 startX -= mLineSpace
             }
-            startY = paddingTop.toFloat()
+            else{
+                // 从左至右排版，下一行的开始位置在 本行开始位置 + 本行宽度 + 行间距
+                startX += line.width + mLineSpace
+            }
+            startY = if((mGravity and GRAVITY_BOTTOM) == GRAVITY_BOTTOM) measuredHeight - paddingBottom.toFloat() else paddingTop.toFloat()
         }
     }
 
@@ -366,17 +313,17 @@ class VerticalTextView @JvmOverloads constructor(
         var startX = if(mGravity == GRAVITY_LEFT) paddingLeft.toFloat() else measuredWidth - paddingRight.toFloat()
         var startY = paddingTop.toFloat()
         var charWidthAndHeight: WidthAndHeight
-        val tempWidthAndHeight = getTempCharWidthAndHeight()
         var baseLine : Float
-        var charMaxWidth = tempWidthAndHeight.width
+        var lineText: String
         for (line in  mLineTexts){
             if(line == null || line.height <= 0){
                 continue
             }
+            lineText = line.text
             if(mGravity == GRAVITY_RIGHT){
-                line.reverse()
+                lineText = line.reverse()
             }
-            for (char in line.text){
+            for (char in lineText){
                 charWidthAndHeight = getCharWidthAndHeight(char)
                 if(mGravity == GRAVITY_RIGHT) {
                     startX -= charWidthAndHeight.width
@@ -396,7 +343,7 @@ class VerticalTextView @JvmOverloads constructor(
         }
     }
 
-    private fun getTempCharWidthAndHeight(): WidthAndHeight{
+    fun getTempCharWidthAndHeight(): WidthAndHeight{
         return getCharWidthAndHeight('正')
     }
 
@@ -415,7 +362,9 @@ class VerticalTextView @JvmOverloads constructor(
 
     companion object {
         private const val TAG = "VerticalTextView"
-        private const val GRAVITY_LEFT = 0
-        private const val GRAVITY_RIGHT = 1
+        private const val GRAVITY_LEFT = 0x00000001
+        private const val GRAVITY_RIGHT = 0x00000002
+        private const val GRAVITY_BOTTOM = 0x00000004
+        private const val GRAVITY_TOP = 0x00000008
     }
 }

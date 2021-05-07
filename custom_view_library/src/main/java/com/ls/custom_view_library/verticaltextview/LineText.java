@@ -54,8 +54,11 @@ public class LineText implements Cloneable{
         return widthAndHeight == null ? 0 : widthAndHeight.getHeight();
     }
 
-    public void reverse(){
-        text = text.reverse();
+    public String reverse(){
+        if(text != null) {
+             return new StringBuilder(text).reverse().toString();
+        }
+        return "";
     }
 
     public LineText clear(){

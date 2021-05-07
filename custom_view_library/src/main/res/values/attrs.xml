@@ -126,10 +126,14 @@
         <attr name="lineSpace" format="dimension|reference"/>
         <attr name="wordSpace" format="dimension|reference"/>
         <attr name="gravity">
-            <!-- 文字从左至右排版 -->
-            <flag name="l2r" value="0" />
-            <!-- 文字从右至左排版 -->
-            <flag name="r2l" value="1" />
+            <!-- 文字左对齐 -->
+            <flag name="left" value="0x00000001" />
+            <!-- 文字右对齐 -->
+            <flag name="right" value="0x00000002" />
+            <!-- 文字底对齐 -->
+            <flag name="bottom" value="0x00000004" />
+            <!-- 文字顶对齐 -->
+            <flag name="top" value="0x00000008" />
         </attr>
         <!-- 固定文字个数 -->
         <attr name="fixSize" format="integer"/>
