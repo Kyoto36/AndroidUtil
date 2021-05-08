@@ -15,6 +15,10 @@ public class ImageBean implements Parcelable {
         this.extend = extend;
     }
 
+    public ImageBean(Uri uri){
+        this.uri = uri;
+    }
+
     public ImageBean(){}
 
 

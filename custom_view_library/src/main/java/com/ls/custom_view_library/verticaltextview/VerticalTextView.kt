@@ -310,7 +310,7 @@ class VerticalTextView @JvmOverloads constructor(
     }
 
     private fun drawTextFormHorizontal(canvas: Canvas,paint: Paint){
-        var startX = if(mGravity == GRAVITY_LEFT) paddingLeft.toFloat() else measuredWidth - paddingRight.toFloat()
+        var startX: Float
         var startY = paddingTop.toFloat()
         var charWidthAndHeight: WidthAndHeight
         var baseLine : Float
@@ -320,26 +320,33 @@ class VerticalTextView @JvmOverloads constructor(
                 continue
             }
             lineText = line.text
-            if(mGravity == GRAVITY_RIGHT){
+            if((mGravity and GRAVITY_CENTER) == GRAVITY_CENTER || (mGravity and GRAVITY_CENTER_HORIZONTAL) == GRAVITY_CENTER_HORIZONTAL){
+                val diffSpace = ((measuredWidth - paddingLeft - paddingRight) - line.width)
+                startX = paddingLeft + (diffSpace / 2)
+            }
+            else if((mGravity and GRAVITY_RIGHT) == GRAVITY_RIGHT){
+                startX = measuredWidth - paddingRight.toFloat()
                 lineText = line.reverse()
+            }
+            else{
+                startX = paddingLeft.toFloat()
             }
             for (char in lineText){
                 charWidthAndHeight = getCharWidthAndHeight(char)
-                if(mGravity == GRAVITY_RIGHT) {
+                if((mGravity and GRAVITY_RIGHT) == GRAVITY_RIGHT && !((mGravity and GRAVITY_CENTER) == GRAVITY_CENTER || (mGravity and GRAVITY_CENTER_HORIZONTAL) == GRAVITY_CENTER_HORIZONTAL)) {
                     startX -= charWidthAndHeight.width
                 }
                 // 获取每个字的基线，如果去掉字体自带边距就是用descent 否则用bottom 配合 getCharWidthAndHeight
                 baseLine = charWidthAndHeight.height - (if(!mIncludePad) paint.fontMetrics.descent else paint.fontMetrics.bottom)
                 canvas.drawText(char.toString(), startX, startY + baseLine, paint)
-                if(mGravity == GRAVITY_LEFT) {
-                    startX += (charWidthAndHeight.width + mWordSpace) // 绘制完之后，下一个字的开始位置就是现在的开始位置加上现在的字的宽度和字间距
+                if((mGravity and GRAVITY_RIGHT) == GRAVITY_RIGHT && !((mGravity and GRAVITY_CENTER) == GRAVITY_CENTER || (mGravity and GRAVITY_CENTER_HORIZONTAL) == GRAVITY_CENTER_HORIZONTAL)) {
+                    startX -= mWordSpace // 绘制完之后，下一个字的开始位置就是现在的开始位置减去字间距
                 }
                 else{
-                    startX -= mWordSpace // 绘制完之后，下一个字的开始位置就是现在的开始位置减去字间距
+                    startX += (charWidthAndHeight.width + mWordSpace) // 绘制完之后，下一个字的开始位置就是现在的开始位置加上现在的字的宽度和字间距
                 }
             }
             startY += line.height + mLineSpace
-            startX = if(mGravity == GRAVITY_LEFT) paddingLeft.toFloat() else measuredWidth - paddingRight.toFloat()
         }
     }
 
@@ -366,5 +373,8 @@ class VerticalTextView @JvmOverloads constructor(
         private const val GRAVITY_RIGHT = 0x00000002
         private const val GRAVITY_BOTTOM = 0x00000004
         private const val GRAVITY_TOP = 0x00000008
+        private const val GRAVITY_CENTER = 0x00000010
+        private const val GRAVITY_CENTER_VERTICAL = 0x00000020
+        private const val GRAVITY_CENTER_HORIZONTAL = 0x00000040
     }
 }

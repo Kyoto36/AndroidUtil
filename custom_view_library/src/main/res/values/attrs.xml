@@ -134,6 +134,12 @@
             <flag name="bottom" value="0x00000004" />
             <!-- 文字顶对齐 -->
             <flag name="top" value="0x00000008" />
+            <!-- 居中对齐 -->
+            <flag name="center" value="0x00000010" />
+            <!-- 垂直居中对齐 -->
+            <flag name="center_vertical" value="0x00000020" />
+            <!-- 水平居中对齐 -->
+            <flag name="center_horizontal" value="0x00000040" />
         </attr>
         <!-- 固定文字个数 -->
         <attr name="fixSize" format="integer"/>

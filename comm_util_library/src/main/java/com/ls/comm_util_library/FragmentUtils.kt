@@ -11,6 +11,14 @@ import androidx.fragment.app.FragmentManager
  */
 class FragmentUtils {
     companion object {
+        fun <T: Fragment> getFragmentOrNull(fragmentManager: FragmentManager, fragmentClazz: Class<T>,tag: String = fragmentClazz.name): T?{
+            val fragment = fragmentManager.findFragmentByTag(tag)
+            if(fragment != null){
+                return fragment as T
+            }
+            return null
+        }
+
         fun <T : Fragment> getFragment(fragmentManager: FragmentManager, fragmentClazz: Class<T>,tag: String = fragmentClazz.name): T {
             var fragment = fragmentManager.findFragmentByTag(tag)
             if (fragment == null) {
