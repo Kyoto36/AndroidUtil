@@ -130,7 +130,7 @@ public class BitmapUtils {
         }
         try {
             OutputStream os = FileUtils.getOutputStreamByFile(path);
-            bitmap.compress(Bitmap.CompressFormat.PNG,75,os);
+            bitmap.compress(format,75,os);
             os.flush();
             os.close();
         } catch (FileNotFoundException e) {
@@ -149,6 +149,36 @@ public class BitmapUtils {
     public static Bitmap getBitmapFromAssets(Context context,String filePath){
         try {
             InputStream in = AndroidFileUtils.getInputStreamByAsset(context, filePath);
+            return BitmapFactory.decodeStream(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 根据路径获取图片
+     * @param path
+     * @return
+     */
+    public static Bitmap getBitmapFromPath(String path){
+        try {
+            InputStream in = FileUtils.getInputStreamByFile(path);
+            return BitmapFactory.decodeStream(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 根据文件获取图片
+     * @param file
+     * @return
+     */
+    public static Bitmap getBitmapFromFile(File file){
+        try {
+            InputStream in = FileUtils.getInputStreamByFile(file);
             return BitmapFactory.decodeStream(in);
         } catch (IOException e) {
             e.printStackTrace();
