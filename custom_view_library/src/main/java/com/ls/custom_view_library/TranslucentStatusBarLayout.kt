@@ -12,7 +12,7 @@ import com.ls.comm_util_library.getStatusHeight
 import com.ls.comm_util_library.setTranslucentStatusBar
 import java.lang.IllegalStateException
 
-class TranslucentStatusBarLayout @JvmOverloads constructor(
+open class TranslucentStatusBarLayout @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr){
     private var mStatusView: View
