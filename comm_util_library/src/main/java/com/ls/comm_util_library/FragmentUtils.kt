@@ -11,6 +11,8 @@ import androidx.fragment.app.FragmentManager
  */
 class FragmentUtils {
     companion object {
+
+        @JvmStatic
         fun <T: Fragment> getFragmentOrNull(fragmentManager: FragmentManager, fragmentClazz: Class<T>,tag: String = fragmentClazz.name): T?{
             val fragment = fragmentManager.findFragmentByTag(tag)
             if(fragment != null){
@@ -19,6 +21,7 @@ class FragmentUtils {
             return null
         }
 
+        @JvmStatic
         fun <T : Fragment> getFragment(fragmentManager: FragmentManager, fragmentClazz: Class<T>,tag: String = fragmentClazz.name): T {
             var fragment = fragmentManager.findFragmentByTag(tag)
             if (fragment == null) {
@@ -27,6 +30,7 @@ class FragmentUtils {
             return fragment!! as T
         }
 
+        @JvmStatic
         fun <T: Fragment> getFragment(fragmentManager: FragmentManager,fragmentClazz: Class<T>,tag: String = fragmentClazz.name,args: Any): T{
             var fragment = fragmentManager.findFragmentByTag(tag)
             if (fragment == null) {
@@ -35,6 +39,7 @@ class FragmentUtils {
             return fragment!! as T
         }
 
+        @JvmStatic
         fun <T: Fragment> replaceFragment(resId: Int,fragment: T,fragmentManager: FragmentManager,initListener: ((T) -> Unit)): T{
             val transaction = fragmentManager.beginTransaction()
             transaction.replace(resId,fragment)
@@ -43,16 +48,19 @@ class FragmentUtils {
             return fragment
         }
 
+        @JvmStatic
         fun <T: Fragment> removeFragment(fragment: T,fragmentManager: FragmentManager){
             val transaction = fragmentManager.beginTransaction()
             transaction.remove(fragment)
             transaction.commitNowAllowingStateLoss()
         }
 
+        @JvmStatic
         fun <T : Fragment> switchFragment(resId: Int, currentFragment: T?, fragment: T, fragmentManager: FragmentManager, initListener: ((T) -> Unit)): T {
             return switchFragment(resId, currentFragment, fragment, fragmentManager,0,0,0,0, initListener)
         }
 
+        @JvmStatic
         fun <T: Fragment> showFragment(resId: Int,fragment: T,fragmentManager: FragmentManager,initListener: ((T) -> Unit)): T{
             val transaction = fragmentManager.beginTransaction()
             if (!fragment.isAdded) {
@@ -64,6 +72,7 @@ class FragmentUtils {
             return fragment
         }
 
+        @JvmStatic
         fun <T: Fragment> hideFragment(fragment: T,fragmentManager: FragmentManager,enterAnim: Int, exitAnim: Int){
             val transaction = fragmentManager.beginTransaction()
             transaction.setCustomAnimations(enterAnim,exitAnim,0,0)
@@ -72,6 +81,7 @@ class FragmentUtils {
             }
         }
 
+        @JvmStatic
         fun <T : Fragment> switchFragment(resId: Int, currentFragment: T?, fragment: T, fragmentManager: FragmentManager,
                                           enterAnim: Int, exitAnim: Int, backEnterAnim: Int, backExitAnim: Int,
                                           initListener: ((T) -> Unit)): T {
