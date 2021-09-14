@@ -4,6 +4,7 @@ import android.util.SparseArray
 import android.util.SparseIntArray
 import android.util.SparseLongArray
 import androidx.core.util.set
+import com.ls.comm_util_library.DoubleData
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.locks.ReentrantReadWriteLock
@@ -15,16 +16,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
  * @Date: 2020/9/9 12:45
  */
 class StateMachine {
-    private val mCurrentState = SparseIntArray()
-    private val mStateNewest = SparseArray<Long>()
+    private val mCurrentState = SparseArray<DoubleData<Int, Long>>()
     private val mReadWriteLock = ReentrantReadWriteLock()
 
     fun updateState(index: Int,status: Int): Long{
         val time = System.currentTimeMillis()
         mReadWriteLock.writeLock().lock()
         try {
-            mCurrentState[index] = status
-            mStateNewest[status] = time
+            mCurrentState.put(index, DoubleData(status,time))
         } finally {
             mReadWriteLock.writeLock().unlock()
         }
@@ -35,9 +34,8 @@ class StateMachine {
         var result = false
         mReadWriteLock.readLock().lock()
         try {
-            if(mCurrentState[index] == status){
-                result = mStateNewest[status] == time
-            }
+            val state = mCurrentState[index]
+            result = (state.t == status) && (state.s == time)
         } finally {
             mReadWriteLock.readLock().unlock()
         }

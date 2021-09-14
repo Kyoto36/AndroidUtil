@@ -421,7 +421,7 @@ class RegionImageView : View {
     private fun RectF.toRect() = Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
 
 
-    private fun PointF.isInBitmap() = x in 0..bitmapWidth && y in 0..bitmapHeight
+    private fun PointF.isInBitmap() = x in 0.0F..bitmapWidth.toFloat() && y in 0.0f..bitmapHeight.toFloat()
 
     private operator fun PointF.plus(point: PointF) = PointF().apply {
         x = this@plus.x + point.x
