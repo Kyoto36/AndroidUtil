@@ -35,6 +35,10 @@ public class UtilActivityManager {
         return sInstance;
     }
 
+    public static void init(Application application){
+        get().registerActivityListener(application);
+    }
+
     public void registerActivityListener(Application application) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
@@ -53,7 +57,10 @@ public class UtilActivityManager {
 
                 @Override
                 public void onActivityResumed(Activity activity) {
-
+                    /**
+                     * 当一个Activity可见并聚焦时，设置为顶部Activity
+                     */
+                    setTopActivity(activity);
                 }
 
                 @Override
@@ -85,7 +92,24 @@ public class UtilActivityManager {
     }
 
     /**
+     * 设置最上层的activity
+     * android 14 以下调用
+     * @param activity
+     */
+    public static void setTopActivity(Activity activity){
+        List<Activity> list = get().mActivities;
+        if(activity == list.get(list.size() - 1)){
+            return;
+        }
+        if(list.contains(activity)){
+            list.remove(activity);
+        }
+        list.add(activity);
+    }
+
+    /**
      * 添加Activity
+     * android 14 以下调用
      * @param activity
      */
     public static void addActivity(Activity activity){
@@ -94,6 +118,7 @@ public class UtilActivityManager {
 
     /**
      * 移除Activity
+     * android 14 以下调用
      * @param activity
      */
     public static void removeActivity(Activity activity){
@@ -115,8 +140,9 @@ public class UtilActivityManager {
      * @return
      */
     public static List<Activity> existActivity(Class<? extends Activity> clazz){
+        List<Activity> list = get().mActivities;
         List<Activity> activities = new ArrayList<>();
-        for (Activity activity : get().mActivities){
+        for (Activity activity : list){
             if(activity.getClass().equals(clazz)){
                 activities.add(activity);
             }
@@ -137,12 +163,15 @@ public class UtilActivityManager {
      * @param clazz
      */
     public static void finishOther(Class<? extends Activity> clazz){
-        for (Activity activity: get().mActivities){
+        List<Activity> list = get().mActivities;
+        List<Activity> finishActivities = new ArrayList<>();
+        for (Activity activity: list){
             if(!activity.getClass().equals(clazz) && !activity.isFinishing()){
+                finishActivities.add(activity);
                 activity.finish();
             }
         }
-        clearFinishing();
+        list.removeAll(finishActivities);
     }
 
     /**
@@ -150,26 +179,15 @@ public class UtilActivityManager {
      * @param activity
      */
     public static void finishOther(Activity activity){
-        for (Activity item: get().mActivities){
+        List<Activity> list = get().mActivities;
+        List<Activity> finishActivities = new ArrayList<>();
+        for (Activity item: list){
             if(item != activity && !item.isFinishing()){
+                finishActivities.add(activity);
                 item.finish();
             }
         }
-        clearFinishing();
-    }
-
-    private static void clearFinishing(){
-        List<Integer> indexList = new ArrayList<>();
-        Activity activity;
-        for (int i = 0; i < get().mActivities.size(); i++){
-            activity = get().mActivities.get(i);
-            if(activity == null || activity.isFinishing()){
-                indexList.add(i);
-            }
-        }
-        for (int index : indexList){
-            get().mActivities.remove(index);
-        }
+        list.removeAll(finishActivities);
     }
 
     /**
@@ -177,35 +195,37 @@ public class UtilActivityManager {
      * @return
      */
     public static Activity finishResultTop(){
+        List<Activity> list = get().mActivities;
         Activity activity = null;
-        while (get().mActivities.size() > 0) {
-            activity = get().mActivities.removeFirst();
+        while (list.size() > 0) {
+            activity = list.get(list.size() - 1);
             if(activity != null && !activity.isFinishing()){
                 break;
             }
         }
-        for (Activity item: get().mActivities){
+        for (Activity item: list){
             if(!item.isFinishing()){
                 item.finish();
             }
         }
-        get().mActivities.clear();
+        list.clear();
         return activity;
     }
 
     /**
-     * 获取
+     * 获取最上层的activity
      * @return
      */
     public static Activity getTopActivity(){
+        List<Activity> list = get().mActivities;
         Activity activity = null;
-        while (get().mActivities.size() > 0) {
-            activity = get().mActivities.getFirst();
+        while (list.size() > 0) {
+            activity = list.get(list.size() - 1);
             if(activity != null && !activity.isFinishing()){
                 break;
             }
             else{
-                get().mActivities.removeFirst();
+                list.remove(activity);
             }
         }
         return activity;
@@ -228,7 +248,8 @@ public class UtilActivityManager {
      * @param activity 当前activity
      */
     public static void exitAllActivity(Activity activity){
-        for (Activity item : get().mActivities){
+        List<Activity> list = get().mActivities;
+        for (Activity item : list){
             if(item != activity && !item.isFinishing()) {
                 item.finish();
             }
@@ -236,8 +257,8 @@ public class UtilActivityManager {
         if(!activity.isFinishing()) {
             activity.finish();
         }
-        get().mActivities.clear();
+        list.clear();
     }
 
-    private LinkedList<Activity> mActivities = new LinkedList<>();
+    private final List<Activity> mActivities = new ArrayList<>();
 }
